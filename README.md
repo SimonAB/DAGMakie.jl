@@ -1,5 +1,8 @@
 # DAGMakie.jl
 
+[![CI](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/CI.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > ⚠️ **Work in Progress** — This package is under active development and not yet registered.
 
 Publication-ready visualisation of Directed Acyclic Graphs (DAGs) for causal inference.
