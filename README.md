@@ -1,6 +1,9 @@
 # DAGMakie.jl
 
 [![CI](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/CI.yml)
+[![Documentation](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/Documentation.yml/badge.svg)](https://SimonAB.github.io/DAGMakie.jl/dev/)
+[![codecov](https://codecov.io/gh/SimonAB/DAGMakie.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/SimonAB/DAGMakie.jl)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > ⚠️ **Work in Progress** — This package is under active development and not yet registered.
