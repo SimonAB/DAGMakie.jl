@@ -1,0 +1,155 @@
+"""
+    DAGMakie.jl
+
+Publication-ready visualisation of Directed Acyclic Graphs (DAGs) for causal inference.
+
+DAGMakie provides clean, minimal DAG visualisation with sensible defaults for
+academic papers and presentations. It builds on GraphMakie.jl with features
+specifically designed for causal diagrams.
+
+# Features
+
+- **Automatic label alignment**: Labels positioned to avoid edge overlaps
+- **Publication-ready themes**: Clean styling with no axes or grids
+- **Causal diagram conventions**: Support for observed, latent, and intervention nodes
+- **Common patterns**: Convenience functions for chain, fork, collider, confounding DAGs
+
+# Quick Start
+
+```julia
+using Graphs, DAGMakie, CairoMakie
+
+# Create a simple confounding DAG
+g = SimpleDiGraph(3)
+add_edge!(g, 1, 2)  # Z → X
+add_edge!(g, 1, 3)  # Z → Y
+add_edge!(g, 2, 3)  # X → Y
+
+# Plot with labels
+fig, ax, p = dagplot(g, nlabels=["Z", "X", "Y"])
+save("confounding_dag.png", fig)
+```
+
+# Main Functions
+
+- `dagplot(g; kwargs...)` - Create a new figure with DAG plot
+- `dagplot!(ax, g; kwargs...)` - Plot DAG into existing axis
+- `compute_auto_label_aligns(g, positions)` - Compute optimal label positions
+- `dag_theme()` - Get publication-ready Makie theme
+
+# Convenience Patterns
+
+- `dagplot_chain(labels)` - X₁ → X₂ → ... → Xₙ
+- `dagplot_fork(labels)` - X ← Y → Z
+- `dagplot_collider(labels)` - X → Y ← Z
+- `dagplot_confounding(labels)` - Z → X → Y, Z → Y
+- `dagplot_mediation(labels)` - X → M → Y, X → Y
+
+See the documentation for full details and examples.
+"""
+module DAGMakie
+
+using Reexport
+
+# Dependencies
+using Graphs
+using Makie
+using GraphMakie
+using NetworkLayout
+
+# Re-export useful types from dependencies
+@reexport using Graphs: SimpleDiGraph, DiGraph, add_edge!, has_edge, nv, ne
+
+# Include source files
+include("types.jl")
+include("auto_align.jl")
+include("layout.jl")
+include("themes.jl")
+include("utils.jl")
+include("bidirected.jl")
+include("node_styling.jl")
+include("paths.jl")
+include("highlighting.jl")
+include("interventions.jl")
+include("dagplot.jl")
+
+# =============================================================================
+# Exports
+# =============================================================================
+
+# Main plotting functions
+export dagplot, dagplot!
+
+# Convenience pattern functions
+export dagplot_chain, dagplot_fork, dagplot_collider
+export dagplot_confounding, dagplot_mediation
+export dagplot_confounded, dagplot_frontdoor, dagplot_iv_confounded, dagplot_m_bias
+
+# Auto-alignment
+export compute_auto_label_aligns
+export align_to_direction
+
+# Layout utilities
+export estimate_label_extent, compute_label_bounds, compute_padded_limits
+
+# Themes and styling
+export dag_theme
+export DAGStyle, default_style, minimal_style, bold_style, presentation_style
+export apply_dag_theme!
+
+# Types
+export NodeType, Observed, Latent, Treatment, Outcome, Instrument, Confounder, Mediator, Collider
+export NodeSpec, EdgeSpec, DAGSpec
+export EdgeType, Directed, Bidirected, Undirected
+export node, edge
+export default_node_color, default_node_marker, default_node_strokewidth
+
+# Node type styling
+export node_type_marker, node_type_color, node_type_strokewidth, node_type_strokecolor
+export apply_node_type_styling
+export typed_confounding_graph, typed_mediation_graph, typed_instrumental_graph, typed_collider_graph
+
+# Utilities
+export get_node_positions, graph_extent, is_dag, edge_list
+export adjacency_to_graph, graph_from_edges
+export chain_graph, fork_graph, collider_graph, confounding_graph, mediation_graph, instrumental_graph
+
+# Bidirected edges / Mixed graphs
+export MixedGraph, mixed_graph
+export add_directed_edge!, add_bidirected_edge!
+export has_bidirected_edge, bidirected_edges, num_bidirected_edges
+export compute_bidirected_path, compute_all_bidirected_paths, bidirected_arrow_positions
+export confounded_graph, frontdoor_graph, iv_confounded_graph, m_bias_graph
+
+# Paths and d-separation
+export CausalPath, PathSegment
+export path_edges, is_directed_path
+export find_all_paths, find_directed_paths, find_backdoor_paths
+export is_backdoor_path, is_collider
+export is_d_separated, d_separated_from
+export ancestors, descendants
+export is_valid_adjustment_set, blocks_all_backdoor_paths
+export find_minimal_adjustment_set, list_all_adjustment_sets
+
+# Highlighting
+export HighlightSpec
+export highlight_from_path, highlight_from_paths
+export highlight_adjustment_set, highlight_backdoor_paths
+export dagplot_highlighted, dagplot_highlighted!
+export dagplot_backdoor, dagplot_dsep, dagplot_causal_paths, dagplot_adjustment
+
+# Interventions (do-operator)
+export Intervention, CausalQuery
+export do_surgery, do_surgery!
+export causal_effect_identifiable, intervention_removes_confounding
+export identify_confounders, has_path_through
+export intervention_label, format_intervention_labels
+export dagplot_intervention, dagplot_intervention!
+export dagplot_do, dagplot_comparison, dagplot_do_comparison
+export query_identifiable, query_to_string
+
+# Constants
+export DEFAULT_NODE_SIZE, DEFAULT_NODE_COLOR, DEFAULT_EDGE_COLOR
+export DEFAULT_LABEL_FONTSIZE, DEFAULT_LABEL_DISTANCE
+
+end # module
