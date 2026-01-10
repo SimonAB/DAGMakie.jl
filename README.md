@@ -433,10 +433,10 @@ MIT License — see [LICENSE](LICENSE) for details.
 If you use DAGMakie.jl in your research, please cite:
 
 ```bibtex
-@software{dagmakie2025,
+@software{dagmakie2026,
   author = {Babayan, Simon A.},
   title = {DAGMakie.jl: Publication-ready DAG visualisation for Julia},
-  year = {2025},
+  year = {2026},
   url = {https://github.com/SimonAB/DAGMakie.jl}
 }
 ```
