@@ -133,6 +133,14 @@
         
         fig, ax, p = dagplot_adjustment(g, 2, 3, nlabels = ["Z", "X", "Y"])
         @test fig isa Makie.Figure
+
+        fig, ax, p = dagplot_adjustment(g, 2, 3,
+            show_backdoor = false,
+            nlabels = ["Z", "X", "Y"]
+        )
+        @test fig isa Makie.Figure
+        first_colour = first(p[:edge_color][])
+        @test all(colour -> colour == first_colour, p[:edge_color][])
     end
     
     @testset "No backdoor paths" begin

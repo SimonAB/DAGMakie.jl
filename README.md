@@ -8,15 +8,17 @@
 
 > ⚠️ **Work in Progress** — This package is under active development and not yet registered.
 
-Publication-ready visualisation of Directed Acyclic Graphs (DAGs) for causal inference.
+Publication-ready visualisation of directed acyclic, directed cyclic, and mixed causal graphs for causal inference.
 
 DAGMakie provides clean, minimal DAG visualisation with sensible defaults for academic papers and presentations. It builds on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl) with features specifically designed for causal diagrams.
 
 ## Features
 
 - **Automatic label alignment**: Labels positioned to avoid edge overlaps
+- **Deterministic layered DAG layout**: Acyclic graphs default to a fast layered layout rather than a generic spring layout
+- **SCC-aware cyclic layout**: Directed feedback loops are grouped and routed as explicit curved feedback edges
 - **Publication-ready themes**: Clean styling with no axes or grids
-- **Causal diagram conventions**: Support for observed, latent, treatment, and outcome nodes
+- **Causal diagram conventions**: Support for observed, latent, treatment, outcome, and bidirected confounding edges
 - **Common patterns**: Convenience functions for chain, fork, collider, confounding DAGs
 - **Style presets**: Default, minimal, bold, and presentation styles
 
@@ -277,7 +279,9 @@ style = presentation_style()  # Extra large for slides
 ### Keyword Arguments
 
 #### Layout
-- `layout = Spring()` — Layout algorithm from NetworkLayout.jl
+
+- `layout_mode = :auto` — Use the layered DAG layout for acyclic graphs and the SCC-aware cyclic layout for feedback graphs
+- `layout = ...` — Override node positions directly, or pass a `NetworkLayout.jl` layout such as `Spring()` when you want a force-directed layout
 - `padding = 0.1` — Padding around graph (fraction of range)
 
 #### Nodes

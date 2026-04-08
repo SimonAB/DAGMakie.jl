@@ -123,15 +123,15 @@ Preset styling configuration for DAG visualisation.
 """
 struct DAGStyle
     node_size::Real
-    node_color::Symbol
+    node_color
     node_strokewidth::Real
-    node_strokecolor::Symbol
-    edge_color::Symbol
+    node_strokecolor
+    edge_color
     edge_width::Real
     arrow_size::Real
     arrow_shift::Union{Symbol, Real}
     label_fontsize::Real
-    label_color::Symbol
+    label_color
     label_distance::Real
     padding::Float64
 end

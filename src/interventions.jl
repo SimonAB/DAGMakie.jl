@@ -289,19 +289,33 @@ function dagplot_intervention!(
     g::AbstractGraph, 
     intervention::Intervention;
     # Layout
-    layout = Spring(),
-    padding::Float64 = DEFAULT_PADDING,
+    layout = nothing,
+    padding = nothing,
+    style::Union{Nothing, DAGStyle} = nothing,
     # Styling
-    node_size = DEFAULT_NODE_SIZE,
-    node_color = DEFAULT_NODE_COLOR,
+    node_size = nothing,
+    node_color = nothing,
+    node_strokewidth = nothing,
+    node_strokecolor = nothing,
+    node_marker = nothing,
     intervention_color = :orange,
-    edge_color = DEFAULT_EDGE_COLOR,
+    edge_color = nothing,
+    edge_width = nothing,
+    edge_linestyle = nothing,
+    arrow_size = nothing,
+    arrow_shift = nothing,
+    waypoints = nothing,
     removed_edge_color = :lightgray,
+    removed_edge_width = nothing,
     removed_edge_style = :dash,
     # Labels
     nlabels = nothing,
-    nlabels_fontsize = DEFAULT_LABEL_FONTSIZE,
+    nlabels_align = DEFAULT_LABEL_ALIGN,
+    nlabels_distance = nothing,
+    nlabels_fontsize = nothing,
+    nlabels_color = nothing,
     auto_align_labels = true,
+    show_original::Bool = true,
     kwargs...
 )
     # Apply intervention
@@ -317,7 +331,9 @@ function dagplot_intervention!(
     
     # Build node colors
     n = nv(g)
-    node_colors = fill(node_color, n)
+    style_config = _resolve_style(style)
+    base_node_color = something(node_color, style_config.node_color)
+    node_colors = _fill_attribute(base_node_color, n)
     for node in intervention.nodes
         if node >= 1 && node <= n
             node_colors[node] = intervention_color
@@ -333,26 +349,57 @@ function dagplot_intervention!(
     p = dagplot!(ax, g_do;
         layout = layout,
         padding = padding,
+        style = style,
         node_size = node_size,
         node_color = node_colors,
+        node_strokewidth = node_strokewidth,
+        node_strokecolor = node_strokecolor,
+        node_marker = node_marker,
         edge_color = edge_color,
+        edge_width = edge_width,
+        edge_linestyle = edge_linestyle,
+        arrow_size = arrow_size,
+        arrow_shift = arrow_shift,
+        waypoints = waypoints,
         nlabels = nlabels,
+        nlabels_align = nlabels_align,
+        nlabels_distance = nlabels_distance,
         nlabels_fontsize = nlabels_fontsize,
+        nlabels_color = nlabels_color,
         auto_align_labels = auto_align_labels,
         kwargs...
     )
     
     # Optionally show removed edges as dashed
-    if !isempty(removed_edges)
-        positions = p[:node_pos][]
-        for (s, d) in removed_edges
-            p1, p2 = Point2f(positions[s]), Point2f(positions[d])
-            lines!(ax, [p1, p2];
-                color = removed_edge_color,
-                linestyle = removed_edge_style,
-                linewidth = 1.0
-            )
+    if show_original && !isempty(removed_edges)
+        resolved_node_size = _fill_attribute(something(node_size, style_config.node_size), n)
+        resolved_node_marker = _fill_attribute(something(node_marker, :circle), n)
+        edge_lookup = _edge_index_lookup(g)
+        base_edge_widths = _fill_attribute(something(edge_width, style_config.edge_width), ne(g))
+        base_arrow_sizes = _fill_attribute(something(arrow_size, style_config.arrow_size), ne(g))
+        base_arrow_shifts = _fill_attribute(something(arrow_shift, style_config.arrow_shift), ne(g))
+        overlay_widths = if removed_edge_width === nothing
+            _overlay_values(nothing, removed_edges, edge_lookup, base_edge_widths)
+        else
+            _fill_attribute(removed_edge_width, length(removed_edges))
         end
+        overlay_arrow_sizes = _overlay_values(nothing, removed_edges, edge_lookup, base_arrow_sizes)
+        overlay_arrow_shifts = _overlay_values(nothing, removed_edges, edge_lookup, base_arrow_shifts)
+
+        _plot_directed_overlay!(
+            ax,
+            removed_edges,
+            Point2f.(p[:node_pos][]);
+            node_sizes = resolved_node_size,
+            node_markers = resolved_node_marker,
+            edge_colours = fill(removed_edge_color, length(removed_edges)),
+            edge_widths = overlay_widths,
+            edge_linestyles = fill(removed_edge_style, length(removed_edges)),
+            arrow_sizes = overlay_arrow_sizes,
+            arrow_shifts = overlay_arrow_shifts,
+            waypoints = [Point2f[] for _ in removed_edges],
+            to_px = p[:to_px][],
+        )
     end
     
     # Set title
@@ -395,15 +442,30 @@ function dagplot_comparison(
     kwargs...
 )
     fig = Figure(size = figure_size)
-    
+
+    shared_layout = compute_graph_layout(
+        g;
+        layout = haskey(kwargs, :layout) ? kwargs[:layout] : nothing,
+        layout_mode = haskey(kwargs, :layout_mode) ? kwargs[:layout_mode] : :auto,
+        orientation = haskey(kwargs, :orientation) ? kwargs[:orientation] : :lr,
+        layer_gap = haskey(kwargs, :layer_gap) ? kwargs[:layer_gap] : 2.6,
+        node_gap = haskey(kwargs, :node_gap) ? kwargs[:node_gap] : 1.8,
+        component_gap = haskey(kwargs, :component_gap) ? kwargs[:component_gap] : 3.2,
+        scc_radius = haskey(kwargs, :scc_radius) ? kwargs[:scc_radius] : 0.9,
+        feedback_curvature = haskey(kwargs, :feedback_curvature) ? kwargs[:feedback_curvature] : 0.75,
+    ).positions
+
+    original_kwargs = _merge_default_kwargs(kwargs, (layout = shared_layout, nlabels = nlabels))
+    intervention_kwargs = _merge_default_kwargs(kwargs, (layout = shared_layout, nlabels = nlabels))
+
     # Original DAG
     ax1 = Axis(fig[1, 1], title = "Original")
-    dagplot!(ax1, g; nlabels = nlabels, kwargs...)
-    
+    dagplot!(ax1, g; original_kwargs...)
+
     # Post-intervention DAG
     ax2 = Axis(fig[1, 2], title = intervention.label)
-    dagplot_intervention!(ax2, g, intervention; nlabels = nlabels, kwargs...)
-    
+    dagplot_intervention!(ax2, g, intervention; intervention_kwargs...)
+
     return fig
 end
 

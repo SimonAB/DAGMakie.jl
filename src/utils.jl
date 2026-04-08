@@ -3,6 +3,8 @@ Utility functions for DAGMakie.jl
 """
 
 using Graphs: AbstractGraph, nv, ne, edges, src, dst, has_edge
+using LinearAlgebra: norm
+using Makie: Point2f
 
 """
     apply_dag_theme!(ax)
@@ -153,6 +155,134 @@ function graph_from_edges(n::Int, edge_pairs::Vector{Tuple{Int, Int}})
         Graphs.add_edge!(g, s, d)
     end
     return g
+end
+
+"""
+    pixel_delta_to_data(delta_px, to_px)
+
+Convert a pixel-space offset into a data-space offset for the current axis.
+"""
+function pixel_delta_to_data(delta_px::Point2f, to_px)
+    origin_px = to_px(Point2f(0, 0))
+    unit_x_px = to_px(Point2f(1, 0))
+    unit_y_px = to_px(Point2f(0, 1))
+
+    scale_x = Float64(unit_x_px[1] - origin_px[1])
+    scale_y = Float64(unit_y_px[2] - origin_px[2])
+
+    safe_scale_x = abs(scale_x) > 1e-6 ? scale_x : 1.0
+    safe_scale_y = abs(scale_y) > 1e-6 ? scale_y : 1.0
+
+    return Point2f(delta_px[1] / safe_scale_x, delta_px[2] / safe_scale_y)
+end
+
+"""
+    polyline_point_at_distance(path, distance_px, to_px; from_start=true)
+
+Return the point `distance_px` pixels along a polyline.
+"""
+function polyline_point_at_distance(
+    path::AbstractVector,
+    distance_px::Real,
+    to_px;
+    from_start::Bool = true,
+)
+    @assert length(path) >= 2 "A polyline requires at least two points."
+
+    ordered_path = from_start ? collect(path) : reverse(collect(path))
+    remaining = Float64(distance_px)
+
+    for index in 1:(length(ordered_path) - 1)
+        p1 = Point2f(ordered_path[index])
+        p2 = Point2f(ordered_path[index + 1])
+        segment_px = to_px(p2) - to_px(p1)
+        segment_length_px = norm(segment_px)
+
+        if segment_length_px <= 1e-6
+            continue
+        end
+
+        if remaining <= segment_length_px
+            fraction = remaining / segment_length_px
+            return p1 + fraction * (p2 - p1)
+        end
+
+        remaining -= segment_length_px
+    end
+
+    return Point2f(ordered_path[end])
+end
+
+"""
+    trim_polyline(path, start_distance_px, end_distance_px, to_px)
+
+Trim a polyline by pixel distances from the start and end.
+"""
+function trim_polyline(
+    path::AbstractVector,
+    start_distance_px::Real,
+    end_distance_px::Real,
+    to_px,
+)
+    @assert length(path) >= 2 "A polyline requires at least two points."
+
+    ordered_points = Point2f.(path)
+    trimmed_points = Point2f[
+        polyline_point_at_distance(ordered_points, start_distance_px, to_px; from_start = true),
+    ]
+
+    traversed = 0.0
+    full_length = polyline_length_px(ordered_points, to_px)
+    stop_length = max(full_length - Float64(end_distance_px), Float64(start_distance_px))
+
+    for index in 1:(length(ordered_points) - 1)
+        p1 = ordered_points[index]
+        p2 = ordered_points[index + 1]
+        segment_length_px = norm(to_px(p2) - to_px(p1))
+        next_traversed = traversed + segment_length_px
+
+        if next_traversed < start_distance_px
+            traversed = next_traversed
+            continue
+        end
+
+        if traversed > stop_length
+            break
+        end
+
+        if traversed >= start_distance_px && next_traversed <= stop_length
+            push!(trimmed_points, p2)
+        else
+            local_distance = max(stop_length - traversed, 0.0)
+            if local_distance <= segment_length_px
+                fraction = segment_length_px <= 1e-6 ? 0.0 : local_distance / segment_length_px
+                push!(trimmed_points, p1 + fraction * (p2 - p1))
+                break
+            end
+        end
+
+        traversed = next_traversed
+    end
+
+    end_point = polyline_point_at_distance(ordered_points, end_distance_px, to_px; from_start = false)
+    if isempty(trimmed_points) || norm(trimmed_points[end] - end_point) > 1e-6
+        push!(trimmed_points, end_point)
+    end
+
+    return trimmed_points
+end
+
+"""
+    polyline_length_px(path, to_px)
+
+Compute the pixel length of a polyline.
+"""
+function polyline_length_px(path::AbstractVector, to_px)
+    total_length = 0.0
+    for index in 1:(length(path) - 1)
+        total_length += norm(to_px(Point2f(path[index + 1])) - to_px(Point2f(path[index])))
+    end
+    return total_length
 end
 
 """

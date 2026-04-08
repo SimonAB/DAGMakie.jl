@@ -68,6 +68,80 @@
         fig, ax, p = dagplot(spec)
         @test fig isa Makie.Figure
     end
+
+    @testset "automatic layout strategy" begin
+        g = SimpleDiGraph(6)
+        add_edge!(g, 1, 3)
+        add_edge!(g, 2, 3)
+        add_edge!(g, 3, 4)
+        add_edge!(g, 3, 5)
+        add_edge!(g, 5, 6)
+
+        result = compute_graph_layout(g)
+        @test result.kind == :acyclic
+        @test all(result.positions[src(edge)][1] < result.positions[dst(edge)][1] for edge in edges(g))
+
+        cyclic = SimpleDiGraph(4)
+        add_edge!(cyclic, 1, 2)
+        add_edge!(cyclic, 2, 1)
+        add_edge!(cyclic, 2, 3)
+        add_edge!(cyclic, 3, 4)
+
+        cyclic_result = compute_graph_layout(cyclic)
+        @test cyclic_result.kind == :cyclic
+        @test Set(cyclic_result.feedback_edges) == Set([(1, 2), (2, 1)])
+        @test haskey(cyclic_result.edge_waypoints, (1, 2))
+        @test haskey(cyclic_result.edge_waypoints, (2, 1))
+    end
+
+    @testset "feedback overlay geometry" begin
+        edge_pairs = [(1, 2)]
+        positions = [Makie.Point2f(-1, 0), Makie.Point2f(1, 0)]
+        fig, ax, p = dagplot(
+            graph_from_edges(2, edge_pairs);
+            layout = positions,
+            node_size = 20,
+        )
+
+        geometry = DAGMakie.compute_feedback_geometry(
+            edge_pairs,
+            positions,
+            fill(:circle, 2),
+            fill(20, 2),
+            [[Makie.Point2f(0, 1.4)]],
+            p[:to_px][];
+            arrow_size = [10],
+            arrow_shift = [:end],
+        )
+
+        path = only(geometry.paths)
+        @test length(path) > 10
+        @test first(path) != positions[1]
+        @test last(path) != positions[2]
+        @test maximum(point[2] for point in path) > 0.6
+        @test only(geometry.arrow_positions) == last(path)
+    end
+
+    @testset "dagplot with fully styled DAGSpec" begin
+        g = SimpleDiGraph(3)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+
+        nodes = [
+            NodeSpec("Instrument"; type = Instrument, marker = :diamond, color = :pink, size = 18),
+            NodeSpec("Treatment"; type = Treatment),
+            NodeSpec("Outcome"; type = Outcome),
+        ]
+        edges = [EdgeSpec(1, 2; color = :red, width = 2.5, style = :dash)]
+        spec = DAGSpec(g, nodes, edges, "Styled DAG")
+
+        fig, ax, p = dagplot(spec)
+        @test fig isa Makie.Figure
+        @test ax.title[] == "Styled DAG"
+        @test p[:node_marker][][1] == :diamond
+        @test p[:edge_color][][1] == :red
+        @test p[:edge_linestyle][][1] == :dash
+    end
     
     @testset "Convenience pattern functions" begin
         # Chain

@@ -43,14 +43,14 @@ Specification for a single node in a DAG.
 # Fields
 - `label::String`: Display label for the node
 - `type::NodeType`: Type of node (determines styling)
-- `color::Union{Symbol, Nothing}`: Override colour (nothing = use type default)
+- `color`: Override colour (`nothing` = use type default)
 - `size::Union{Real, Nothing}`: Override size (nothing = use default)
 - `marker::Union{Symbol, Char, Nothing}`: Override marker shape
 """
 struct NodeSpec
     label::String
     type::NodeType
-    color::Union{Symbol, Nothing}
+    color
     size::Union{Real, Nothing}
     marker::Union{Symbol, Char, Nothing}
 end
@@ -69,7 +69,7 @@ NodeSpec("A", type=Treatment, color=:blue)  # Treatment with custom colour
 """
 function NodeSpec(label::AbstractString; 
     type::NodeType = Observed,
-    color::Union{Symbol, Nothing} = nothing,
+    color = nothing,
     size::Union{Real, Nothing} = nothing,
     marker::Union{Symbol, Char, Nothing} = nothing
 )
@@ -105,7 +105,7 @@ Specification for a single edge in a DAG.
 - `src::Int`: Source node index
 - `dst::Int`: Destination node index
 - `type::EdgeType`: Type of edge
-- `color::Union{Symbol, String, Nothing}`: Override colour
+- `color`: Override colour
 - `width::Union{Real, Nothing}`: Override line width
 - `style::Union{Symbol, Nothing}`: Line style (:solid, :dash, :dot, etc.)
 - `label::Union{String, Nothing}`: Optional edge label
@@ -114,7 +114,7 @@ struct EdgeSpec
     src::Int
     dst::Int
     type::EdgeType
-    color::Union{Symbol, String, Nothing}
+    color
     width::Union{Real, Nothing}
     style::Union{Symbol, Nothing}
     label::Union{String, Nothing}
@@ -134,7 +134,7 @@ EdgeSpec(1, 2, style=:dash)  # Dashed edge
 """
 function EdgeSpec(src::Int, dst::Int;
     type::EdgeType = Directed,
-    color::Union{Symbol, String, Nothing} = nothing,
+    color = nothing,
     width::Union{Real, Nothing} = nothing,
     style::Union{Symbol, Nothing} = nothing,
     label::Union{String, Nothing} = nothing

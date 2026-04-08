@@ -5,9 +5,8 @@ Provides `dagplot` and `dagplot!` functions for creating publication-ready
 causal diagram visualisations with sensible defaults.
 """
 
-using Makie: Figure, Axis, xlims!, ylims!, tightlimits!, lines!, scatter!, Billboard
-using GraphMakie: graphplot!
-using NetworkLayout: Spring
+using Makie: Figure, Axis, xlims!, ylims!, tightlimits!, lines!, scatter!, RGBAf, Point2f
+using GraphMakie: graphplot!, Arrow, distance_between_markers
 
 """
     dagplot(g; kwargs...)
@@ -129,107 +128,191 @@ dagplot!(ax3, g3, nlabels=["P", "Q", "R"])
 """
 function dagplot!(ax, g::Graphs.AbstractGraph;
     # Layout
-    layout = Spring(),
-    padding::Float64 = DEFAULT_PADDING,
+    layout = nothing,
+    layout_mode::Symbol = :auto,
+    orientation::Symbol = :lr,
+    layer_gap::Real = 2.6,
+    node_gap::Real = 1.8,
+    component_gap::Real = 3.2,
+    scc_radius::Real = 0.9,
+    feedback_curvature::Real = 0.75,
+    padding = nothing,
+    style::Union{Nothing, DAGStyle} = nothing,
+    title = nothing,
     # Nodes
-    node_size = DEFAULT_NODE_SIZE,
-    node_color = DEFAULT_NODE_COLOR,
-    node_strokewidth = DEFAULT_NODE_STROKEWIDTH,
-    node_strokecolor = DEFAULT_NODE_STROKECOLOR,
-    node_marker = :circle,
+    node_size = nothing,
+    node_color = nothing,
+    node_strokewidth = nothing,
+    node_strokecolor = nothing,
+    node_marker = nothing,
     # Edges
-    edge_color = DEFAULT_EDGE_COLOR,
-    edge_width = DEFAULT_EDGE_WIDTH,
-    arrow_size = DEFAULT_ARROW_SIZE,
-    arrow_shift = DEFAULT_ARROW_SHIFT,
+    edge_color = nothing,
+    edge_width = nothing,
+    edge_linestyle = nothing,
+    feedback_color = nothing,
+    feedback_width = nothing,
+    feedback_linestyle = nothing,
+    arrow_size = nothing,
+    arrow_shift = nothing,
+    waypoints = nothing,
     # Labels
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
     auto_align_labels = true,
-    nlabels_distance = DEFAULT_LABEL_DISTANCE,
-    nlabels_fontsize = DEFAULT_LABEL_FONTSIZE,
-    nlabels_color = DEFAULT_LABEL_COLOR,
+    nlabels_distance = nothing,
+    nlabels_fontsize = nothing,
+    nlabels_color = nothing,
     # Pass-through
     kwargs...
 )
-    # Determine if we should use GraphMakie's nlabels_auto_align
-    # (requires our fork or upstream integration)
-    use_graphmakie_auto_align = auto_align_labels && nlabels !== nothing
-    
-    # Plot the graph using GraphMakie
-    p = graphplot!(ax, g;
+    style_config = _resolve_style(style)
+
+    resolved_padding = something(padding, style_config.padding)
+    resolved_node_size = something(node_size, style_config.node_size)
+    resolved_node_color = something(node_color, style_config.node_color)
+    resolved_node_strokewidth = something(node_strokewidth, style_config.node_strokewidth)
+    resolved_node_strokecolor = something(node_strokecolor, style_config.node_strokecolor)
+    resolved_node_marker = something(node_marker, :circle)
+    resolved_edge_color = something(edge_color, style_config.edge_color)
+    resolved_edge_width = something(edge_width, style_config.edge_width)
+    resolved_edge_linestyle = something(edge_linestyle, :solid)
+    resolved_arrow_size = something(arrow_size, style_config.arrow_size)
+    resolved_arrow_shift = something(arrow_shift, style_config.arrow_shift)
+    resolved_label_distance = something(nlabels_distance, style_config.label_distance)
+    resolved_label_fontsize = something(nlabels_fontsize, style_config.label_fontsize)
+    resolved_label_color = something(nlabels_color, style_config.label_color)
+
+    node_count = Graphs.nv(g)
+    edge_count = Graphs.ne(g)
+    node_sizes = _fill_attribute(resolved_node_size, node_count)
+    node_colours = _fill_attribute(resolved_node_color, node_count)
+    node_strokewidths = _fill_attribute(resolved_node_strokewidth, node_count)
+    node_strokecolours = _fill_attribute(resolved_node_strokecolor, node_count)
+    node_markers = _fill_attribute(resolved_node_marker, node_count)
+    edge_colours = _fill_attribute(resolved_edge_color, edge_count)
+    edge_widths = _fill_attribute(resolved_edge_width, edge_count)
+    edge_linestyles = _fill_attribute(resolved_edge_linestyle, edge_count)
+    edge_arrow_sizes = _fill_attribute(resolved_arrow_size, edge_count)
+    edge_arrow_shifts = _fill_attribute(resolved_arrow_shift, edge_count)
+
+    layout_result = compute_graph_layout(
+        g;
         layout = layout,
-        node_size = node_size,
-        node_color = node_color,
-        node_strokewidth = node_strokewidth,
-        node_strokecolor = node_strokecolor,
-        node_marker = node_marker,
-        edge_color = edge_color,
-        edge_width = edge_width,
-        arrow_size = arrow_size,
-        arrow_shift = arrow_shift,
+        layout_mode = layout_mode,
+        orientation = orientation,
+        layer_gap = layer_gap,
+        node_gap = node_gap,
+        component_gap = component_gap,
+        scc_radius = scc_radius,
+        feedback_curvature = feedback_curvature,
+    )
+
+    edge_lookup = _edge_index_lookup(g)
+    feedback_mask = feedback_edge_mask(g, layout_result)
+    user_waypoints = _materialise_waypoints(g, waypoints)
+    base_waypoints = [
+        feedback_mask[index] ? Point2f[] : user_waypoints[index]
+        for index in 1:edge_count
+    ]
+    base_edge_colours = any(feedback_mask) ? Any[edge_colours...] : copy(edge_colours)
+    base_edge_widths = copy(edge_widths)
+    for index in eachindex(feedback_mask)
+        if feedback_mask[index]
+            base_edge_colours[index] = RGBAf(0, 0, 0, 0)
+            base_edge_widths[index] = 0.0
+        end
+    end
+
+    use_graphmakie_auto_align = auto_align_labels && nlabels !== nothing
+
+    p = graphplot!(ax, g;
+        layout = layout_result.positions,
+        node_size = node_sizes,
+        node_color = node_colours,
+        node_strokewidth = node_strokewidths,
+        node_strokecolor = node_strokecolours,
+        node_marker = node_markers,
+        edge_color = base_edge_colours,
+        edge_width = base_edge_widths,
+        edge_linestyle = edge_linestyles,
+        arrow_size = edge_arrow_sizes,
+        arrow_shift = edge_arrow_shifts,
+        waypoints = base_waypoints,
         nlabels = nlabels,
         nlabels_align = nlabels_align,
         nlabels_auto_align = use_graphmakie_auto_align,
-        nlabels_distance = nlabels_distance,
-        nlabels_fontsize = nlabels_fontsize,
-        nlabels_color = nlabels_color,
+        nlabels_distance = resolved_label_distance,
+        nlabels_fontsize = resolved_label_fontsize,
+        nlabels_color = resolved_label_color,
         kwargs...
     )
-    
-    # Apply clean theme
+
     apply_dag_theme!(ax)
-    
-    # Set limits with padding
+
+    feedback_bound_points = Point2f[]
+    if any(feedback_mask)
+        feedback_edges = layout_result.feedback_edges
+        overlay_colours = _overlay_values(feedback_color, feedback_edges, edge_lookup, edge_colours)
+        overlay_widths = _overlay_values(feedback_width, feedback_edges, edge_lookup, edge_widths)
+        overlay_styles = _overlay_values(feedback_linestyle, feedback_edges, edge_lookup, edge_linestyles)
+        overlay_arrow_sizes = _overlay_values(nothing, feedback_edges, edge_lookup, edge_arrow_sizes)
+        overlay_arrow_shifts = _overlay_values(nothing, feedback_edges, edge_lookup, edge_arrow_shifts)
+        overlay_waypoints = [get(layout_result.edge_waypoints, edge, Point2f[]) for edge in feedback_edges]
+
+        feedback_bound_points = _plot_directed_overlay!(
+            ax,
+            feedback_edges,
+            layout_result.positions;
+            node_sizes = node_sizes,
+            node_markers = node_markers,
+            edge_colours = overlay_colours,
+            edge_widths = overlay_widths,
+            edge_linestyles = overlay_styles,
+            arrow_sizes = overlay_arrow_sizes,
+            arrow_shifts = overlay_arrow_shifts,
+            waypoints = overlay_waypoints,
+            to_px = p[:to_px][],
+        )
+    end
+
     tightlimits!(ax)
     node_positions = p[:node_pos][]
-    
+    extra_bound_points = _extra_bound_points(layout_result.edge_waypoints)
+    append!(extra_bound_points, feedback_bound_points)
+
     if !isempty(node_positions)
-        # Compute label alignments for bounds calculation
         if nlabels !== nothing
-            if auto_align_labels
-                # Use our algorithm to get alignments for bounds
-                computed_aligns = compute_auto_label_aligns(g, node_positions)
-                # For isolated nodes, use fallback
-                for i in 1:length(computed_aligns)
-                    has_edges = false
-                    for j in 1:Graphs.nv(g)
-                        if Graphs.has_edge(g, i, j) || Graphs.has_edge(g, j, i)
-                            has_edges = true
-                            break
-                        end
-                    end
-                    if !has_edges
-                        computed_aligns[i] = _get_align(nlabels_align, i)
-                    end
-                end
-                label_aligns = computed_aligns
-            else
-                label_aligns = if nlabels_align isa Tuple
-                    [nlabels_align for _ in 1:length(node_positions)]
-                else
-                    nlabels_align
-                end
-            end
-            
+            label_aligns = p[:nlabels_align_processed][]
             xlim, ylim = compute_padded_limits(
-                node_positions, nlabels, label_aligns, 
-                nlabels_distance, nlabels_fontsize;
-                padding = padding
+                node_positions,
+                nlabels,
+                label_aligns,
+                resolved_label_distance,
+                resolved_label_fontsize;
+                padding = resolved_padding,
+                to_px = p[:to_px][],
+                extra_points = extra_bound_points,
             )
         else
-            # No labels, just use node positions
-            ext = graph_extent(node_positions)
-            x_pad = padding * ext.x_range
-            y_pad = padding * ext.y_range
-            xlim = (ext.x_min - x_pad, ext.x_max + x_pad)
-            ylim = (ext.y_min - y_pad, ext.y_max + y_pad)
+            xlim, ylim = compute_padded_limits(
+                node_positions,
+                nothing,
+                nlabels_align,
+                resolved_label_distance,
+                resolved_label_fontsize;
+                padding = resolved_padding,
+                extra_points = extra_bound_points,
+            )
         end
-        
+
         xlims!(ax, xlim)
         ylims!(ax, ylim)
     end
-    
+
+    if title !== nothing
+        ax.title = title
+    end
+
     return p
 end
 
@@ -251,18 +334,8 @@ function dagplot(spec::DAGSpec;
     figure_size::Tuple{Int, Int} = (600, 400),
     kwargs...
 )
-    # Extract labels and colours from spec
-    nlabels = [n.label for n in spec.nodes]
-    node_colors = [n.color !== nothing ? n.color : default_node_color(n.type) for n in spec.nodes]
-    node_sizes = [n.size !== nothing ? n.size : DEFAULT_NODE_SIZE for n in spec.nodes]
-    
-    return dagplot(spec.graph;
-        figure_size = figure_size,
-        nlabels = nlabels,
-        node_color = node_colors,
-        node_size = node_sizes,
-        kwargs...
-    )
+    merged_kwargs = _merge_default_kwargs(kwargs, _spec_defaults(spec, kwargs))
+    return dagplot(spec.graph; figure_size = figure_size, merged_kwargs...)
 end
 
 """
@@ -271,15 +344,310 @@ end
 Plot a DAG from a DAGSpec specification into an existing axis.
 """
 function dagplot!(ax, spec::DAGSpec; kwargs...)
-    nlabels = [n.label for n in spec.nodes]
-    node_colors = [n.color !== nothing ? n.color : default_node_color(n.type) for n in spec.nodes]
-    node_sizes = [n.size !== nothing ? n.size : DEFAULT_NODE_SIZE for n in spec.nodes]
-    
-    return dagplot!(ax, spec.graph;
-        nlabels = nlabels,
-        node_color = node_colors,
+    merged_kwargs = _merge_default_kwargs(kwargs, _spec_defaults(spec, kwargs))
+    return dagplot!(ax, spec.graph; merged_kwargs...)
+end
+
+function _resolve_style(style::Union{Nothing, DAGStyle})
+    return style === nothing ? default_style() : style
+end
+
+function _fill_attribute(value, count::Int)
+    if value isa AbstractVector && !(value isa AbstractString)
+        @assert length(value) == count "Attribute length must match the graph size."
+        return collect(value)
+    end
+
+    return fill(value, count)
+end
+
+function _edge_index_lookup(g::Graphs.AbstractGraph)
+    return Dict((Graphs.src(edge), Graphs.dst(edge)) => index for (index, edge) in enumerate(Graphs.edges(g)))
+end
+
+function _materialise_waypoints(g::Graphs.AbstractGraph, waypoints)
+    edge_count = Graphs.ne(g)
+    if waypoints === nothing
+        return [Point2f[] for _ in 1:edge_count]
+    elseif waypoints isa AbstractVector
+        @assert length(waypoints) == edge_count "Waypoint vector must match the number of edges."
+        return [Point2f.(points) for points in waypoints]
+    elseif waypoints isa AbstractDict
+        materialised = [Point2f[] for _ in 1:edge_count]
+        for (index, points) in waypoints
+            materialised[index] = Point2f.(points)
+        end
+        return materialised
+    end
+
+    error("Unsupported waypoints specification $(typeof(waypoints)).")
+end
+
+"""
+    compute_feedback_geometry(edge_pairs, positions, node_markers, node_sizes, waypoints, to_px;
+        arrow_size=8, arrow_shift=:end)
+
+Compute boundary-aware paths and arrowheads for curved directed feedback edges.
+"""
+function compute_feedback_geometry(
+    edge_pairs::Vector{Tuple{Int, Int}},
+    positions::AbstractVector,
+    node_markers,
+    node_sizes,
+    waypoints::AbstractVector,
+    to_px;
+    arrow_size = 8,
+    arrow_shift = :end,
+)
+    @assert length(waypoints) == length(edge_pairs) "Waypoint vector must match the number of feedback edges."
+
+    paths = Vector{Vector{Point2f}}()
+    arrow_positions = Point2f[]
+    arrow_rotations = Float64[]
+    arrow_sizes = Float64[]
+    boundary_points = Point2f[]
+
+    for (index, (source, destination)) in enumerate(edge_pairs)
+        raw_path = _feedback_curve_path(
+            Point2f(positions[source]),
+            Point2f(positions[destination]),
+            waypoints[index],
+        )
+        start_distance = distance_between_markers(
+            _attribute_value(node_markers, source),
+            _attribute_value(node_sizes, source),
+            :circle,
+            0,
+        )
+        arrow_size_value = Float64(_attribute_value(arrow_size, index))
+        end_distance = distance_between_markers(
+            _attribute_value(node_markers, destination),
+            _attribute_value(node_sizes, destination),
+            Arrow,
+            arrow_size_value,
+        )
+
+        trimmed_path = trim_polyline(raw_path, start_distance, end_distance, to_px)
+        if length(trimmed_path) < 2 || polyline_length_px(trimmed_path, to_px) <= 1e-6
+            trimmed_path = raw_path
+        end
+
+        push!(paths, trimmed_path)
+        append!(boundary_points, trimmed_path)
+
+        arrow_position, arrow_rotation = _feedback_arrow_pose(
+            trimmed_path,
+            to_px,
+            _attribute_value(arrow_shift, index),
+        )
+        push!(arrow_positions, arrow_position)
+        push!(arrow_rotations, arrow_rotation)
+        push!(arrow_sizes, arrow_size_value)
+    end
+
+    return (
+        paths = paths,
+        arrow_positions = arrow_positions,
+        arrow_rotations = arrow_rotations,
+        arrow_sizes = arrow_sizes,
+        boundary_points = boundary_points,
+    )
+end
+
+function _plot_directed_overlay!(
+    ax,
+    edge_pairs::Vector{Tuple{Int, Int}},
+    positions::Vector{Point2f};
+    node_sizes,
+    node_markers,
+    edge_colours,
+    edge_widths,
+    edge_linestyles,
+    arrow_sizes,
+    arrow_shifts,
+    waypoints,
+    to_px,
+)
+    isempty(edge_pairs) && return Point2f[]
+
+    geometry = compute_feedback_geometry(
+        edge_pairs,
+        positions,
+        node_markers,
+        node_sizes,
+        waypoints,
+        to_px;
+        arrow_size = arrow_sizes,
+        arrow_shift = arrow_shifts,
+    )
+
+    for (index, path) in enumerate(geometry.paths)
+        lines!(ax, path;
+            color = edge_colours[index],
+            linewidth = edge_widths[index],
+            linestyle = edge_linestyles[index],
+        )
+    end
+
+    if !isempty(geometry.arrow_positions)
+        scatter!(ax, geometry.arrow_positions;
+            marker = Arrow,
+            markersize = geometry.arrow_sizes,
+            color = edge_colours,
+            rotation = geometry.arrow_rotations,
+            markerspace = :pixel,
+        )
+    end
+
+    return geometry.boundary_points
+end
+
+function _feedback_curve_path(p1::Point2f, p2::Point2f, waypoints::AbstractVector)
+    control_points = Point2f.(waypoints)
+    if isempty(control_points)
+        return Point2f[p1, p2]
+    elseif length(control_points) == 1
+        midpoint = (p1 + p2) / 2
+        control = 2f0 * control_points[1] - midpoint
+        return _quadratic_bezier_path(p1, control, p2)
+    end
+
+    return _chaikin_smooth_path(vcat(Point2f[p1], control_points, Point2f[p2]))
+end
+
+function _quadratic_bezier_path(p1::Point2f, control::Point2f, p2::Point2f; n_points::Int = 32)
+    path = Vector{Point2f}(undef, n_points)
+    for index in 1:n_points
+        t = Float32((index - 1) / (n_points - 1))
+        path[index] = (1 - t)^2 * p1 + 2f0 * (1 - t) * t * control + t^2 * p2
+    end
+    return path
+end
+
+function _chaikin_smooth_path(points::Vector{Point2f}; refinements::Int = 2)
+    smoothed = copy(points)
+    for _ in 1:refinements
+        next_points = Point2f[first(smoothed)]
+        for index in 1:(length(smoothed) - 1)
+            p1 = smoothed[index]
+            p2 = smoothed[index + 1]
+            push!(next_points, 0.75f0 * p1 + 0.25f0 * p2)
+            push!(next_points, 0.25f0 * p1 + 0.75f0 * p2)
+        end
+        push!(next_points, last(smoothed))
+        smoothed = next_points
+    end
+    return smoothed
+end
+
+function _feedback_arrow_pose(path::AbstractVector, to_px, arrow_shift)
+    if length(path) < 2
+        return Point2f(path[1]), 0.0
+    elseif arrow_shift === :end
+        return last(path), _polyline_rotation(path, to_px; from_start = false, reverse_direction = false)
+    end
+
+    total_length = polyline_length_px(path, to_px)
+    distance_px = clamp(Float64(arrow_shift), 0.0, 1.0) * total_length
+    position = polyline_point_at_distance(path, distance_px, to_px; from_start = true)
+    rotation = _polyline_rotation_at_distance(path, distance_px, to_px)
+    return position, rotation
+end
+
+function _polyline_rotation_at_distance(path::AbstractVector, distance_px::Real, to_px)
+    ordered_points = Point2f.(path)
+    target = clamp(Float64(distance_px), 0.0, polyline_length_px(ordered_points, to_px))
+    traversed = 0.0
+
+    for index in 1:(length(ordered_points) - 1)
+        p1 = ordered_points[index]
+        p2 = ordered_points[index + 1]
+        tangent_px = to_px(p2) - to_px(p1)
+        segment_length_px = norm(tangent_px)
+        if segment_length_px <= 1e-6
+            continue
+        end
+
+        if traversed + segment_length_px >= target
+            return atan(tangent_px[2], tangent_px[1])
+        end
+
+        traversed += segment_length_px
+    end
+
+    return _polyline_rotation(ordered_points, to_px; from_start = false, reverse_direction = false)
+end
+
+function _overlay_values(override, edge_pairs, edge_lookup, base_values)
+    if override === nothing
+        return [base_values[edge_lookup[edge]] for edge in edge_pairs]
+    end
+
+    return _fill_attribute(override, length(edge_pairs))
+end
+
+function _extra_bound_points(edge_waypoints::Dict{Tuple{Int, Int}, Vector{Point2f}})
+    points = Point2f[]
+    for waypoint_set in values(edge_waypoints)
+        append!(points, waypoint_set)
+    end
+    return points
+end
+
+function _merge_default_kwargs(kwargs, defaults::NamedTuple)
+    merged = Dict{Symbol, Any}(pairs(defaults))
+    for (key, value) in kwargs
+        merged[key] = value
+    end
+    return (; merged...)
+end
+
+function _spec_defaults(spec::DAGSpec, kwargs)
+    style = haskey(kwargs, :style) ? kwargs[:style] : nothing
+    style_config = _resolve_style(style)
+    node_types = [node.type for node in spec.nodes]
+    node_count = length(spec.nodes)
+
+    labels = [node.label for node in spec.nodes]
+    node_colours = [node.color !== nothing ? node.color : node_type_color(node.type) for node in spec.nodes]
+    node_sizes = [node.size !== nothing ? node.size : style_config.node_size for node in spec.nodes]
+    node_markers = [node.marker !== nothing ? node.marker : node_type_marker(node.type) for node in spec.nodes]
+    node_strokewidths = [node_type_strokewidth(node_type) for node_type in node_types]
+    node_strokecolours = [node_type_strokecolor(node_type) for node_type in node_types]
+
+    edge_colours = fill(style_config.edge_color, Graphs.ne(spec.graph))
+    edge_widths = fill(style_config.edge_width, Graphs.ne(spec.graph))
+    edge_styles = fill(:solid, Graphs.ne(spec.graph))
+    edge_lookup = _edge_index_lookup(spec.graph)
+
+    for edge in spec.edges
+        if !haskey(edge_lookup, (edge.src, edge.dst))
+            continue
+        end
+
+        index = edge_lookup[(edge.src, edge.dst)]
+        if edge.color !== nothing
+            edge_colours[index] = edge.color
+        end
+        if edge.width !== nothing
+            edge_widths[index] = edge.width
+        end
+        if edge.style !== nothing
+            edge_styles[index] = edge.style
+        end
+    end
+
+    return (
+        nlabels = labels,
+        node_color = node_colours,
         node_size = node_sizes,
-        kwargs...
+        node_marker = node_markers,
+        node_strokewidth = node_strokewidths,
+        node_strokecolor = node_strokecolours,
+        edge_color = edge_colours,
+        edge_width = edge_widths,
+        edge_linestyle = edge_styles,
+        title = spec.title,
     )
 end
 
@@ -409,19 +777,33 @@ Plot a MixedGraph (with bidirected edges) into an existing axis.
 """
 function dagplot!(ax, mg::MixedGraph;
     # Layout
-    layout = Spring(),
-    padding::Float64 = DEFAULT_PADDING,
+    layout = nothing,
+    layout_mode::Symbol = :auto,
+    orientation::Symbol = :lr,
+    layer_gap::Real = 2.6,
+    node_gap::Real = 1.8,
+    component_gap::Real = 3.2,
+    scc_radius::Real = 0.9,
+    feedback_curvature::Real = 0.75,
+    padding = nothing,
+    style::Union{Nothing, DAGStyle} = nothing,
+    title = nothing,
     # Nodes
-    node_size = DEFAULT_NODE_SIZE,
-    node_color = DEFAULT_NODE_COLOR,
-    node_strokewidth = DEFAULT_NODE_STROKEWIDTH,
-    node_strokecolor = DEFAULT_NODE_STROKECOLOR,
-    node_marker = :circle,
+    node_size = nothing,
+    node_color = nothing,
+    node_strokewidth = nothing,
+    node_strokecolor = nothing,
+    node_marker = nothing,
     # Directed edges
-    edge_color = DEFAULT_EDGE_COLOR,
-    edge_width = DEFAULT_EDGE_WIDTH,
-    arrow_size = DEFAULT_ARROW_SIZE,
-    arrow_shift = DEFAULT_ARROW_SHIFT,
+    edge_color = nothing,
+    edge_width = nothing,
+    edge_linestyle = nothing,
+    feedback_color = nothing,
+    feedback_width = nothing,
+    feedback_linestyle = nothing,
+    arrow_size = nothing,
+    arrow_shift = nothing,
+    waypoints = nothing,
     # Bidirected edges
     bidirected_color = :gray,
     bidirected_width = 1.0,
@@ -432,16 +814,24 @@ function dagplot!(ax, mg::MixedGraph;
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
     auto_align_labels = true,
-    nlabels_distance = DEFAULT_LABEL_DISTANCE,
-    nlabels_fontsize = DEFAULT_LABEL_FONTSIZE,
-    nlabels_color = DEFAULT_LABEL_COLOR,
+    nlabels_distance = nothing,
+    nlabels_fontsize = nothing,
+    nlabels_color = nothing,
     # Pass-through
     kwargs...
 )
-    # Plot the directed part using standard dagplot
     p = dagplot!(ax, mg.directed;
         layout = layout,
+        layout_mode = layout_mode,
+        orientation = orientation,
+        layer_gap = layer_gap,
+        node_gap = node_gap,
+        component_gap = component_gap,
+        scc_radius = scc_radius,
+        feedback_curvature = feedback_curvature,
         padding = padding,
+        style = style,
+        title = title,
         node_size = node_size,
         node_color = node_color,
         node_strokewidth = node_strokewidth,
@@ -449,8 +839,13 @@ function dagplot!(ax, mg::MixedGraph;
         node_marker = node_marker,
         edge_color = edge_color,
         edge_width = edge_width,
+        edge_linestyle = edge_linestyle,
+        feedback_color = feedback_color,
+        feedback_width = feedback_width,
+        feedback_linestyle = feedback_linestyle,
         arrow_size = arrow_size,
         arrow_shift = arrow_shift,
+        waypoints = waypoints,
         nlabels = nlabels,
         nlabels_align = nlabels_align,
         auto_align_labels = auto_align_labels,
@@ -459,38 +854,75 @@ function dagplot!(ax, mg::MixedGraph;
         nlabels_color = nlabels_color,
         kwargs...
     )
-    
-    # Add bidirected edges if any
+
     if num_bidirected_edges(mg) > 0
         positions = p[:node_pos][]
-        
-        # Draw bidirected edge paths
-        paths = compute_all_bidirected_paths(mg, positions; curvature = bidirected_curvature)
-        for path in paths
+        style_config = _resolve_style(style)
+        resolved_node_size = _fill_attribute(something(node_size, style_config.node_size), Graphs.nv(mg))
+        resolved_node_marker = _fill_attribute(something(node_marker, :circle), Graphs.nv(mg))
+        geometry = compute_bidirected_geometry(
+            mg,
+            positions,
+            resolved_node_marker,
+            resolved_node_size,
+            p[:to_px][];
+            curvature = bidirected_curvature,
+            arrow_size = bidirected_arrow_size,
+        )
+
+        for path in geometry.paths
             lines!(ax, path;
                 color = bidirected_color,
                 linewidth = bidirected_width,
                 linestyle = bidirected_style
             )
         end
-        
-        # Draw arrowheads on bidirected edges
-        arrows = bidirected_arrow_positions(mg, positions; 
-            curvature = bidirected_curvature,
-            arrow_offset = 0.15
-        )
-        
-        if !isempty(arrows.positions)
-            scatter!(ax, arrows.positions;
-                marker = '➤',
+
+        if !isempty(geometry.arrow_positions)
+            scatter!(ax, geometry.arrow_positions;
+                marker = Arrow,
                 markersize = bidirected_arrow_size,
                 color = bidirected_color,
-                rotation = Billboard(arrows.rotations),
+                rotation = geometry.arrow_rotations,
                 markerspace = :pixel
             )
         end
+
+        extra_points = geometry.boundary_points
+        if !isempty(extra_points)
+            style_config = _resolve_style(style)
+            resolved_padding = something(padding, style_config.padding)
+            resolved_label_distance = something(nlabels_distance, style_config.label_distance)
+            resolved_label_fontsize = something(nlabels_fontsize, style_config.label_fontsize)
+
+            if nlabels !== nothing
+                xlim, ylim = compute_padded_limits(
+                    positions,
+                    nlabels,
+                    p[:nlabels_align_processed][],
+                    resolved_label_distance,
+                    resolved_label_fontsize;
+                    padding = resolved_padding,
+                    to_px = p[:to_px][],
+                    extra_points = extra_points,
+                )
+            else
+                xlim, ylim = compute_padded_limits(
+                    positions,
+                    nothing,
+                    nlabels_align,
+                    resolved_label_distance,
+                    resolved_label_fontsize;
+                    padding = resolved_padding,
+                    extra_points = extra_points,
+                )
+            end
+
+            xlims!(ax, xlim)
+            ylims!(ax, ylim)
+        end
     end
-    
+
     return p
 end
 

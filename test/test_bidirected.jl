@@ -88,6 +88,27 @@ using Makie: Point2f
         @test length(arrows.rotations) == 2
         @test length(arrows.edge_indices) == 2
     end
+
+    @testset "Boundary-aware bidirected geometry" begin
+        mg = mixed_graph(2, [], [(1, 2)])
+        positions = [Point2f(0, 0), Point2f(2, 0)]
+        fig, ax, p = dagplot(mg.directed; layout = positions, node_size = 20)
+
+        geometry = DAGMakie.compute_bidirected_geometry(
+            mg,
+            positions,
+            fill(:circle, 2),
+            fill(20, 2),
+            p[:to_px][];
+            curvature = 0.3,
+            arrow_size = 8,
+        )
+
+        @test length(geometry.paths) == 1
+        @test first(geometry.paths[1]) != positions[1]
+        @test last(geometry.paths[1]) != positions[2]
+        @test length(geometry.arrow_positions) == 2
+    end
     
     @testset "Pattern graphs" begin
         # Confounded

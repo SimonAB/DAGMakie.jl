@@ -5,6 +5,8 @@ Functions for computing label bounds, padding, and automatic axis limits
 to ensure all elements are visible without clipping.
 """
 
+using Makie: Point2f
+
 """
     estimate_label_extent(label, align, fontsize, distance)
 
@@ -88,39 +90,37 @@ Compute the bounding box that encompasses all nodes and their labels.
 - Assumes typical figure width of ~500 pixels for the data range
 """
 function compute_label_bounds(
-    node_positions::AbstractVector, 
-    nlabels::AbstractVector{<:AbstractString}, 
-    nlabels_align, 
-    nlabels_distance::Real, 
-    nlabels_fontsize::Real
+    node_positions::AbstractVector,
+    nlabels::AbstractVector{<:AbstractString},
+    nlabels_align,
+    nlabels_distance::Real,
+    nlabels_fontsize::Real;
+    to_px = nothing,
+    pixel_size::Tuple{Real, Real} = (500.0, 500.0),
+    extra_points::AbstractVector = Point2f[],
 )
     n = length(node_positions)
-    
+
     # Get node coordinate ranges
     xs = [Float64(pos[1]) for pos in node_positions]
     ys = [Float64(pos[2]) for pos in node_positions]
-    
-    x_range = maximum(xs) - minimum(xs)
-    y_range = maximum(ys) - minimum(ys)
-    
-    # Estimate pixels-to-data conversion factor
-    # Assume a typical figure width of ~500 pixels for the data range
-    typical_fig_size = 500.0
-    px_to_data_x = max(x_range, 0.1) / typical_fig_size
-    px_to_data_y = max(y_range, 0.1) / typical_fig_size
-    
+
+    px_to_data_x, px_to_data_y = _pixel_to_data_scale(xs, ys; to_px = to_px, pixel_size = pixel_size)
+
     # Start with node bounds
     x_min, x_max = minimum(xs), maximum(xs)
     y_min, y_max = minimum(ys), maximum(ys)
-    
+
     # Expand bounds to include labels
     for i in 1:n
         pos = node_positions[i]
         label = nlabels[i]
         align = _get_align(nlabels_align, i)
+        label_distance = _get_scalar_or_indexed(nlabels_distance, i)
+        label_fontsize = _get_scalar_or_indexed(nlabels_fontsize, i)
         
         # Get pixel-space extent
-        extent = estimate_label_extent(label, align, nlabels_fontsize, nlabels_distance)
+        extent = estimate_label_extent(label, align, label_fontsize, label_distance)
         
         # Convert to data coordinates and expand bounds
         x_min = min(x_min, Float64(pos[1]) + extent.dx_min * px_to_data_x)
@@ -128,8 +128,25 @@ function compute_label_bounds(
         y_min = min(y_min, Float64(pos[2]) + extent.dy_min * px_to_data_y)
         y_max = max(y_max, Float64(pos[2]) + extent.dy_max * px_to_data_y)
     end
-    
+
+    if !isempty(extra_points)
+        extra_xs = [Float64(point[1]) for point in extra_points]
+        extra_ys = [Float64(point[2]) for point in extra_points]
+        x_min = min(x_min, minimum(extra_xs))
+        x_max = max(x_max, maximum(extra_xs))
+        y_min = min(y_min, minimum(extra_ys))
+        y_max = max(y_max, maximum(extra_ys))
+    end
+
     return (x_min, x_max, y_min, y_max)
+end
+
+function _get_scalar_or_indexed(value, index::Int)
+    if value isa AbstractVector && !(value isa AbstractString)
+        return value[index]
+    end
+
+    return value
 end
 
 """
@@ -167,36 +184,71 @@ function compute_padded_limits(
     nlabels_align,
     nlabels_distance::Real,
     nlabels_fontsize::Real;
-    padding::Float64 = 0.1
+    padding::Float64 = 0.1,
+    to_px = nothing,
+    pixel_size::Tuple{Real, Real} = (500.0, 500.0),
+    extra_points::AbstractVector = Point2f[],
 )
     if nlabels !== nothing && !isempty(nlabels)
         x_min, x_max, y_min, y_max = compute_label_bounds(
-            node_positions, nlabels, nlabels_align, nlabels_distance, nlabels_fontsize
+            node_positions, nlabels, nlabels_align, nlabels_distance, nlabels_fontsize;
+            to_px = to_px,
+            pixel_size = pixel_size,
+            extra_points = extra_points,
         )
     else
         xs = [Float64(pos[1]) for pos in node_positions]
         ys = [Float64(pos[2]) for pos in node_positions]
         x_min, x_max = minimum(xs), maximum(xs)
         y_min, y_max = minimum(ys), maximum(ys)
+
+        if !isempty(extra_points)
+            extra_xs = [Float64(point[1]) for point in extra_points]
+            extra_ys = [Float64(point[2]) for point in extra_points]
+            x_min = min(x_min, minimum(extra_xs))
+            x_max = max(x_max, maximum(extra_xs))
+            y_min = min(y_min, minimum(extra_ys))
+            y_max = max(y_max, maximum(extra_ys))
+        end
     end
-    
-    x_range = x_max - x_min
-    y_range = y_max - y_min
-    
+
+    x_range = max(x_max - x_min, 1e-3)
+    y_range = max(y_max - y_min, 1e-3)
+
     # Calculate percentage-based padding
     x_padding_pct = padding * x_range
     y_padding_pct = padding * y_range
-    
-    # Minimum padding: at least 5% of range or 0.05 units
-    min_padding_x = min(0.05 * x_range, 0.05)
-    min_padding_y = min(0.05 * y_range, 0.05)
-    
+
+    # Minimum padding: keep a non-zero margin even for degenerate layouts
+    min_padding_x = max(0.05 * x_range, 0.05)
+    min_padding_y = max(0.05 * y_range, 0.05)
+
     # Use the larger of percentage-based or minimum padding
     x_padding = max(x_padding_pct, min_padding_x)
     y_padding = max(y_padding_pct, min_padding_y)
-    
+
     return (
         (x_min - x_padding, x_max + x_padding),
         (y_min - y_padding, y_max + y_padding)
     )
+end
+
+function _pixel_to_data_scale(xs::Vector{Float64}, ys::Vector{Float64}; to_px, pixel_size::Tuple{Real, Real})
+    if to_px === nothing
+        x_range = max(maximum(xs) - minimum(xs), 0.1)
+        y_range = max(maximum(ys) - minimum(ys), 0.1)
+        return x_range / Float64(pixel_size[1]), y_range / Float64(pixel_size[2])
+    end
+
+    origin_px = to_px(Point2f(0, 0))
+    unit_x_px = to_px(Point2f(1, 0))
+    unit_y_px = to_px(Point2f(0, 1))
+
+    scale_x = Float64(unit_x_px[1] - origin_px[1])
+    scale_y = Float64(unit_y_px[2] - origin_px[2])
+
+    safe_scale_x = abs(scale_x) > 1e-6 ? scale_x : 1.0
+    safe_scale_y = abs(scale_y) > 1e-6 ? scale_y : 1.0
+
+    return 1 / safe_scale_x, 1 / safe_scale_y
 end

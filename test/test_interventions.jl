@@ -112,6 +112,13 @@
         int = Intervention(2)
         fig, ax, p = dagplot_intervention(g, int, nlabels = ["Z", "X", "Y"])
         @test fig isa Makie.Figure
+
+        fig_hidden, ax_hidden, p_hidden = dagplot_intervention(g, int,
+            show_original = false,
+            nlabels = ["Z", "X", "Y"]
+        )
+        @test fig_hidden isa Makie.Figure
+        @test length(ax.scene.plots) > length(ax_hidden.scene.plots)
     end
     
     @testset "dagplot_do" begin

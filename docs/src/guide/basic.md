@@ -96,12 +96,23 @@ dagplot(g,
 
 ## Layout
 
-DAGMakie uses NetworkLayout.jl for graph layouts:
+DAGMakie now defaults to an automatic layout strategy:
+
+- `layout_mode = :auto` chooses a deterministic layered layout for acyclic graphs
+- `layout_mode = :cyclic` uses an SCC-aware layout with curved feedback edges
+- `layout_mode = :spring` falls back to a force-directed layout
+- `layout = ...` still accepts explicit node positions or a `NetworkLayout.jl` layout object
+
+You can still use `NetworkLayout.jl` directly when you want a force-directed layout:
 
 ```julia
 using NetworkLayout
 
-# Default: Spring layout
+# Default: automatic layered or cyclic layout
+dagplot(g, nlabels = labels)
+
+# Force-directed layout
+dagplot(g, nlabels = labels, layout_mode = :spring)
 dagplot(g, nlabels = labels, layout = Spring())
 
 # Other layouts

@@ -67,6 +67,7 @@ include("layout.jl")
 include("themes.jl")
 include("utils.jl")
 include("bidirected.jl")
+include("layout_strategy.jl")
 include("node_styling.jl")
 include("paths.jl")
 include("highlighting.jl")
@@ -91,6 +92,7 @@ export align_to_direction
 
 # Layout utilities
 export estimate_label_extent, compute_label_bounds, compute_padded_limits
+export DAGLayoutResult, classify_graph_kind, compute_graph_layout, feedback_edge_mask, edge_waypoint_vector
 
 # Themes and styling
 export dag_theme

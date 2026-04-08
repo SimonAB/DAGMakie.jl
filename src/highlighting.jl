@@ -230,69 +230,68 @@ function dagplot_highlighted!(
     g::AbstractGraph, 
     highlight::HighlightSpec;
     # Layout
-    layout = Spring(),
-    padding::Float64 = DEFAULT_PADDING,
+    layout = nothing,
+    padding = nothing,
+    style::Union{Nothing, DAGStyle} = nothing,
     # Base styling
-    node_size = DEFAULT_NODE_SIZE,
-    node_color = DEFAULT_NODE_COLOR,
-    node_strokewidth = DEFAULT_NODE_STROKEWIDTH,
-    node_strokecolor = DEFAULT_NODE_STROKECOLOR,
-    edge_color = DEFAULT_EDGE_COLOR,
-    edge_width = DEFAULT_EDGE_WIDTH,
-    arrow_size = DEFAULT_ARROW_SIZE,
-    arrow_shift = DEFAULT_ARROW_SHIFT,
+    node_size = nothing,
+    node_color = nothing,
+    node_strokewidth = nothing,
+    node_strokecolor = nothing,
+    edge_color = nothing,
+    edge_width = nothing,
+    arrow_size = nothing,
+    arrow_shift = nothing,
     # Highlight styling
-    highlight_node_size = 15,
+    highlight_node_size = nothing,
     highlight_edge_width = 2.5,
     # Labels
     nlabels = nothing,
-    nlabels_fontsize = DEFAULT_LABEL_FONTSIZE,
+    nlabels_fontsize = nothing,
     auto_align_labels = true,
     kwargs...
 )
-    # Build node colors array (base color, override for highlighted nodes)
+    style_config = _resolve_style(style)
+    resolved_node_size = something(node_size, style_config.node_size)
+    resolved_node_color = something(node_color, style_config.node_color)
+    resolved_node_strokewidth = something(node_strokewidth, style_config.node_strokewidth)
+    resolved_node_strokecolor = something(node_strokecolor, style_config.node_strokecolor)
+    resolved_edge_color = something(edge_color, style_config.edge_color)
+    resolved_edge_width = something(edge_width, style_config.edge_width)
+    resolved_arrow_size = something(arrow_size, style_config.arrow_size)
+    resolved_arrow_shift = something(arrow_shift, style_config.arrow_shift)
+    resolved_label_fontsize = something(nlabels_fontsize, style_config.label_fontsize)
+    resolved_highlight_node_size = something(highlight_node_size, resolved_node_size + 3)
+
     n = nv(g)
-    node_colors = fill(node_color, n)
-    node_sizes = fill(node_size, n)
-    
-    for (i, node) in enumerate(highlight.nodes)
-        if node >= 1 && node <= n && i <= length(highlight.node_colors)
-            node_colors[node] = highlight.node_colors[i]
-            node_sizes[node] = highlight_node_size
-        end
-    end
-    
-    # Build edge colors array
-    edge_colors_arr = fill(edge_color, ne(g))
-    edge_widths = fill(edge_width, ne(g))
-    
+    node_colors = _fill_attribute(resolved_node_color, n)
+    node_sizes = _fill_attribute(resolved_node_size, n)
+
     edge_to_idx = Dict{Tuple{Int, Int}, Int}()
     for (idx, e) in enumerate(edges(g))
         edge_to_idx[(src(e), dst(e))] = idx
     end
-    
-    for (i, edge) in enumerate(highlight.edges)
-        if haskey(edge_to_idx, edge) && i <= length(highlight.edge_colors)
-            idx = edge_to_idx[edge]
-            edge_colors_arr[idx] = highlight.edge_colors[i]
-            edge_widths[idx] = highlight_edge_width
-        end
-    end
-    
-    # Plot with computed colors
+
+    edge_colors_arr = _fill_attribute(resolved_edge_color, ne(g))
+    edge_widths = _fill_attribute(resolved_edge_width, ne(g))
+
+    _apply_highlight_node_styles!(node_colors, node_sizes, highlight; highlight_node_size = resolved_highlight_node_size)
+    _apply_highlight_edge_styles!(edge_colors_arr, edge_widths, edge_to_idx, highlight; highlight_edge_width = highlight_edge_width)
+
     p = dagplot!(ax, g;
         layout = layout,
         padding = padding,
+        style = style,
         node_size = node_sizes,
         node_color = node_colors,
-        node_strokewidth = node_strokewidth,
-        node_strokecolor = node_strokecolor,
+        node_strokewidth = resolved_node_strokewidth,
+        node_strokecolor = resolved_node_strokecolor,
         edge_color = edge_colors_arr,
         edge_width = edge_widths,
-        arrow_size = arrow_size,
-        arrow_shift = arrow_shift,
+        arrow_size = resolved_arrow_size,
+        arrow_shift = resolved_arrow_shift,
         nlabels = nlabels,
-        nlabels_fontsize = nlabels_fontsize,
+        nlabels_fontsize = resolved_label_fontsize,
         auto_align_labels = auto_align_labels,
         kwargs...
     )
@@ -465,10 +464,51 @@ function dagplot_adjustment(
         # No valid adjustment set - just plot with treatment/outcome highlighted
         return dagplot_backdoor(g, treatment, outcome; kwargs...)
     end
-    
-    return dagplot_backdoor(g, treatment, outcome; 
-        adjustment = adj_set,
+
+    if show_backdoor
+        return dagplot_backdoor(g, treatment, outcome; 
+            adjustment = adj_set,
+            adjustment_color = adjustment_color,
+            kwargs...
+        )
+    end
+
+    highlight = highlight_adjustment_set(g, treatment, outcome, adj_set;
         adjustment_color = adjustment_color,
-        kwargs...
     )
+    return dagplot_highlighted(g, highlight; kwargs...)
+end
+
+function _apply_highlight_node_styles!(
+    node_colors,
+    node_sizes,
+    highlight::HighlightSpec;
+    highlight_node_size,
+)
+    for (index, node) in enumerate(highlight.nodes)
+        if 1 <= node <= length(node_colors) && index <= length(highlight.node_colors)
+            node_colors[node] = highlight.node_colors[index]
+            node_sizes[node] = highlight_node_size
+        end
+    end
+
+    return nothing
+end
+
+function _apply_highlight_edge_styles!(
+    edge_colors,
+    edge_widths,
+    edge_to_idx,
+    highlight::HighlightSpec;
+    highlight_edge_width,
+)
+    for (index, edge) in enumerate(highlight.edges)
+        if haskey(edge_to_idx, edge) && index <= length(highlight.edge_colors)
+            edge_index = edge_to_idx[edge]
+            edge_colors[edge_index] = highlight.edge_colors[index]
+            edge_widths[edge_index] = highlight_edge_width
+        end
+    end
+
+    return nothing
 end

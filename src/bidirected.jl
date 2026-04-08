@@ -9,6 +9,7 @@ in causal diagrams. This module provides:
 
 using Graphs: AbstractGraph, SimpleDiGraph, nv, ne, add_edge!, has_edge, edges, src, dst
 using Makie: Point2f
+using GraphMakie: Arrow, distance_between_markers
 
 # =============================================================================
 # MixedGraph Type
@@ -217,8 +218,8 @@ function compute_all_bidirected_paths(
     curvature::Float64 = 0.3
 )
     paths = Vector{Vector{Point2f}}()
-    
-    for (i, j) in bidirected_edges(mg)
+
+    for (i, j) in _sorted_bidirected_edges(mg)
         p1 = Point2f(positions[i])
         p2 = Point2f(positions[j])
         path = compute_bidirected_path(p1, p2; curvature = curvature)
@@ -258,7 +259,7 @@ function bidirected_arrow_positions(
     arrow_rot = Float64[]
     edge_idx = Int[]
     
-    for (idx, (i, j)) in enumerate(bidirected_edges(mg))
+    for (idx, (i, j)) in enumerate(_sorted_bidirected_edges(mg))
         p1 = Point2f(positions[i])
         p2 = Point2f(positions[j])
         path = compute_bidirected_path(p1, p2; curvature = curvature)
@@ -290,6 +291,87 @@ function bidirected_arrow_positions(
     end
     
     return (positions = arrow_pos, rotations = arrow_rot, edge_indices = edge_idx)
+end
+
+"""
+    compute_bidirected_geometry(mg, positions, node_markers, node_sizes, to_px; curvature=0.3, arrow_size=8)
+
+Compute boundary-aware paths and arrowheads for bidirected confounding edges.
+"""
+function compute_bidirected_geometry(
+    mg::MixedGraph,
+    positions::AbstractVector,
+    node_markers,
+    node_sizes,
+    to_px;
+    curvature::Float64 = 0.3,
+    arrow_size::Real = 8,
+)
+    paths = Vector{Vector{Point2f}}()
+    arrow_positions = Point2f[]
+    arrow_rotations = Float64[]
+    boundary_points = Point2f[]
+
+    for (i, j) in _sorted_bidirected_edges(mg)
+        path = compute_bidirected_path(Point2f(positions[i]), Point2f(positions[j]); curvature = curvature)
+        start_distance = distance_between_markers(
+            _attribute_value(node_markers, i),
+            _attribute_value(node_sizes, i),
+            Arrow,
+            arrow_size,
+        )
+        end_distance = distance_between_markers(
+            _attribute_value(node_markers, j),
+            _attribute_value(node_sizes, j),
+            Arrow,
+            arrow_size,
+        )
+
+        trimmed_path = trim_polyline(path, start_distance, end_distance, to_px)
+        length(trimmed_path) < 2 && (trimmed_path = path)
+
+        push!(paths, trimmed_path)
+        append!(boundary_points, trimmed_path)
+
+        push!(arrow_positions, first(trimmed_path))
+        push!(arrow_rotations, _polyline_rotation(trimmed_path, to_px; from_start = true, reverse_direction = true))
+        push!(arrow_positions, last(trimmed_path))
+        push!(arrow_rotations, _polyline_rotation(trimmed_path, to_px; from_start = false, reverse_direction = false))
+    end
+
+    return (
+        paths = paths,
+        arrow_positions = arrow_positions,
+        arrow_rotations = arrow_rotations,
+        boundary_points = boundary_points,
+    )
+end
+
+function _sorted_bidirected_edges(mg::MixedGraph)
+    return sort!(collect(bidirected_edges(mg)))
+end
+
+function _attribute_value(value, index::Int)
+    return value isa AbstractVector ? value[index] : value
+end
+
+function _polyline_rotation(path::AbstractVector, to_px; from_start::Bool, reverse_direction::Bool)
+    if length(path) < 2
+        return 0.0
+    end
+
+    p1, p2 = if from_start
+        (Point2f(path[1]), Point2f(path[2]))
+    else
+        (Point2f(path[end - 1]), Point2f(path[end]))
+    end
+
+    tangent_px = to_px(p2) - to_px(p1)
+    if reverse_direction
+        tangent_px = -tangent_px
+    end
+
+    return atan(tangent_px[2], tangent_px[1])
 end
 
 # =============================================================================
