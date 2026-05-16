@@ -1,10 +1,9 @@
 """
-Intervention (do-operator) support for causal DAGs.
+Intervention (`do(·)`) support for causal DAGs.
 
-Implements Pearl's do-calculus operations:
-- Graph surgery (removing incoming edges to intervention targets)
-- Visualisation of pre/post intervention graphs
-- do(X) notation rendering
+Pearl's do-calculus: graph surgery, intervention plots, and `do(X)` labels.
+Process reading: `do(·)` is **physical prehension**—an occasion fixed regardless of
+its parents; `do_surgery` removes incoming **prehensive relations** to that node.
 """
 
 using Graphs: AbstractGraph, SimpleDiGraph, nv, ne, add_edge!, rem_edge!,
@@ -17,11 +16,10 @@ using Graphs: AbstractGraph, SimpleDiGraph, nv, ne, add_edge!, rem_edge!,
 """
     do_surgery(g::AbstractGraph, intervention_nodes::Vector{Int})
 
-Perform graph surgery for do-operator: remove all incoming edges to intervention nodes.
+Perform graph surgery for `do(·)`: remove all incoming edges to intervention nodes
+(negate how parents prehend into those nodes).
 
-This creates a new graph representing the causal model after intervention,
-where the intervention nodes are set to fixed values (no longer influenced
-by their parents).
+Returns a graph where intervened nodes are fixed and no longer depend on parents.
 
 # Arguments
 - `g`: Original DAG
@@ -86,7 +84,7 @@ end
 """
     Intervention
 
-Specification for an intervention on one or more variables.
+Specification for an intervention (`do(·)`) on one or more variables.
 
 # Fields
 - `nodes::Vector{Int}`: Nodes being intervened on

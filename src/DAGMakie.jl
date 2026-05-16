@@ -7,6 +7,12 @@ DAGMakie provides clean, minimal DAG visualisation with sensible defaults for
 academic papers and presentations. It builds on GraphMakie.jl with features
 specifically designed for causal diagrams.
 
+API names follow Pearl and the causal-inference literature (`Intervention`, `do_surgery`,
+`find_backdoor_paths`, …). A **process** reading—directed edges as prehensive relations,
+`do(·)` as physical prehension, nodes as occasions—is available in docstrings and
+[Terminology](https://SimonAB.github.io/DAGMakie.jl/dev/terminology/) when it clarifies
+what a plot or operation does.
+
 # Features
 
 - **Automatic label alignment**: Labels positioned to avoid edge overlaps

@@ -12,11 +12,11 @@ with causal diagram semantics.
 """
     NodeType
 
-Enumeration of node types in causal diagrams.
+Enumeration of node types in causal diagrams (occasions in the process reading).
 
 # Values
-- `Observed`: Standard observed variable (filled circle)
-- `Latent`: Unobserved/latent variable (hollow circle or dashed outline)
+- `Observed`: Measured occasion (filled circle)
+- `Latent`: Unmeasured occasion (hollow circle or dashed outline)
 - `Treatment`: Treatment/exposure variable (special highlight)
 - `Outcome`: Outcome variable (special highlight)
 - `Instrument`: Instrumental variable
