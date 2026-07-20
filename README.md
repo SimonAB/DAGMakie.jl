@@ -215,14 +215,9 @@ fig, ax, p = dagplot_do(g, 2, nlabels=labels)
 # Side-by-side comparison: original vs post-intervention
 fig = dagplot_do_comparison(g, 2, nlabels=labels)
 
-# Check if causal effect is identifiable
-causal_effect_identifiable(g, 2, 3)  # true if backdoor criterion satisfied
-
-# Check if intervention removes confounding
-intervention_removes_confounding(g, 2, 3)  # true
-
-# Identify confounders
-confounders = identify_confounders(g, 2, 3)  # returns [1] (Z)
+# Identification (d-separation, adjustment) lives in CausalInference.jl /
+# CausalDynamics.jl — pass results into dagplot_* via `adjustment=` / `paths=`,
+# or `using CausalInference` so the optional extension can compute them.
 ```
 
 ### CausalDynamics.jl Integration
@@ -384,12 +379,13 @@ style = presentation_style()  # Extra large for slides
 | `dagplot_do(g, node)` | Single-node intervention plot |
 | `dagplot_comparison(g, int)` | Side-by-side comparison |
 | `dagplot_do_comparison(g, node)` | Side-by-side for single intervention |
-| `causal_effect_identifiable(g, t, o)` | Check backdoor identifiability |
-| `identify_confounders(g, t, o)` | Find confounding variables |
+
+Identification helpers (`dsep`, adjustment sets) live in CausalInference.jl /
+CausalDynamics.jl; pass results into the highlighting functions above.
 
 ### CausalDynamics.jl Integration
 
-Deferred in v0.1.0 (see note above). Planned extension entry points:
+Deferred until CausalDynamics is on General (extension source remains under `ext/`):
 
 | Function | Description |
 |----------|-------------|

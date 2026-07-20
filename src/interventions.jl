@@ -123,76 +123,6 @@ function Intervention(nodes::Vector{Int}; values::Vector{String} = String[], lab
 end
 
 # =============================================================================
-# Intervention Effects
-# =============================================================================
-
-"""
-    causal_effect_identifiable(g::AbstractGraph, treatment::Int, outcome::Int)
-
-Check if the causal effect of treatment on outcome is identifiable from
-observational data using the backdoor criterion.
-
-Returns `true` if there exists a valid adjustment set.
-"""
-function causal_effect_identifiable(g::AbstractGraph, treatment::Int, outcome::Int)
-    adj = find_minimal_adjustment_set(g, treatment, outcome)
-    return adj !== nothing
-end
-
-"""
-    intervention_removes_confounding(g::AbstractGraph, treatment::Int, outcome::Int)
-
-Check if intervening on treatment removes all confounding with outcome.
-
-After do(treatment), there should be no backdoor paths.
-"""
-function intervention_removes_confounding(g::AbstractGraph, treatment::Int, outcome::Int)
-    g_do = do_surgery(g, treatment)
-    backdoor = find_backdoor_paths(g_do, treatment, outcome)
-    return isempty(backdoor)
-end
-
-"""
-    identify_confounders(g::AbstractGraph, treatment::Int, outcome::Int)
-
-Identify variables that confound the treatment-outcome relationship.
-
-Returns nodes that are ancestors of both treatment and outcome.
-"""
-function identify_confounders(g::AbstractGraph, treatment::Int, outcome::Int)
-    treatment_ancestors = ancestors(g, treatment)
-    outcome_ancestors = ancestors(g, outcome)
-    
-    # Common ancestors that aren't descendants of treatment
-    common = intersect(treatment_ancestors, outcome_ancestors)
-    
-    # Filter to those that create backdoor paths
-    confounders = Int[]
-    for node in common
-        # Check if this node opens a backdoor path
-        if has_path_through(g, node, treatment, outcome)
-            push!(confounders, node)
-        end
-    end
-    
-    return confounders
-end
-
-"""
-    has_path_through(g::AbstractGraph, through::Int, source::Int, target::Int)
-
-Check if there's a path from source to target that goes through a specific node.
-"""
-function has_path_through(g::AbstractGraph, through::Int, source::Int, target::Int)
-    # Check if 'through' is ancestor of both source and target
-    # This creates a backdoor path source ← ... ← through → ... → target
-    source_ancestors = ancestors(g, source)
-    target_ancestors = ancestors(g, target)
-    
-    return through ∈ source_ancestors && through ∈ target_ancestors
-end
-
-# =============================================================================
 # Intervention Labels for Plotting
 # =============================================================================
 
@@ -513,18 +443,9 @@ function CausalQuery(treatment::Int, outcome::Int;
 end
 
 """
-    query_identifiable(g::AbstractGraph, query::CausalQuery)
-
-Check if a causal query is identifiable from observational data.
-"""
-function query_identifiable(g::AbstractGraph, query::CausalQuery)
-    return causal_effect_identifiable(g, query.treatment, query.outcome)
-end
-
-"""
     query_to_string(query::CausalQuery, nlabels::Vector{String})
 
-Convert a causal query to readable notation.
+Convert a causal query to readable notation for plot titles.
 """
 function query_to_string(query::CausalQuery, nlabels::Vector{String})
     t_name = query.treatment <= length(nlabels) ? nlabels[query.treatment] : "X$(query.treatment)"

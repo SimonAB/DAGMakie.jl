@@ -6,7 +6,7 @@ using DAGMakie
     Aqua.test_all(
         DAGMakie;
         ambiguities = false,  # Skip ambiguity checks (Makie ecosystem has many)
-        stale_deps = (ignore = [:Reexport],),  # Reexport is used at compile time
+        stale_deps = (ignore = [:Reexport, :CausalInference],),  # CausalInference is weakdep (extension only)
         deps_compat = (
             check_extras = false,  # Don't require compat for test deps (Test, CairoMakie, Aqua)
         ),

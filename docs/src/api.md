@@ -79,34 +79,13 @@ iv_confounded_graph
 m_bias_graph
 ```
 
-## Path Finding
+## Path types (for highlights)
 
 ```@docs
-find_all_paths
-find_directed_paths
-find_backdoor_paths
-is_backdoor_path
+CausalPath
+PathSegment
 path_edges
 is_directed_path
-```
-
-## d-Separation
-
-```@docs
-is_d_separated
-d_separated_from
-is_collider
-ancestors
-descendants
-```
-
-## Adjustment Sets
-
-```@docs
-is_valid_adjustment_set
-blocks_all_backdoor_paths
-find_minimal_adjustment_set
-list_all_adjustment_sets
 ```
 
 ## Highlighting
@@ -135,12 +114,8 @@ dagplot_intervention!
 dagplot_do
 dagplot_comparison
 dagplot_do_comparison
-causal_effect_identifiable
-intervention_removes_confounding
-identify_confounders
 intervention_label
 format_intervention_labels
-query_identifiable
 query_to_string
 ```
 

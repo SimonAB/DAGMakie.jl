@@ -5,6 +5,16 @@ All notable changes to DAGMakie.jl will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-07-20
+
+### Changed
+
+- **Breaking:** Identification APIs removed from DAGMakie. Use CausalInference.jl
+  (optional extension) or CausalDynamics.jl for d-separation and adjustment sets.
+  `dagplot_*` helpers take precomputed `adjustment` / `paths`, or auto-compute when
+  `using CausalInference`.
+- Local monorepo `[sources]` for sibling `CausalInference.jl` / `GraphMakie.jl` forks.
+
 ## [0.1.0] - 2026-07-20
 
 ### Added

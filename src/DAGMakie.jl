@@ -7,6 +7,10 @@ DAGMakie provides clean, minimal DAG visualisation with sensible defaults for
 academic papers and presentations. It builds on GraphMakie.jl with features
 specifically designed for causal diagrams.
 
+Identification (d-separation, adjustment sets) belongs in CausalInference.jl;
+executable SCMs belong in CausalDynamics.jl. Optional convenience plots that
+call CausalInference activate via `using CausalInference`.
+
 # Features
 
 - **Automatic label alignment**: Labels positioned to avoid edge overlaps
@@ -124,15 +128,9 @@ export has_bidirected_edge, bidirected_edges, num_bidirected_edges
 export compute_bidirected_path, compute_all_bidirected_paths, bidirected_arrow_positions
 export confounded_graph, frontdoor_graph, iv_confounded_graph, m_bias_graph
 
-# Paths and d-separation
+# Paths (data for highlights — not identification algorithms)
 export CausalPath, PathSegment
 export path_edges, is_directed_path
-export find_all_paths, find_directed_paths, find_backdoor_paths
-export is_backdoor_path, is_collider
-export is_d_separated, d_separated_from
-export ancestors, descendants
-export is_valid_adjustment_set, blocks_all_backdoor_paths
-export find_minimal_adjustment_set, list_all_adjustment_sets
 
 # Highlighting
 export HighlightSpec
@@ -141,15 +139,13 @@ export highlight_adjustment_set, highlight_backdoor_paths
 export dagplot_highlighted, dagplot_highlighted!
 export dagplot_backdoor, dagplot_dsep, dagplot_causal_paths, dagplot_adjustment
 
-# Interventions (do-operator)
+# Interventions (graph surgery + drawing)
 export Intervention, CausalQuery
 export do_surgery, do_surgery!
-export causal_effect_identifiable, intervention_removes_confounding
-export identify_confounders, has_path_through
 export intervention_label, format_intervention_labels
 export dagplot_intervention, dagplot_intervention!
 export dagplot_do, dagplot_comparison, dagplot_do_comparison
-export query_identifiable, query_to_string
+export query_to_string
 
 # Constants
 export DEFAULT_NODE_SIZE, DEFAULT_NODE_COLOR, DEFAULT_EDGE_COLOR

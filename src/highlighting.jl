@@ -127,62 +127,40 @@ function highlight_adjustment_set(
 end
 
 """
-    highlight_backdoor_paths(g::AbstractGraph, treatment::Int, outcome::Int;
-                             blocked_color=:gray, open_color=:red, 
-                             adjustment::Set{Int}=Set{Int}())
+    highlight_backdoor_paths(paths::Vector{CausalPath};
+                             blocked_color=:gray, open_color=:red,
+                             blocked::AbstractVector{Bool}=Bool[])
 
-Create a HighlightSpec showing backdoor paths, coloured by whether blocked.
+Create a `HighlightSpec` from precomputed backdoor paths.
+
+Pass `blocked` of the same length as `paths` to colour blocked vs open paths.
+If `blocked` is empty, all paths use `open_color`.
+
+Path finding belongs in CausalInference.jl / CausalDynamics.jl — not DAGMakie.
 """
 function highlight_backdoor_paths(
-    g::AbstractGraph, 
-    treatment::Int, 
-    outcome::Int;
+    paths::Vector{CausalPath};
     blocked_color = :gray,
     open_color = :red,
-    adjustment::Set{Int} = Set{Int}(),
-    max_length::Int = 10
+    blocked::AbstractVector{Bool} = Bool[],
 )
-    backdoor_paths = find_backdoor_paths(g, treatment, outcome; max_length = max_length)
-    
     all_edges = Tuple{Int, Int}[]
-    all_edge_colors = []
-    
-    # Compute descendants of conditioned nodes
-    conditioned_and_descendants = copy(adjustment)
-    for node in adjustment
-        union!(conditioned_and_descendants, descendants(g, node))
-    end
-    
-    for path in backdoor_paths
-        # Check if path is blocked
-        blocked = false
-        for i in 2:(length(path.nodes) - 1)
-            node = path.nodes[i]
-            if is_collider(path, i)
-                if node ∉ conditioned_and_descendants
-                    blocked = true
-                    break
-                end
-            else
-                if node ∈ adjustment
-                    blocked = true
-                    break
-                end
-            end
-        end
-        
-        color = blocked ? blocked_color : open_color
+    all_edge_colors = Any[]
+
+    for (i, path) in enumerate(paths)
+        is_blocked = !isempty(blocked) && i <= length(blocked) && blocked[i]
+        color = is_blocked ? blocked_color : open_color
         edges = path_edges(path)
         append!(all_edges, edges)
         append!(all_edge_colors, fill(color, length(edges)))
     end
-    
+
     return HighlightSpec(
         nodes = Int[],
         node_colors = [],
         edges = all_edges,
         edge_colors = all_edge_colors,
-        labels = String[]
+        labels = String[],
     )
 end
 
@@ -203,8 +181,8 @@ Create a DAG plot with highlighted elements.
 # Examples
 ```julia
 g = confounding_graph(["Z", "X", "Y"])[1]
-paths = find_backdoor_paths(g, 2, 3)
-highlight = highlight_from_path(paths[1], color=:red)
+path = CausalPath([1, 2, 3]; directions = [:forward, :forward])
+highlight = highlight_from_path(path, color=:red)
 fig, ax, p = dagplot_highlighted(g, highlight, nlabels=["Z", "X", "Y"])
 ```
 """
@@ -304,176 +282,160 @@ end
 # =============================================================================
 
 """
-    dagplot_backdoor(g::AbstractGraph, treatment::Int, outcome::Int;
-                     adjustment::Set{Int}=Set{Int}(), kwargs...)
+    dagplot_backdoor(g, treatment, outcome; adjustment=Set{Int}(), paths=CausalPath[], kwargs...)
 
-Plot a DAG highlighting backdoor paths.
+Plot a DAG highlighting treatment, outcome, an adjustment set, and optional
+precomputed backdoor paths.
 
-Open backdoor paths are shown in red, blocked paths in gray.
-
-# Arguments
-- `g`: The DAG
-- `treatment`: Treatment node index
-- `outcome`: Outcome node index
-- `adjustment`: Optional adjustment set to condition on
-- `kwargs...`: Additional arguments for dagplot
-
-# Examples
-```julia
-g, labels = confounding_graph(["Z", "X", "Y"])
-fig, ax, p = dagplot_backdoor(g, 2, 3, nlabels=labels)
-
-# With adjustment set
-fig, ax, p = dagplot_backdoor(g, 2, 3, adjustment=Set([1]), nlabels=labels)
-```
+For automatic adjustment / d-separation from CausalInference.jl, load that
+package so `DAGMakieCausalInferenceExt` activates, or pass `adjustment` / `paths`
+explicitly from CausalDynamics.jl.
 """
 function dagplot_backdoor(
-    g::AbstractGraph, 
-    treatment::Int, 
+    g::AbstractGraph,
+    treatment::Int,
     outcome::Int;
     adjustment::Set{Int} = Set{Int}(),
+    paths::Vector{CausalPath} = CausalPath[],
     treatment_color = :seagreen,
     outcome_color = :goldenrod,
     adjustment_color = :indianred,
     kwargs...
 )
-    # Combine path highlighting with node highlighting
-    path_highlight = highlight_backdoor_paths(g, treatment, outcome; adjustment = adjustment)
+    path_highlight = highlight_backdoor_paths(paths)
     node_highlight = highlight_adjustment_set(g, treatment, outcome, adjustment;
         treatment_color = treatment_color,
         outcome_color = outcome_color,
-        adjustment_color = adjustment_color
+        adjustment_color = adjustment_color,
     )
-    
-    # Merge highlights
+
     combined = HighlightSpec(
         nodes = node_highlight.nodes,
         node_colors = node_highlight.node_colors,
         edges = path_highlight.edges,
         edge_colors = path_highlight.edge_colors,
-        labels = String[]
+        labels = String[],
     )
-    
+
     return dagplot_highlighted(g, combined; kwargs...)
 end
 
 """
-    dagplot_dsep(g::AbstractGraph, x::Int, y::Int, z::Set{Int}; kwargs...)
+    dagplot_dsep(g, x, y, z; separated, kwargs...)
 
-Plot a DAG showing d-separation status.
+Plot a DAG with X, Y, and conditioning set Z highlighted.
 
-Shows whether X and Y are d-separated given Z, with appropriate highlighting.
-
-# Arguments
-- `g`: The DAG
-- `x`: First node
-- `y`: Second node
-- `z`: Conditioning set
+Pass `separated::Bool` for the axis title (from CausalInference.jl `dsep` or
+CausalDynamics.jl `d_separated`). With `using CausalInference`, `separated`
+defaults via the package extension when omitted.
 """
 function dagplot_dsep(
-    g::AbstractGraph, 
-    x::Int, 
-    y::Int, 
+    g::AbstractGraph,
+    x::Int,
+    y::Int,
     z::Set{Int};
+    separated::Union{Nothing, Bool} = nothing,
     x_color = DEFAULT_NODE_COLOR,
     y_color = DEFAULT_NODE_COLOR,
     z_color = :indianred,
     kwargs...
 )
-    separated = is_d_separated(g, x, y, z)
-    
-    # Highlight nodes
+    if separated === nothing
+        ext = Base.get_extension(@__MODULE__, :DAGMakieCausalInferenceExt)
+        if ext !== nothing
+            separated = ext.dsep_status(g, x, y, z)
+        end
+    end
+
     nodes = [x, y, collect(z)...]
     colors = [x_color, y_color, fill(z_color, length(z))...]
-    
+
     highlight = HighlightSpec(
         nodes = nodes,
         node_colors = colors,
         edges = Tuple{Int, Int}[],
         edge_colors = [],
-        labels = String[]
+        labels = String[],
     )
-    
+
     fig, ax, p = dagplot_highlighted(g, highlight; kwargs...)
-    
-    # Add title indicating d-separation status
-    status_text = separated ? "X ⊥ Y | Z (d-separated)" : "X ↛⊥ Y | Z (d-connected)"
-    ax.title = status_text
-    
+
+    if separated === nothing
+        ax.title = "X, Y | Z"
+    else
+        ax.title = separated ? "X ⊥ Y | Z (d-separated)" : "X ↛⊥ Y | Z (d-connected)"
+    end
+
     return fig, ax, p
 end
 
 """
-    dagplot_causal_paths(g::AbstractGraph, treatment::Int, outcome::Int;
-                         path_color=:green, kwargs...)
+    dagplot_causal_paths(g, treatment, outcome; paths, kwargs...)
 
-Plot a DAG highlighting all causal (directed) paths from treatment to outcome.
+Highlight precomputed directed paths from treatment to outcome.
 """
 function dagplot_causal_paths(
-    g::AbstractGraph, 
-    treatment::Int, 
+    g::AbstractGraph,
+    treatment::Int,
     outcome::Int;
+    paths::Vector{CausalPath},
     path_color = :green,
     treatment_color = :seagreen,
     outcome_color = :goldenrod,
     kwargs...
 )
-    causal_paths = find_directed_paths(g, treatment, outcome)
-    
     all_edges = Tuple{Int, Int}[]
-    for path in causal_paths
+    for path in paths
         append!(all_edges, path_edges(path))
     end
     unique!(all_edges)
-    
+
     highlight = HighlightSpec(
         nodes = [treatment, outcome],
         node_colors = [treatment_color, outcome_color],
         edges = all_edges,
         edge_colors = fill(path_color, length(all_edges)),
-        labels = String[]
+        labels = String[],
     )
-    
+
     return dagplot_highlighted(g, highlight; kwargs...)
 end
 
 """
-    dagplot_adjustment(g::AbstractGraph, treatment::Int, outcome::Int;
-                       show_backdoor::Bool=true, kwargs...)
+    dagplot_adjustment(g, treatment, outcome; adjustment=nothing, kwargs...)
 
-Plot a DAG with automatically computed minimal adjustment set.
-
-# Arguments
-- `g`: The DAG
-- `treatment`: Treatment node
-- `outcome`: Outcome node
-- `show_backdoor`: Whether to show backdoor paths
+Plot a DAG with an adjustment set. Pass `adjustment::Set{Int}` explicitly, or
+`using CausalInference` so the extension can compute a minimal backdoor set.
 """
 function dagplot_adjustment(
-    g::AbstractGraph, 
-    treatment::Int, 
+    g::AbstractGraph,
+    treatment::Int,
     outcome::Int;
+    adjustment::Union{Nothing, Set{Int}} = nothing,
     show_backdoor::Bool = true,
+    paths::Vector{CausalPath} = CausalPath[],
     adjustment_color = :indianred,
     kwargs...
 )
-    # Find minimal adjustment set
-    adj_set = find_minimal_adjustment_set(g, treatment, outcome)
-    
-    if adj_set === nothing
-        # No valid adjustment set - just plot with treatment/outcome highlighted
-        return dagplot_backdoor(g, treatment, outcome; kwargs...)
+    if adjustment === nothing
+        ext = Base.get_extension(@__MODULE__, :DAGMakieCausalInferenceExt)
+        ext === nothing && error(
+            "Pass adjustment::Set{Int}, or load CausalInference.jl " *
+            "(`using CausalInference`) to compute a backdoor adjustment set.",
+        )
+        adjustment = ext.min_backdoor_adjustment(g, treatment, outcome)
     end
 
     if show_backdoor
-        return dagplot_backdoor(g, treatment, outcome; 
-            adjustment = adj_set,
+        return dagplot_backdoor(g, treatment, outcome;
+            adjustment = adjustment,
+            paths = paths,
             adjustment_color = adjustment_color,
-            kwargs...
+            kwargs...,
         )
     end
 
-    highlight = highlight_adjustment_set(g, treatment, outcome, adj_set;
+    highlight = highlight_adjustment_set(g, treatment, outcome, adjustment;
         adjustment_color = adjustment_color,
     )
     return dagplot_highlighted(g, highlight; kwargs...)
