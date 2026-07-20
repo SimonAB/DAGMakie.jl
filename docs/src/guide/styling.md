@@ -36,6 +36,7 @@ spec = DAGSpec(g,
     node_types = [Confounder, Treatment, Outcome]
 )
 
+# Auto triangle layout: confounder Z at the apex
 fig, ax, p = dagplot(spec)
 fig
 ```

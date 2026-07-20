@@ -5,6 +5,7 @@ This guide covers the core plotting functions and customisation options.
 ```@example basic
 using Graphs, DAGMakie, CairoMakie
 
+# Classic confounding triangle: Z → X → Y, Z → Y
 g, labels = confounding_graph(["Z", "X", "Y"])
 nothing # hide
 ```

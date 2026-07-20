@@ -73,4 +73,22 @@ using Makie: Point2f
         @test y_span / x_span >= 0.3
         @test y_span / 2 > 0.2
     end
+
+    @testset "pedagogical triangle for confounding DAGs" begin
+        g, _ = confounding_graph(["Z", "X", "Y"])
+        result = compute_graph_layout(g)
+        ys = [p[2] for p in result.positions]
+        xs = [p[1] for p in result.positions]
+        # Confounder Z (node 1) at apex; X and Y on the base
+        @test result.positions[1][2] > result.positions[2][2]
+        @test result.positions[1][2] > result.positions[3][2]
+        @test result.positions[2][1] < result.positions[3][1]
+        # Not collinear: y-range is non-degenerate
+        @test maximum(ys) - minimum(ys) > 0.5
+        @test maximum(xs) - minimum(xs) > 0.5
+
+        # Explicit layered mode still available when requested
+        layered = compute_graph_layout(g; layout_mode = :spring)
+        @test length(layered.positions) == 3
+    end
 end

@@ -5,6 +5,8 @@ DAGMakie provides algorithms for d-separation testing, path finding, and adjustm
 ```@example causal
 using Graphs, DAGMakie, CairoMakie
 
+# Classic confounding triangle: Z → X → Y, Z → Y
+# (auto triangle layout keeps the backdoor edge Z → Y visible)
 g, labels = confounding_graph(["Z", "X", "Y"])
 nothing # hide
 ```

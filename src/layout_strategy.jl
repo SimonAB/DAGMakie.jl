@@ -47,6 +47,10 @@ Resolve deterministic positions and feedback-edge routing metadata for a graph.
 
 If `layout` is provided, those positions are respected, but the graph is still
 classified so cyclic feedback routing can be applied consistently.
+
+When `layout` is omitted and the graph is a 3-node transitive triangle
+(unique source with edges to both other nodes plus an edge between them),
+an apex-top pedagogical layout is used so the shortcut edge remains visible.
 """
 function compute_graph_layout(
     g::Graphs.AbstractGraph;
@@ -65,12 +69,18 @@ function compute_graph_layout(
 
     positions, node_layers, component_index, components, component_layers = if layout === nothing
         if actual_mode === :acyclic
-            pos, layers = _compute_layered_positions(
-                g;
-                orientation = orientation,
-                layer_gap = layer_gap,
-                node_gap = node_gap,
-            )
+            triangle_pos = _pedagogical_triangle_positions(g)
+            if triangle_pos !== nothing
+                pos = triangle_pos
+                layers = _triangle_node_layers(g, pos)
+            else
+                pos, layers = _compute_layered_positions(
+                    g;
+                    orientation = orientation,
+                    layer_gap = layer_gap,
+                    node_gap = node_gap,
+                )
+            end
             component_index = collect(1:Graphs.nv(g))
             components = [[node] for node in 1:Graphs.nv(g)]
             component_layers = copy(layers)
@@ -168,6 +178,54 @@ function _effective_layout_mode(layout_mode::Symbol, directed_kind::Symbol)
         return directed_kind === :acyclic ? :acyclic : :cyclic
     end
     return layout_mode
+end
+
+"""
+    _pedagogical_triangle_positions(g)
+
+For a 3-node DAG with all three directed edges (a transitive triangle), return
+positions with the unique source at the apex and the remaining nodes left/right
+so the shortcut edge stays visible. Layered left-to-right layout otherwise
+collinearises the nodes and draws the long edge through the middle node.
+
+Returns `nothing` when the graph is not this pattern.
+"""
+function _pedagogical_triangle_positions(g::Graphs.AbstractGraph)
+    Graphs.nv(g) == 3 || return nothing
+    Graphs.ne(g) == 3 || return nothing
+    is_dag(g) || return nothing
+
+    sources = [node for node in 1:3 if Graphs.indegree(g, node) == 0]
+    length(sources) == 1 || return nothing
+    apex = only(sources)
+
+    bottoms = [node for node in 1:3 if node != apex]
+    length(bottoms) == 2 || return nothing
+    left, right = bottoms[1], bottoms[2]
+    if Graphs.has_edge(g, right, left)
+        left, right = right, left
+    elseif !Graphs.has_edge(g, left, right)
+        return nothing
+    end
+
+    # Require the apex → both bottoms edges (confounding / mediation triangle).
+    Graphs.has_edge(g, apex, left) || return nothing
+    Graphs.has_edge(g, apex, right) || return nothing
+
+    positions = Vector{Point2f}(undef, 3)
+    positions[apex] = Point2f(0.0, 1.0)
+    positions[left] = Point2f(-1.0, 0.0)
+    positions[right] = Point2f(1.0, 0.0)
+    return positions
+end
+
+function _triangle_node_layers(g::Graphs.AbstractGraph, positions::Vector{Point2f})
+    layers = ones(Int, Graphs.nv(g))
+    for node in 1:Graphs.nv(g)
+        # Apex (higher y) is layer 1; base nodes are layer 2.
+        layers[node] = positions[node][2] > 0.5 ? 1 : 2
+    end
+    return layers
 end
 
 function _materialise_layout_positions(g::Graphs.AbstractGraph, layout)

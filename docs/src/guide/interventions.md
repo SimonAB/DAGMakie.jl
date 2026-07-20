@@ -5,6 +5,7 @@ DAGMakie supports Pearl's do-calculus operations and intervention visualisation.
 ```@example interventions
 using Graphs, DAGMakie, CairoMakie
 
+# Classic confounding triangle: Z → X → Y, Z → Y
 g, labels = confounding_graph(["Z", "X", "Y"])
 nothing # hide
 ```

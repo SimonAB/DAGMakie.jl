@@ -60,6 +60,7 @@ g_conf, _ = confounding_graph(["Z", "X", "Y"])
 dagplot!(ax1, g_chain, nlabels = ["X", "Y", "Z"])
 dagplot!(ax2, g_fork, nlabels = ["X", "Y", "Z"])
 dagplot!(ax3, g_collider, nlabels = ["X", "Y", "Z"])
+# Triangle layout is applied automatically for the Z→X→Y, Z→Y pattern
 dagplot!(ax4, g_conf, nlabels = ["Z", "X", "Y"])
 fig
 ```
