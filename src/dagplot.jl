@@ -73,7 +73,7 @@ limits to prevent clipping of nodes and labels.
 
 # Node Keyword Arguments
 - `node_size = 12`: Node marker size in pixels
-- `node_color = :lightblue`: Node fill colour (single value or vector)
+- `node_color = DEFAULT_NODE_COLOR`: Node fill colour (single value or vector; steel-blue by default)
 - `node_strokewidth = 1.0`: Node outline width
 - `node_strokecolor = :black`: Node outline colour
 - `node_marker = :circle`: Node marker shape
@@ -86,11 +86,11 @@ limits to prevent clipping of nodes and labels.
 
 # Label Keyword Arguments
 - `nlabels = nothing`: Node labels (vector of strings, or `nothing`)
-- `nlabels_align = (:right, :bottom)`: Label alignment (or vector)
-- `auto_align_labels = true`: Automatically compute label alignment to avoid edges
-- `nlabels_distance = 10`: Label distance from node in pixels
-- `nlabels_fontsize = 14`: Label font size
-- `nlabels_color = :black`: Label colour
+- `nlabels_align = (:center, :center)`: Label alignment (or vector); centred for in-node labels
+- `auto_align_labels = false`: When true, use package-local `compute_auto_label_aligns` (works with registry GraphMakie)
+- `nlabels_distance = 0`: Label distance from node in pixels (0 centres labels in nodes)
+- `nlabels_fontsize = 16`: Label font size
+- `nlabels_color = :white`: Label colour (white on dark node fills)
 
 # Additional Arguments
 - Additional keyword arguments are passed to `GraphMakie.graphplot!`
@@ -115,7 +115,7 @@ dagplot!(ax, g, nlabels=["Z", "X", "Y"])
 # With node colours indicating roles
 dagplot!(ax, g, 
     nlabels=["Confounder", "Treatment", "Outcome"],
-    node_color=[:yellow, :lightgreen, :lightblue]
+    node_color=[NODE_COLOR_CONFOUNDER, DEFAULT_NODE_COLOR, DEFAULT_NODE_COLOR]
 )
 
 # Multiple DAGs in one figure
@@ -158,7 +158,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     # Labels
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
-    auto_align_labels = true,
+    auto_align_labels = false,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
@@ -223,7 +223,12 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         end
     end
 
-    use_graphmakie_auto_align = auto_align_labels && nlabels !== nothing
+    # Use package-local auto-align so registry GraphMakie (without
+    # `nlabels_auto_align`) still gets sensible label placement.
+    resolved_nlabels_align = nlabels_align
+    if auto_align_labels && nlabels !== nothing
+        resolved_nlabels_align = compute_auto_label_aligns(g, layout_result.positions)
+    end
 
     p = graphplot!(ax, g;
         layout = layout_result.positions,
@@ -239,8 +244,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         arrow_shift = edge_arrow_shifts,
         waypoints = base_waypoints,
         nlabels = nlabels,
-        nlabels_align = nlabels_align,
-        nlabels_auto_align = use_graphmakie_auto_align,
+        nlabels_align = resolved_nlabels_align,
         nlabels_distance = resolved_label_distance,
         nlabels_fontsize = resolved_label_fontsize,
         nlabels_color = resolved_label_color,
@@ -292,6 +296,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
                 padding = resolved_padding,
                 to_px = p[:to_px][],
                 extra_points = extra_bound_points,
+                node_sizes = node_sizes,
             )
         else
             xlim, ylim = compute_padded_limits(
@@ -301,7 +306,9 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
                 resolved_label_distance,
                 resolved_label_fontsize;
                 padding = resolved_padding,
+                to_px = p[:to_px][],
                 extra_points = extra_bound_points,
+                node_sizes = node_sizes,
             )
         end
 
@@ -846,7 +853,7 @@ function dagplot!(ax, mg::MixedGraph;
     # Labels
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
-    auto_align_labels = true,
+    auto_align_labels = false,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
@@ -938,6 +945,7 @@ function dagplot!(ax, mg::MixedGraph;
                     padding = resolved_padding,
                     to_px = p[:to_px][],
                     extra_points = extra_points,
+                    node_sizes = resolved_node_size,
                 )
             else
                 xlim, ylim = compute_padded_limits(
@@ -947,7 +955,9 @@ function dagplot!(ax, mg::MixedGraph;
                     resolved_label_distance,
                     resolved_label_fontsize;
                     padding = resolved_padding,
+                    to_px = p[:to_px][],
                     extra_points = extra_points,
+                    node_sizes = resolved_node_size,
                 )
             end
 

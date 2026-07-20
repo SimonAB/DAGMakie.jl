@@ -375,8 +375,8 @@ function dagplot_dsep(
     x::Int, 
     y::Int, 
     z::Set{Int};
-    x_color = :lightblue,
-    y_color = :lightblue,
+    x_color = DEFAULT_NODE_COLOR,
+    y_color = DEFAULT_NODE_COLOR,
     z_color = :lightsalmon,
     kwargs...
 )

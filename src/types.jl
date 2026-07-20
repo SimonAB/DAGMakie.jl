@@ -254,23 +254,23 @@ Return the default colour for a given node type.
 """
 function default_node_color(type::NodeType)
     return if type == Observed
-        :lightblue
+        DEFAULT_NODE_COLOR
     elseif type == Latent
-        :white
+        :gray
     elseif type == Treatment
-        :lightgreen
+        DEFAULT_NODE_COLOR
     elseif type == Outcome
-        :lightyellow
+        DEFAULT_NODE_COLOR
     elseif type == Instrument
-        :lightpink
+        NODE_COLOR_CONFOUNDER
     elseif type == Confounder
-        :lightsalmon
+        NODE_COLOR_CONFOUNDER
     elseif type == Mediator
-        :lightcyan
+        NODE_COLOR_MEDIATOR
     elseif type == Collider
-        :plum
+        :mediumpurple
     else
-        :lightgray
+        DEFAULT_NODE_COLOR
     end
 end
 

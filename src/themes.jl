@@ -59,11 +59,16 @@ end
 # Default Styling Constants
 # =============================================================================
 
-"""Default node size in pixels."""
-const DEFAULT_NODE_SIZE = 12
+"""Default node size in pixels (large enough for in-node labels)."""
+const DEFAULT_NODE_SIZE = 34
+"""Default node colour (steel-blue; white labels read clearly)."""
+const DEFAULT_NODE_COLOR = :steelblue
 
-"""Default node colour."""
-const DEFAULT_NODE_COLOR = :lightblue
+"""Highlight colour for confounders / exogenous noise / instruments."""
+const NODE_COLOR_CONFOUNDER = :goldenrod
+
+"""Highlight colour for mediators or other focal nodes."""
+const NODE_COLOR_MEDIATOR = :seagreen
 
 """Default node stroke width."""
 const DEFAULT_NODE_STROKEWIDTH = 1.0
@@ -75,28 +80,28 @@ const DEFAULT_NODE_STROKECOLOR = :black
 const DEFAULT_EDGE_COLOR = :black
 
 """Default edge width."""
-const DEFAULT_EDGE_WIDTH = 1.0
+const DEFAULT_EDGE_WIDTH = 2.0
 
 """Default arrow size."""
-const DEFAULT_ARROW_SIZE = 10
+const DEFAULT_ARROW_SIZE = 14
 
 """Default arrow shift (`:end` places arrow at destination node)."""
 const DEFAULT_ARROW_SHIFT = :end
 
 """Default label font size."""
-const DEFAULT_LABEL_FONTSIZE = 14
+const DEFAULT_LABEL_FONTSIZE = 16
 
-"""Default label colour."""
-const DEFAULT_LABEL_COLOR = :black
+"""Default label colour (white text inside nodes)."""
+const DEFAULT_LABEL_COLOR = :white
 
-"""Default label distance from node (pixels)."""
-const DEFAULT_LABEL_DISTANCE = 10
+"""Default label distance from node (pixels); 0 centres labels in nodes."""
+const DEFAULT_LABEL_DISTANCE = 0
 
-"""Default label alignment."""
-const DEFAULT_LABEL_ALIGN = (:right, :bottom)
+"""Default label alignment (centred in the node)."""
+const DEFAULT_LABEL_ALIGN = (:center, :center)
 
 """Default padding fraction."""
-const DEFAULT_PADDING = 0.1
+const DEFAULT_PADDING = 0.35
 
 # =============================================================================
 # Style Presets
@@ -165,18 +170,18 @@ Return a minimal DAG style with smaller nodes and thinner edges.
 """
 function minimal_style()
     return DAGStyle(
-        8,              # node_size
-        :lightgray,     # node_color
+        28,             # node_size
+        :slategray,     # muted steel
         0.5,            # node_strokewidth
         :darkgray,      # node_strokecolor
         :darkgray,      # edge_color
-        0.5,            # edge_width
-        8,              # arrow_size
+        1.0,            # edge_width
+        10,             # arrow_size
         :end,           # arrow_shift
-        12,             # label_fontsize
-        :black,         # label_color
-        8,              # label_distance
-        0.08            # padding
+        14,             # label_fontsize
+        :white,         # label_color
+        0,              # label_distance (in-node)
+        0.30            # padding
     )
 end
 
@@ -187,30 +192,30 @@ Return a bold DAG style with larger nodes and thicker edges.
 """
 function bold_style()
     return DAGStyle(
-        18,             # node_size
-        :steelblue,     # node_color
+        42,             # node_size
+        DEFAULT_NODE_COLOR,
         2.0,            # node_strokewidth
         :black,         # node_strokecolor
         :black,         # edge_color
-        2.0,            # edge_width
-        14,             # arrow_size
+        2.5,            # edge_width
+        16,             # arrow_size
         :end,           # arrow_shift
-        16,             # label_fontsize
-        :black,         # label_color
-        12,             # label_distance
-        0.12            # padding
+        18,             # label_fontsize
+        :white,         # label_color
+        0,              # label_distance (in-node)
+        0.40            # padding
     )
 end
 
 """
     presentation_style()
 
-Return a style optimised for presentations (large, high contrast).
+Return a style optimised for presentations (large, high contrast, in-node labels).
 """
 function presentation_style()
     return DAGStyle(
-        24,             # node_size
-        :dodgerblue,    # node_color
+        48,             # node_size
+        DEFAULT_NODE_COLOR,
         2.5,            # node_strokewidth
         :black,         # node_strokecolor
         :black,         # edge_color
@@ -218,8 +223,8 @@ function presentation_style()
         18,             # arrow_size
         :end,           # arrow_shift
         20,             # label_fontsize
-        :black,         # label_color
-        16,             # label_distance
-        0.15            # padding
+        :white,         # label_color
+        0,              # label_distance (in-node)
+        0.45            # padding
     )
 end

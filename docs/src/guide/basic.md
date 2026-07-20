@@ -71,12 +71,14 @@ dagplot(g,
 
 ### Label Alignment
 
-Labels are automatically aligned to avoid edge overlaps:
+By default, labels use a fixed alignment. Pass `auto_align_labels = true` to compute
+per-node alignments that avoid edges (via package-local `compute_auto_label_aligns`,
+which does not require a GraphMakie fork):
 
 ```julia
 dagplot(g,
     nlabels = ["X", "Y", "Z"],
-    auto_align_labels = true,    # Default: automatic alignment
+    auto_align_labels = true,
 )
 
 # Manual alignment

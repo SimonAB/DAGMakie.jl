@@ -6,7 +6,7 @@
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> ⚠️ **Work in Progress** — This package is under active development and not yet registered.
+> ⚠️ **Not yet registered** — Install from GitHub until the first General registry release.
 
 Publication-ready visualisation of directed acyclic, directed cyclic, and mixed causal graphs for causal inference.
 
@@ -14,7 +14,7 @@ DAGMakie provides clean, minimal DAG visualisation with sensible defaults for ac
 
 ## Features
 
-- **Automatic label alignment**: Labels positioned to avoid edge overlaps
+- **In-node white labels** on steel-blue nodes by default (short variable names)
 - **Deterministic layered DAG layout**: Acyclic graphs default to a fast layered layout rather than a generic spring layout
 - **SCC-aware cyclic layout**: Directed feedback loops are grouped and routed as explicit curved feedback edges
 - **Publication-ready themes**: Clean styling with no axes or grids
@@ -24,7 +24,14 @@ DAGMakie provides clean, minimal DAG visualisation with sensible defaults for ac
 
 ## Installation
 
-Since this package is not yet registered, install from the local path:
+Until registration, install from GitHub:
+
+```julia
+using Pkg
+Pkg.add(url="https://github.com/SimonAB/DAGMakie.jl")
+```
+
+For local development:
 
 ```julia
 using Pkg
@@ -303,7 +310,7 @@ style = presentation_style()  # Extra large for slides
 #### Labels
 - `nlabels = nothing` — Node labels (vector of strings)
 - `nlabels_align = (:right, :bottom)` — Label alignment
-- `auto_align_labels = true` — Automatic alignment to avoid edges
+- `auto_align_labels = true` — Automatic alignment via `compute_auto_label_aligns` (package-local; works with registry GraphMakie)
 - `nlabels_distance = 10` — Distance from node (pixels)
 - `nlabels_fontsize = 14` — Font size
 - `nlabels_color = :black` — Label colour

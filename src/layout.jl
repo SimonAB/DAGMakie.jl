@@ -163,9 +163,9 @@ function _get_align(nlabels_align::AbstractVector, i::Int)
 end
 
 """
-    compute_padded_limits(node_positions, nlabels, nlabels_align, nlabels_distance, nlabels_fontsize; padding=0.1)
+    compute_padded_limits(node_positions, nlabels, nlabels_align, nlabels_distance, nlabels_fontsize; padding=0.1, node_sizes=nothing)
 
-Compute axis limits with padding that includes all nodes and labels.
+Compute axis limits with padding that includes all nodes, labels, and marker extents.
 
 # Arguments
 - `node_positions`: Vector of node positions
@@ -174,6 +174,8 @@ Compute axis limits with padding that includes all nodes and labels.
 - `nlabels_distance`: Label distance in pixels
 - `nlabels_fontsize`: Font size
 - `padding::Float64 = 0.1`: Padding as fraction of range (0.1 = 10%)
+- `node_sizes`: Optional node marker size(s) in pixels; used so flat chains/columns
+  are not cropped under `DataAspect`
 
 # Returns
 - Tuple of tuples `((x_min, x_max), (y_min, y_max))` for axis limits
@@ -188,6 +190,7 @@ function compute_padded_limits(
     to_px = nothing,
     pixel_size::Tuple{Real, Real} = (500.0, 500.0),
     extra_points::AbstractVector = Point2f[],
+    node_sizes = nothing,
 )
     if nlabels !== nothing && !isempty(nlabels)
         x_min, x_max, y_min, y_max = compute_label_bounds(
@@ -215,17 +218,39 @@ function compute_padded_limits(
     x_range = max(x_max - x_min, 1e-3)
     y_range = max(y_max - y_min, 1e-3)
 
-    # Calculate percentage-based padding
-    x_padding_pct = padding * x_range
-    y_padding_pct = padding * y_range
+    xs_nodes = [Float64(pos[1]) for pos in node_positions]
+    ys_nodes = [Float64(pos[2]) for pos in node_positions]
+    scale_x, scale_y = _pixel_to_data_scale(xs_nodes, ys_nodes; to_px = to_px, pixel_size = pixel_size)
 
-    # Minimum padding: keep a non-zero margin even for degenerate layouts
-    min_padding_x = max(0.05 * x_range, 0.05)
-    min_padding_y = max(0.05 * y_range, 0.05)
+    # Half the largest marker diameter in data units. Prefer the longer-axis
+    # pixel→data scale so circular markers survive DataAspect on flat chains.
+    node_radius_data = 0.0
+    if node_sizes !== nothing
+        sizes = node_sizes isa AbstractVector ? node_sizes : [node_sizes]
+        max_node_px = Float64(maximum(sizes))
+        node_radius_data = 0.5 * max_node_px * max(abs(scale_x), abs(scale_y))
+    end
 
-    # Use the larger of percentage-based or minimum padding
-    x_padding = max(x_padding_pct, min_padding_x)
-    y_padding = max(y_padding_pct, min_padding_y)
+    long_range = max(x_range, y_range, 1.0)
+    # Extra margin: at least one node radius plus a little breathing room
+    marker_pad = node_radius_data + max(0.08 * long_range, 0.15 * node_radius_data)
+
+    x_padding = max(padding * x_range, 0.05 * x_range, 0.05, marker_pad)
+    y_padding = max(padding * y_range, 0.05 * y_range, 0.05, marker_pad)
+
+    # DataAspect shrinks the plot area to match the data aspect ratio. A nearly
+    # collinear chain can collapse that area to a strip thinner than the node
+    # markers (pixel-sized). Enforce the minimum aspect on the *final* spans
+    # after ordinary padding, otherwise growing the long axis undoes the fix.
+    min_aspect = 0.35
+    x_span = x_range + 2 * x_padding
+    y_span = y_range + 2 * y_padding
+    if y_span < min_aspect * x_span
+        y_padding = max(y_padding, 0.5 * (min_aspect * x_span - y_range))
+    end
+    if x_span < min_aspect * y_span
+        x_padding = max(x_padding, 0.5 * (min_aspect * y_span - x_range))
+    end
 
     return (
         (x_min - x_padding, x_max + x_padding),

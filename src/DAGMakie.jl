@@ -67,10 +67,10 @@ using NetworkLayout
 @reexport using Graphs: SimpleDiGraph, DiGraph, add_edge!, has_edge, nv, ne
 
 # Include source files
+include("themes.jl")
 include("types.jl")
 include("auto_align.jl")
 include("layout.jl")
-include("themes.jl")
 include("utils.jl")
 include("bidirected.jl")
 include("layout_strategy.jl")
@@ -103,6 +103,7 @@ export DAGLayoutResult, classify_graph_kind, compute_graph_layout, feedback_edge
 # Themes and styling
 export dag_theme
 export DAGStyle, default_style, minimal_style, bold_style, presentation_style
+export DEFAULT_NODE_COLOR, NODE_COLOR_CONFOUNDER, NODE_COLOR_MEDIATOR
 export apply_dag_theme!
 
 # Types

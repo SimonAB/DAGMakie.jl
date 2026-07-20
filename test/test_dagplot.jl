@@ -173,21 +173,31 @@
         g = SimpleDiGraph(3)
         add_edge!(g, 1, 2)
         add_edge!(g, 2, 3)
-        
-        # With auto-align (default)
-        fig1, ax1, p1 = dagplot(g, 
+
+        # With package-local auto-align (works without GraphMakie fork)
+        fig1, ax1, p1 = dagplot(g,
             nlabels = ["X", "Y", "Z"],
             auto_align_labels = true
         )
         @test fig1 isa Makie.Figure
-        
-        # Without auto-align
+        aligns_auto = p1[:nlabels_align][]
+        @test aligns_auto isa AbstractVector
+        @test length(aligns_auto) == 3
+        @test aligns_auto != fill((:center, :center), 3)
+
+        # Without auto-align: explicit alignment is preserved
         fig2, ax2, p2 = dagplot(g,
             nlabels = ["X", "Y", "Z"],
             auto_align_labels = false,
             nlabels_align = (:left, :bottom)
         )
         @test fig2 isa Makie.Figure
+        aligns_manual = p2[:nlabels_align][]
+        if aligns_manual isa AbstractVector
+            @test all(a -> a == (:left, :bottom), aligns_manual)
+        else
+            @test aligns_manual == (:left, :bottom)
+        end
     end
     
     @testset "Themes" begin

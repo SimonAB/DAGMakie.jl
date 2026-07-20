@@ -1,7 +1,8 @@
 name = "DAGMakie"
-uuid = "d4a9c1e2-f5b6-4a7c-8d9e-0f1a2b3c4d5e"
+uuid = "4e3bd891-6b6d-4d36-a31e-f0404dd10c7d"
 version = "0.1.0"
 authors = ["Simon A. Babayan <simon.babayan@glasgow.ac.uk>"]
+license = "MIT"
 
 [deps]
 GraphMakie = "1ecd5474-83a3-4783-bb4f-06765db800d2"
@@ -13,7 +14,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [weakdeps]
-CausalDynamics = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+CausalDynamics = "823b1367-efac-4af0-bbfc-73ee462bce07"
 
 [extensions]
 DAGMakieCausalDynamicsExt = "CausalDynamics"

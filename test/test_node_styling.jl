@@ -5,11 +5,12 @@
         @test node_type_marker(Latent) == :circle
         @test node_type_marker(Instrument) == :diamond
         
-        # Colours
-        @test node_type_color(Observed) == :lightblue
-        @test node_type_color(Latent) == :white
-        @test node_type_color(Treatment) == :lightgreen
-        @test node_type_color(Outcome) == :lightyellow
+        # Colours (in-node white-label palette)
+        @test node_type_color(Observed) == DEFAULT_NODE_COLOR
+        @test node_type_color(Confounder) == NODE_COLOR_CONFOUNDER
+        @test node_type_color(Mediator) == NODE_COLOR_MEDIATOR
+        @test node_type_color(Treatment) == DEFAULT_NODE_COLOR
+        @test node_type_color(Outcome) == DEFAULT_NODE_COLOR
         
         # Stroke widths
         @test node_type_strokewidth(Latent) == 2.0

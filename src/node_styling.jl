@@ -39,25 +39,7 @@ end
 Return the default fill colour for a given node type.
 """
 function node_type_color(type::NodeType)
-    return if type == Observed
-        :lightblue
-    elseif type == Latent
-        :white  # Hollow appearance
-    elseif type == Treatment
-        :lightgreen
-    elseif type == Outcome
-        :lightyellow
-    elseif type == Instrument
-        :lightpink
-    elseif type == Confounder
-        :lightsalmon
-    elseif type == Mediator
-        :lightcyan
-    elseif type == Collider
-        :plum
-    else
-        :lightgray
-    end
+    return default_node_color(type)
 end
 
 """

@@ -60,5 +60,17 @@ using Makie: Point2f
         
         @test xlim_no_label[1] < 0
         @test xlim_no_label[2] > 2
+
+        # Horizontal chain: y-span is degenerate; DataAspect must not collapse
+        # the plot area below the marker diameter.
+        xlim_chain, ylim_chain = compute_padded_limits(
+            positions, labels, (:center, :center), 0, 16;
+            padding = 0.1,
+            node_sizes = 34,
+        )
+        y_span = ylim_chain[2] - ylim_chain[1]
+        x_span = xlim_chain[2] - xlim_chain[1]
+        @test y_span / x_span >= 0.3
+        @test y_span / 2 > 0.2
     end
 end

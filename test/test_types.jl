@@ -81,13 +81,14 @@
     end
     
     @testset "Default styling" begin
-        @test default_node_color(Observed) == :lightblue
-        @test default_node_color(Latent) == :white
-        @test default_node_color(Treatment) == :lightgreen
-        
+        @test default_node_color(Observed) == DEFAULT_NODE_COLOR
+        @test default_node_color(Confounder) == NODE_COLOR_CONFOUNDER
+        @test default_node_color(Mediator) == NODE_COLOR_MEDIATOR
+        @test default_node_color(Treatment) == DEFAULT_NODE_COLOR
+
         @test default_node_marker(Observed) == :circle
         @test default_node_marker(Latent) == :circle
-        
+
         @test default_node_strokewidth(Latent) == 2.0
         @test default_node_strokewidth(Observed) == 1.0
     end
