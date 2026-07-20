@@ -42,17 +42,11 @@ Pkg.develop(path="/path/to/DAGMakie.jl")
 ## Quick Start
 
 ```julia
-using Graphs, DAGMakie, CairoMakie
+using DAGMakie, CairoMakie
 
-# Create a simple confounding DAG: Z → X → Y, Z → Y
-g = SimpleDiGraph(3)
-add_edge!(g, 1, 2)  # Z → X
-add_edge!(g, 1, 3)  # Z → Y
-add_edge!(g, 2, 3)  # X → Y
-
-# Plot with labels
-fig, ax, p = dagplot(g, nlabels=["Z", "X", "Y"])
-save("confounding_dag.png", fig)
+# Confounding DAG Z → X → Y, Z → Y (triangle layout: confounder on top)
+fig, ax, p = dagplot_confounding(["Z", "X", "Y"])
+save("docs/images/confounding_dag.png", fig)
 ```
 
 ![Confounding DAG](docs/images/confounding_dag.png)
