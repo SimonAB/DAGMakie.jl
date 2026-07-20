@@ -6,7 +6,9 @@ Bidirected edges (↔) represent unmeasured common causes (latent confounders) i
 
 `MixedGraph` supports both directed (→) and bidirected (↔) edges:
 
-```julia
+```@example bidirected
+using Graphs, DAGMakie, CairoMakie
+
 # Create empty mixed graph
 mg = MixedGraph(3)
 
@@ -18,6 +20,7 @@ add_directed_edge!(mg, 2, 3)  # Y → Z
 add_bidirected_edge!(mg, 1, 3)  # X ↔ Z
 
 fig, ax, p = dagplot(mg, nlabels = ["X", "Y", "Z"])
+fig
 ```
 
 ## Creating Mixed Graphs
@@ -51,15 +54,16 @@ mg = MixedGraph(g, [(1, 3)])  # Add bidirected X ↔ Z
 
 ## Customising Bidirected Edges
 
-```julia
-dagplot(mg,
+```@example bidirected
+fig, ax, p = dagplot(mg,
     nlabels = ["X", "Y", "Z"],
-    bidirected_color = :red,       # Colour
-    bidirected_width = 1.5,        # Line width
-    bidirected_style = :dash,      # Line style (:solid, :dash, :dot)
-    bidirected_curvature = 0.4,    # Arc curvature (0-1)
-    bidirected_arrow_size = 10,    # Arrowhead size
+    bidirected_color = :red,
+    bidirected_width = 1.5,
+    bidirected_style = :dash,
+    bidirected_curvature = 0.4,
+    bidirected_arrow_size = 10,
 )
+fig
 ```
 
 ## Common Confounded Patterns
@@ -70,33 +74,30 @@ pass `layout=...` to override.
 
 ### Simple Confounding
 
-```julia
-# X → Y with X ↔ Y (unmeasured confounder U affects both)
+```@example bidirected
 fig, ax, p = dagplot_confounded(["X", "Y"])
+fig
 ```
 
 ### Frontdoor Criterion
 
-```julia
-# X → M → Y with X ↔ Y
-# The mediator M allows identification via the frontdoor criterion
+```@example bidirected
 fig, ax, p = dagplot_frontdoor(["X", "M", "Y"])
+fig
 ```
 
 ### Instrumental Variable with Confounding
 
-```julia
-# Z → X → Y with X ↔ Y
-# Z is an instrument for the confounded X → Y effect
+```@example bidirected
 fig, ax, p = dagplot_iv_confounded(["Z", "X", "Y"])
+fig
 ```
 
 ### M-Bias
 
-```julia
-# X → Y with X ↔ M ↔ Y
-# M is a collider that shouldn't be conditioned on
+```@example bidirected
 fig, ax, p = dagplot_m_bias(["X", "M", "Y"])
+fig
 ```
 
 ## Graph Constructors

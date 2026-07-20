@@ -2,8 +2,6 @@
 Intervention (`do(·)`) support for causal DAGs.
 
 Pearl's do-calculus: graph surgery, intervention plots, and `do(X)` labels.
-Process reading: `do(·)` is **physical prehension**—an occasion fixed regardless of
-its parents; `do_surgery` removes incoming **prehensive relations** to that node.
 """
 
 using Graphs: AbstractGraph, SimpleDiGraph, nv, ne, add_edge!, rem_edge!,
@@ -16,8 +14,7 @@ using Graphs: AbstractGraph, SimpleDiGraph, nv, ne, add_edge!, rem_edge!,
 """
     do_surgery(g::AbstractGraph, intervention_nodes::Vector{Int})
 
-Perform graph surgery for `do(·)`: remove all incoming edges to intervention nodes
-(negate how parents prehend into those nodes).
+Perform graph surgery for `do(·)`: remove all incoming edges to intervention nodes.
 
 Returns a graph where intervened nodes are fixed and no longer depend on parents.
 

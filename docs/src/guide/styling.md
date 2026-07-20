@@ -23,18 +23,21 @@ end
 
 The `DAGSpec` type combines a graph with node specifications:
 
-```julia
-g = SimpleDiGraph(4)
+```@example styling
+using Graphs, DAGMakie, CairoMakie
+
+g = SimpleDiGraph(3)
 add_edge!(g, 1, 2)  # Z → X
 add_edge!(g, 1, 3)  # Z → Y
 add_edge!(g, 2, 3)  # X → Y
 
 spec = DAGSpec(g,
-    node_labels = ["Instrument", "Treatment", "Outcome", "Confounder"],
-    node_types = [Instrument, Treatment, Outcome, Confounder]
+    node_labels = ["Z", "X", "Y"],
+    node_types = [Confounder, Treatment, Outcome]
 )
 
 fig, ax, p = dagplot(spec)
+fig
 ```
 
 ## Node Type Styling
@@ -71,7 +74,7 @@ stroke = default_node_strokewidth(Latent)  # 2.0 (prominent outline)
 
 Apply styling to existing graphs:
 
-```julia
+```@example styling
 g = SimpleDiGraph(3)
 add_edge!(g, 1, 2)
 add_edge!(g, 2, 3)
@@ -79,31 +82,34 @@ add_edge!(g, 2, 3)
 types = [Confounder, Treatment, Outcome]
 colors, markers, strokewidths = apply_node_type_styling(types)
 
-dagplot(g,
+fig, ax, p = dagplot(g,
     nlabels = ["Z", "X", "Y"],
     node_color = colors,
     node_marker = markers,
     node_strokewidth = strokewidths,
 )
+fig
 ```
 
 ## Pre-typed Graph Constructors
 
 Create graphs with pre-assigned node types:
 
-```julia
-# Confounding pattern with types
-spec = typed_confounding_graph(["Z", "X", "Y"])
+```@example styling
+spec = typed_confounding_graph()
 fig, ax, p = dagplot(spec)
+fig
+```
 
+```julia
 # Mediation pattern with types
-spec = typed_mediation_graph(["X", "M", "Y"])
+spec = typed_mediation_graph()
 
 # Instrumental variable pattern
-spec = typed_instrumental_graph(["Z", "X", "Y", "U"])
+spec = typed_instrumental_graph()
 
 # Collider pattern
-spec = typed_collider_graph(["X", "C", "Y"])
+spec = typed_collider_graph()
 ```
 
 ## Style Presets

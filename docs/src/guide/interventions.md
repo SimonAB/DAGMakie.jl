@@ -2,18 +2,25 @@
 
 DAGMakie supports Pearl's do-calculus operations and intervention visualisation.
 
+```@example interventions
+using Graphs, DAGMakie, CairoMakie
+
+g, labels = confounding_graph(["Z", "X", "Y"])
+nothing # hide
+```
+
 ## Graph Surgery
 
 The `do(X)` operator removes all incoming edges to the intervention target:
 
-```julia
-g, labels = confounding_graph(["Z", "X", "Y"])
-
+```@example interventions
 # Perform graph surgery: do(X)
 g_do = do_surgery(g, 2)
 
 # Original: Z → X → Y, Z → Y
 # After do(X): X → Y, Z → Y (Z → X removed)
+println("Edges before: ", collect(edges(g)))
+println("Edges after:  ", collect(edges(g_do)))
 ```
 
 ### Multiple Interventions
@@ -27,26 +34,27 @@ g_do = do_surgery(g, [1, 2])  # do(Z, X)
 
 ### Basic Intervention Plot
 
-```julia
+```@example interventions
 # Show intervention (removed edges displayed as dashed)
 int = Intervention(2; label="do(X)")
 fig, ax, p = dagplot_intervention(g, int, nlabels=labels)
+fig
 ```
 
 ### Convenience Function
 
-```julia
-# Simpler syntax
+```@example interventions
 fig, ax, p = dagplot_do(g, 2, nlabels=labels)
+fig
 ```
 
 ### Comparison View
 
 Side-by-side comparison of original and post-intervention graphs:
 
-```julia
-# Two-panel comparison
+```@example interventions
 fig = dagplot_do_comparison(g, 2, nlabels=labels)
+fig
 ```
 
 ## The Intervention Type
@@ -56,90 +64,85 @@ fig = dagplot_do_comparison(g, 2, nlabels=labels)
 int = Intervention(
     2;                  # Node to intervene on
     label = "do(X=1)",  # Display label
-    value = 1.0         # Optional: intervention value
+    value = "1"         # Optional: intervention value (string)
 )
 
 # Access properties
-int.node    # Target node
+int.nodes   # Target node(s)
 int.label   # Display label
-int.value   # Intervention value (or nothing)
+int.values  # Intervention value(s)
 ```
 
 ## Causal Effect Identifiability
 
 Check if causal effects are identifiable:
 
-```julia
+```@example interventions
 # Is P(Y | do(X)) identifiable via backdoor adjustment?
-causal_effect_identifiable(g, 2, 3)  # true/false
+println(causal_effect_identifiable(g, 2, 3))
 
 # Does intervention remove confounding?
-intervention_removes_confounding(g, 2, 3)  # true/false
+println(intervention_removes_confounding(g, 2, 3))
 ```
 
 ## Identifying Confounders
 
-```julia
+```@example interventions
 # Find variables that confound the X → Y relationship
 confounders = identify_confounders(g, 2, 3)
-# Returns vector of node indices
+println([labels[i] for i in confounders])
 ```
 
 ## Causal Queries
 
 The `CausalQuery` type represents causal effect queries:
 
-```julia
+```@example interventions
 # Create a causal query: P(Y | do(X))
-query = CausalQuery(
-    treatment = 2,
-    outcome = 3,
-    conditioning = Int[],
-    interventions = [2]
-)
+query = CausalQuery(2, 3; intervention = Intervention(2; label = "do(X)"))
 
 # Check if query is identifiable
-query_identifiable(g, query)
+println(query_identifiable(g, query))
 
 # Format as string
 str = query_to_string(query, labels)
-# "P(Y | do(X))"
+println(str)
 ```
 
 ## Formatting Intervention Labels
 
-```julia
-# Single intervention
-label = intervention_label(2, labels)  # "do(X)"
+```@example interventions
+# Single intervention label
+println(intervention_label("X"))
+println(intervention_label("X"; value = "1"))
 
-# Multiple interventions
-labels = format_intervention_labels([1, 2], labels)  # "do(Z, X)"
+# Update node labels to show do(·) notation
+println(format_intervention_labels(labels, Intervention(2; label = "do(X)")))
 ```
 
 ## Complete Workflow Example
 
-```julia
-using Graphs, DAGMakie, CairoMakie
-
+```@example interventions
 # Create confounded graph
-g, labels = confounding_graph(["Confounder", "Treatment", "Outcome"])
+g2, labels2 = confounding_graph(["Confounder", "Treatment", "Outcome"])
 
 # Check identifiability
-if causal_effect_identifiable(g, 2, 3)
+if causal_effect_identifiable(g2, 2, 3)
     println("Effect is identifiable!")
-    
+
     # Find adjustment set
-    adj = find_minimal_adjustment_set(g, 2, 3)
-    println("Adjust for: ", [labels[i] for i in adj])
-    
+    adj = find_minimal_adjustment_set(g2, 2, 3)
+    println("Adjust for: ", [labels2[i] for i in adj])
+
     # Visualise
-    fig = dagplot_do_comparison(g, 2, nlabels=labels)
-    save("intervention_comparison.png", fig)
+    fig = dagplot_do_comparison(g2, 2, nlabels=labels2)
 else
     println("Effect is NOT identifiable via backdoor adjustment")
-    
+
     # Show the confounding
-    confounders = identify_confounders(g, 2, 3)
-    println("Confounders: ", [labels[i] for i in confounders])
+    confounders = identify_confounders(g2, 2, 3)
+    println("Confounders: ", [labels2[i] for i in confounders])
+    fig = Figure()
 end
+fig
 ```

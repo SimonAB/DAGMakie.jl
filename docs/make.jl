@@ -1,5 +1,10 @@
 using Documenter
 using DAGMakie
+using CairoMakie
+
+# Prefer PNG MIME so Documenter writes figure files instead of huge inline HTML.
+CairoMakie.activate!(type = "png")
+CairoMakie.enable_only_mime!("png")
 
 makedocs(
     sitename = "DAGMakie.jl",
@@ -9,10 +14,10 @@ makedocs(
         prettyurls = get(ENV, "CI", nothing) == "true",
         canonical = "https://simonab.github.io/DAGMakie.jl",
         assets = String[],
+        example_size_threshold = 0,  # always write @example figures to files
     ),
     pages = [
         "Home" => "index.md",
-        "Terminology" => "terminology.md",
         "Getting Started" => "getting_started.md",
         "User Guide" => [
             "Basic Plotting" => "guide/basic.md",
@@ -27,8 +32,10 @@ makedocs(
     warnonly = [:missing_docs],
 )
 
-deploydocs(
-    repo = "github.com/SimonAB/DAGMakie.jl.git",
-    devbranch = "main",
-    push_preview = true,
-)
+if get(ENV, "CI", nothing) == "true"
+    deploydocs(
+        repo = "github.com/SimonAB/DAGMakie.jl.git",
+        devbranch = "main",
+        push_preview = true,
+    )
+end

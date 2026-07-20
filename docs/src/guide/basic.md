@@ -2,6 +2,13 @@
 
 This guide covers the core plotting functions and customisation options.
 
+```@example basic
+using Graphs, DAGMakie, CairoMakie
+
+g, labels = confounding_graph(["Z", "X", "Y"])
+nothing # hide
+```
+
 ## The `dagplot` Function
 
 The main entry point is `dagplot`, which creates a new figure:
@@ -20,40 +27,37 @@ p = dagplot!(ax, g; kwargs...)
 
 ### Size and Colour
 
-```julia
-dagplot(g,
-    nlabels = ["A", "B", "C"],
-    node_size = 15,              # Node marker size
-    node_color = :lightblue,     # Single colour for all nodes
-)
-
-# Per-node colours
-dagplot(g,
-    nlabels = ["Confounder", "Treatment", "Outcome"],
+```@example basic
+fig, ax, p = dagplot(g,
+    nlabels = labels,
+    node_size = 18,
     node_color = [:yellow, :lightgreen, :lightblue],
 )
+fig
 ```
 
 ### Outline Styling
 
-```julia
-dagplot(g,
-    nlabels = ["A", "B", "C"],
-    node_strokewidth = 2.0,      # Outline width
-    node_strokecolor = :black,   # Outline colour
+```@example basic
+fig, ax, p = dagplot(g,
+    nlabels = labels,
+    node_strokewidth = 2.0,
+    node_strokecolor = :black,
 )
+fig
 ```
 
 ## Edge Customisation
 
-```julia
-dagplot(g,
-    nlabels = ["A", "B", "C"],
-    edge_color = :gray,          # Edge colour
-    edge_width = 1.5,            # Line width
-    arrow_size = 12,             # Arrowhead size
-    arrow_shift = :end,          # Arrow position (:end or 0-1)
+```@example basic
+fig, ax, p = dagplot(g,
+    nlabels = labels,
+    edge_color = :gray,
+    edge_width = 1.5,
+    arrow_size = 12,
+    arrow_shift = :end,
 )
+fig
 ```
 
 ## Label Customisation
@@ -75,13 +79,17 @@ By default, labels use a fixed alignment. Pass `auto_align_labels = true` to com
 per-node alignments that avoid edges (via package-local `compute_auto_label_aligns`,
 which does not require a GraphMakie fork):
 
-```julia
-dagplot(g,
-    nlabels = ["X", "Y", "Z"],
+```@example basic
+fig, ax, p = dagplot(g,
+    nlabels = labels,
     auto_align_labels = true,
 )
+fig
+```
 
-# Manual alignment
+Manual alignment options:
+
+```julia
 dagplot(g,
     nlabels = ["X", "Y", "Z"],
     auto_align_labels = false,
@@ -107,20 +115,16 @@ DAGMakie now defaults to an automatic layout strategy:
 
 You can still use `NetworkLayout.jl` directly when you want a force-directed layout:
 
+```@example basic
+fig, ax, p = dagplot(g, nlabels = labels, layout_mode = :spring)
+fig
+```
+
 ```julia
 using NetworkLayout
 
-# Default: automatic layered or cyclic layout
-dagplot(g, nlabels = labels)
-
-# Force-directed layout
-dagplot(g, nlabels = labels, layout_mode = :spring)
 dagplot(g, nlabels = labels, layout = Spring())
-
-# Other layouts
 dagplot(g, nlabels = labels, layout = Stress())
-dagplot(g, nlabels = labels, layout = Shell())
-dagplot(g, nlabels = labels, layout = Spectral())
 ```
 
 ## Figure Size

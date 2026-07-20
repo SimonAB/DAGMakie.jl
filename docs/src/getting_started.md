@@ -14,7 +14,7 @@ Pkg.add("Graphs")
 
 ## Your First DAG
 
-```julia
+```@example getting_started
 using Graphs, DAGMakie, CairoMakie
 
 # Create a simple chain: A → B → C
@@ -24,9 +24,11 @@ add_edge!(g, 2, 3)
 
 # Plot with labels
 fig, ax, p = dagplot(g, nlabels=["A", "B", "C"])
+fig
 ```
 
 The `dagplot` function returns:
+
 - `fig`: The Figure object
 - `ax`: The Axis object
 - `p`: The GraphPlot object (for accessing node positions)
@@ -43,20 +45,32 @@ save("my_dag.svg", fig)           # SVG format (vector graphics)
 
 DAGMakie provides convenience functions for common causal structures:
 
+```@example getting_started
+fig = Figure(size = (1000, 220))
+ax1 = Axis(fig[1, 1], title = "Chain")
+ax2 = Axis(fig[1, 2], title = "Fork")
+ax3 = Axis(fig[1, 3], title = "Collider")
+ax4 = Axis(fig[1, 4], title = "Confounding")
+
+g_chain, _ = chain_graph(["X", "Y", "Z"])
+g_fork, _ = fork_graph(["X", "Y", "Z"])
+g_collider, _ = collider_graph(["X", "Y", "Z"])
+g_conf, _ = confounding_graph(["Z", "X", "Y"])
+
+dagplot!(ax1, g_chain, nlabels = ["X", "Y", "Z"])
+dagplot!(ax2, g_fork, nlabels = ["X", "Y", "Z"])
+dagplot!(ax3, g_collider, nlabels = ["X", "Y", "Z"])
+dagplot!(ax4, g_conf, nlabels = ["Z", "X", "Y"])
+fig
+```
+
+Each pattern also has a one-liner:
+
 ```julia
-# Chain: X → Y → Z
 fig, ax, p = dagplot_chain(["X", "Y", "Z"])
-
-# Fork: X ← Y → Z
 fig, ax, p = dagplot_fork(["X", "Y", "Z"])
-
-# Collider: X → Y ← Z
 fig, ax, p = dagplot_collider(["X", "Y", "Z"])
-
-# Confounding: Z → X → Y, Z → Y
 fig, ax, p = dagplot_confounding(["Z", "X", "Y"])
-
-# Mediation: X → M → Y, X → Y
 fig, ax, p = dagplot_mediation(["X", "M", "Y"])
 ```
 
@@ -66,8 +80,8 @@ shortcut and bidirected edges remain visible. Pass `layout=...` to override.
 
 ## Multiple DAGs in One Figure
 
-```julia
-fig = Figure(size = (1200, 400))
+```@example getting_started
+fig = Figure(size = (900, 280))
 
 ax1 = Axis(fig[1, 1], title = "Chain")
 ax2 = Axis(fig[1, 2], title = "Fork")
@@ -80,8 +94,7 @@ g_collider, _ = collider_graph(["A", "B", "C"])
 dagplot!(ax1, g_chain, nlabels = ["A", "B", "C"])
 dagplot!(ax2, g_fork, nlabels = ["A", "B", "C"])
 dagplot!(ax3, g_collider, nlabels = ["A", "B", "C"])
-
-save("patterns.png", fig)
+fig
 ```
 
 ## Next Steps

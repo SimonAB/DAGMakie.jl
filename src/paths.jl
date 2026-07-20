@@ -33,7 +33,7 @@ end
     CausalPath
 
 A path through a DAG, tracking nodes and edge directions (forward or backward
-along prehensive relations).
+along graph edges).
 
 # Fields
 - `nodes::Vector{Int}`: Sequence of nodes
@@ -183,8 +183,8 @@ end
 
 Check if a path is a backdoor path from treatment to outcome.
 
-A backdoor path starts with an arrow **into** the treatment node—confounding
-via prehension against the directed flow from treatment to outcome.
+A backdoor path starts with an arrow **into** the treatment node (confounding
+relative to the directed causal flow from treatment to outcome).
 """
 function is_backdoor_path(path::CausalPath, treatment::Int)
     if isempty(path.directions)

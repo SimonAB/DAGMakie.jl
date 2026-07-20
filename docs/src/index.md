@@ -4,8 +4,6 @@ Publication-ready visualisation of Directed Acyclic Graphs (DAGs) for causal inf
 
 DAGMakie provides clean, minimal DAG visualisation with sensible defaults for academic papers and presentations. It builds on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl) with features specifically designed for causal diagrams.
 
-API names follow Pearl (`Intervention`, `do_surgery`, `find_backdoor_paths`, …). For a concise **process** reading of those terms (edges as prehensive relations, `do(·)` as physical prehension), see [Terminology](@ref).
-
 ## Features
 
 - **Automatic label alignment**: Labels positioned to avoid edge overlaps
@@ -37,7 +35,7 @@ Pkg.develop(url="https://github.com/SimonAB/DAGMakie.jl")
 
 ## Quick Example
 
-```julia
+```@example home
 using Graphs, DAGMakie, CairoMakie
 
 # Create a confounding DAG: Z → X → Y, Z → Y
@@ -48,7 +46,7 @@ add_edge!(g, 2, 3)  # X → Y
 
 # Plot with labels
 fig, ax, p = dagplot(g, nlabels=["Z", "X", "Y"])
-save("confounding_dag.png", fig)
+fig
 ```
 
 ## Package Overview
