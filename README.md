@@ -232,6 +232,8 @@ confounders = identify_confounders(g, 2, 3)  # returns [1] (Z)
 
 ### CausalDynamics.jl Integration
 
+> Deferred for v0.1.0 — the package extension will return once [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) is registered. The extension source remains under `ext/` for that follow-up.
+
 ```julia
 using DAGMakie, CausalDynamics, CairoMakie, Graphs
 
@@ -392,7 +394,7 @@ style = presentation_style()  # Extra large for slides
 
 ### CausalDynamics.jl Integration
 
-When CausalDynamics.jl is loaded, additional functions become available:
+Deferred in v0.1.0 (see note above). Planned extension entry points:
 
 | Function | Description |
 |----------|-------------|
@@ -434,10 +436,10 @@ When CausalDynamics.jl is loaded, additional functions become available:
 - [x] Causal query representation
 
 ### Phase 5 ✅ (Complete)
-- [x] CausalDynamics.jl package extension
-- [x] Direct plotting of SCM types (GraphSCM, SymbolicSCM)
-- [x] Integration with CausalDynamics analysis functions
-- [x] Causal analysis helpers and reporting
+- [ ] CausalDynamics.jl package extension (deferred until CausalDynamics is in General)
+- [ ] Direct plotting of SCM types (GraphSCM, SymbolicSCM)
+- [ ] Integration with CausalDynamics analysis functions
+- [ ] Causal analysis helpers and reporting
 
 ## Related Packages
 

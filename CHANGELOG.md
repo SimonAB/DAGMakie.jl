@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Initial release of DAGMakie.jl
+- Note: the CausalDynamics.jl package extension is deferred until CausalDynamics is registered in General; `ext/DAGMakieCausalDynamicsExt.jl` remains in-tree for a follow-up release
 - Core `dagplot` and `dagplot!` functions for DAG visualisation
 - Automatic label alignment to avoid edge overlaps
 - Publication-ready theme with clean styling
