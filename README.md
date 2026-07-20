@@ -430,7 +430,7 @@ Deferred in v0.1.0 (see note above). Planned extension entry points:
 - [x] Causal effect identifiability checking
 - [x] Causal query representation
 
-### Phase 5 ✅
+### Phase 5 🚧
 - [ ] CausalDynamics.jl package extension (deferred until CausalDynamics is in General)
 - [ ] Direct plotting of SCM types (GraphSCM, SymbolicSCM)
 - [ ] Integration with CausalDynamics analysis functions
