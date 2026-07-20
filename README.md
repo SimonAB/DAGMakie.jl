@@ -109,6 +109,10 @@ fig, ax, p = dagplot_confounding(["Confounder", "Treatment", "Outcome"])
 fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 ```
 
+Triangle layouts are used by default for confounding, mediation, frontdoor, IV,
+and related helpers so shortcut and bidirected edges are not drawn through
+intermediate nodes. Pass `layout=...` to override.
+
 ### Using DAGSpec for Complex Graphs
 
 ```julia

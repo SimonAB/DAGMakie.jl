@@ -64,7 +64,9 @@ dagplot(mg,
 
 ## Common Confounded Patterns
 
-DAGMakie provides convenience functions for common confounded structures:
+DAGMakie provides convenience functions for common confounded structures.
+Each uses a pedagogical default layout so bidirected arcs are not obscured;
+pass `layout=...` to override.
 
 ### Simple Confounding
 

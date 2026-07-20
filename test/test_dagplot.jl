@@ -156,13 +156,17 @@
         fig, ax, p = dagplot_collider(["L", "C", "R"])
         @test fig isa Makie.Figure
         
-        # Confounding
+        # Confounding (triangle layout: confounder above treatment/outcome)
         fig, ax, p = dagplot_confounding(["Z", "X", "Y"])
         @test fig isa Makie.Figure
+        positions = p[:node_pos][]
+        @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
         
-        # Mediation
+        # Mediation (triangle layout: mediator above treatment/outcome)
         fig, ax, p = dagplot_mediation(["X", "M", "Y"])
         @test fig isa Makie.Figure
+        positions = p[:node_pos][]
+        @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
     end
     
     @testset "auto_align_labels option" begin

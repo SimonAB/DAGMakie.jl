@@ -655,6 +655,23 @@ end
 # Convenience functions for common patterns
 # =============================================================================
 
+# Pedagogical layouts: layered :acyclic placement puts one node per column for
+# confounding/mediation-style graphs, hiding shortcut or bidirected edges.
+const _LAYOUT_TRIANGLE_APEX_TOP = Point2f[
+    Point2f(0.0, 1.0),
+    Point2f(-1.0, 0.0),
+    Point2f(1.0, 0.0),
+]
+const _LAYOUT_TRIANGLE_MEDIATOR_TOP = Point2f[
+    Point2f(-1.0, 0.0),
+    Point2f(0.0, 1.0),
+    Point2f(1.0, 0.0),
+]
+const _LAYOUT_PAIR_HORIZONTAL = Point2f[
+    Point2f(-1.0, 0.0),
+    Point2f(1.0, 0.0),
+]
+
 """
     dagplot_chain(labels; kwargs...)
 
@@ -703,29 +720,45 @@ end
 """
     dagplot_confounding(labels; kwargs...)
 
-Plot a confounding DAG: Z → X → Y, Z → Y
+Plot a confounding DAG: Z → X → Y, Z → Y.
+
+Uses a triangle layout by default (confounder on top, treatment and outcome
+below). Layered left-to-right layout places one node per layer and draws the
+backdoor edge through the treatment node; pass `layout` to override.
 
 # Arguments
 - `labels::Vector{String}`: Labels [confounder, treatment, outcome]
 - `kwargs...`: Additional arguments passed to `dagplot`
 """
-function dagplot_confounding(labels::Vector{String}; kwargs...)
+function dagplot_confounding(
+    labels::Vector{String};
+    layout = _LAYOUT_TRIANGLE_APEX_TOP,
+    kwargs...,
+)
     g, _ = confounding_graph(labels)
-    return dagplot(g; nlabels = labels, kwargs...)
+    return dagplot(g; nlabels = labels, layout = layout, kwargs...)
 end
 
 """
     dagplot_mediation(labels; kwargs...)
 
-Plot a mediation DAG: X → M → Y, X → Y
+Plot a mediation DAG: X → M → Y, X → Y.
+
+Uses a triangle layout by default (mediator on top, treatment and outcome
+below). Layered left-to-right layout places one node per layer and draws the
+direct effect through the mediator; pass `layout` to override.
 
 # Arguments
 - `labels::Vector{String}`: Labels [treatment, mediator, outcome]
 - `kwargs...`: Additional arguments passed to `dagplot`
 """
-function dagplot_mediation(labels::Vector{String}; kwargs...)
+function dagplot_mediation(
+    labels::Vector{String};
+    layout = _LAYOUT_TRIANGLE_MEDIATOR_TOP,
+    kwargs...,
+)
     g, _ = mediation_graph(labels)
-    return dagplot(g; nlabels = labels, kwargs...)
+    return dagplot(g; nlabels = labels, layout = layout, kwargs...)
 end
 
 # =============================================================================
@@ -935,12 +968,19 @@ end
 
 Plot a simple confounded graph: X → Y with X ↔ Y.
 
+Uses a horizontal layout by default so the bidirected arc is visible above the
+directed edge; pass `layout` to override.
+
 # Arguments
 - `labels::Vector{String}`: Labels [treatment, outcome]
 """
-function dagplot_confounded(labels::Vector{String}; kwargs...)
+function dagplot_confounded(
+    labels::Vector{String};
+    layout = _LAYOUT_PAIR_HORIZONTAL,
+    kwargs...,
+)
     mg, _ = confounded_graph(labels)
-    return dagplot(mg; nlabels = labels, kwargs...)
+    return dagplot(mg; nlabels = labels, layout = layout, kwargs...)
 end
 
 """
@@ -948,12 +988,20 @@ end
 
 Plot a frontdoor criterion graph: X → M → Y with X ↔ Y.
 
+Uses a triangle layout by default (mediator on top). Layered layout collinearises
+the three nodes and obscures the bidirected confounding arc; pass `layout` to
+override.
+
 # Arguments
 - `labels::Vector{String}`: Labels [treatment, mediator, outcome]
 """
-function dagplot_frontdoor(labels::Vector{String}; kwargs...)
+function dagplot_frontdoor(
+    labels::Vector{String};
+    layout = _LAYOUT_TRIANGLE_MEDIATOR_TOP,
+    kwargs...,
+)
     mg, _ = frontdoor_graph(labels)
-    return dagplot(mg; nlabels = labels, kwargs...)
+    return dagplot(mg; nlabels = labels, layout = layout, kwargs...)
 end
 
 """
@@ -961,12 +1009,20 @@ end
 
 Plot an IV graph with confounding: Z → X → Y, X ↔ Y.
 
+Uses a triangle layout by default (instrument on top). Layered layout
+collinearises the chain and hides the bidirected confounding arc; pass
+`layout` to override.
+
 # Arguments
 - `labels::Vector{String}`: Labels [instrument, treatment, outcome]
 """
-function dagplot_iv_confounded(labels::Vector{String}; kwargs...)
+function dagplot_iv_confounded(
+    labels::Vector{String};
+    layout = _LAYOUT_TRIANGLE_APEX_TOP,
+    kwargs...,
+)
     mg, _ = iv_confounded_graph(labels)
-    return dagplot(mg; nlabels = labels, kwargs...)
+    return dagplot(mg; nlabels = labels, layout = layout, kwargs...)
 end
 
 """
@@ -974,10 +1030,17 @@ end
 
 Plot an M-bias graph: X → Y with X ↔ M ↔ Y.
 
+Uses a triangle layout by default (collider on top) so the bow-tie bidirected
+paths are readable; pass `layout` to override.
+
 # Arguments
 - `labels::Vector{String}`: Labels [treatment, collider, outcome]
 """
-function dagplot_m_bias(labels::Vector{String}; kwargs...)
+function dagplot_m_bias(
+    labels::Vector{String};
+    layout = _LAYOUT_TRIANGLE_MEDIATOR_TOP,
+    kwargs...,
+)
     mg, _ = m_bias_graph(labels)
-    return dagplot(mg; nlabels = labels, kwargs...)
+    return dagplot(mg; nlabels = labels, layout = layout, kwargs...)
 end

@@ -161,17 +161,25 @@ using Makie: Point2f
         # dagplot_confounded
         fig, ax, p = dagplot_confounded(["Treatment", "Outcome"])
         @test fig isa Makie.Figure
+        positions = p[:node_pos][]
+        @test length(unique(round.([pt[1] for pt in positions]; digits = 3))) >= 2
         
         # dagplot_frontdoor
         fig, ax, p = dagplot_frontdoor(["X", "M", "Y"])
         @test fig isa Makie.Figure
+        positions = p[:node_pos][]
+        @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
         
         # dagplot_iv_confounded
         fig, ax, p = dagplot_iv_confounded(["Z", "X", "Y"])
         @test fig isa Makie.Figure
+        positions = p[:node_pos][]
+        @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
         
         # dagplot_m_bias
         fig, ax, p = dagplot_m_bias(["X", "M", "Y"])
         @test fig isa Makie.Figure
+        positions = p[:node_pos][]
+        @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
     end
 end

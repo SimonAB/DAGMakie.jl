@@ -60,6 +60,10 @@ fig, ax, p = dagplot_confounding(["Z", "X", "Y"])
 fig, ax, p = dagplot_mediation(["X", "M", "Y"])
 ```
 
+Confounding, mediation, and mixed-graph helpers (`dagplot_frontdoor`,
+`dagplot_iv_confounded`, etc.) use fixed triangle layouts by default so
+shortcut and bidirected edges remain visible. Pass `layout=...` to override.
+
 ## Multiple DAGs in One Figure
 
 ```julia
