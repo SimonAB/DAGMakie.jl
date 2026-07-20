@@ -110,9 +110,9 @@ function highlight_adjustment_set(
     treatment::Int, 
     outcome::Int, 
     adjustment::Set{Int};
-    treatment_color = :lightgreen,
-    outcome_color = :lightyellow,
-    adjustment_color = :lightsalmon
+    treatment_color = :seagreen,
+    outcome_color = :goldenrod,
+    adjustment_color = :indianred
 )
     nodes = [treatment, outcome, collect(adjustment)...]
     colors = [treatment_color, outcome_color, fill(adjustment_color, length(adjustment))...]
@@ -248,7 +248,7 @@ function dagplot_highlighted!(
     # Labels
     nlabels = nothing,
     nlabels_fontsize = nothing,
-    auto_align_labels = true,
+    auto_align_labels = false,
     kwargs...
 )
     style_config = _resolve_style(style)
@@ -332,9 +332,9 @@ function dagplot_backdoor(
     treatment::Int, 
     outcome::Int;
     adjustment::Set{Int} = Set{Int}(),
-    treatment_color = :lightgreen,
-    outcome_color = :lightyellow,
-    adjustment_color = :lightsalmon,
+    treatment_color = :seagreen,
+    outcome_color = :goldenrod,
+    adjustment_color = :indianred,
     kwargs...
 )
     # Combine path highlighting with node highlighting
@@ -377,7 +377,7 @@ function dagplot_dsep(
     z::Set{Int};
     x_color = DEFAULT_NODE_COLOR,
     y_color = DEFAULT_NODE_COLOR,
-    z_color = :lightsalmon,
+    z_color = :indianred,
     kwargs...
 )
     separated = is_d_separated(g, x, y, z)
@@ -414,8 +414,8 @@ function dagplot_causal_paths(
     treatment::Int, 
     outcome::Int;
     path_color = :green,
-    treatment_color = :lightgreen,
-    outcome_color = :lightyellow,
+    treatment_color = :seagreen,
+    outcome_color = :goldenrod,
     kwargs...
 )
     causal_paths = find_directed_paths(g, treatment, outcome)
@@ -454,7 +454,7 @@ function dagplot_adjustment(
     treatment::Int, 
     outcome::Int;
     show_backdoor::Bool = true,
-    adjustment_color = :lightsalmon,
+    adjustment_color = :indianred,
     kwargs...
 )
     # Find minimal adjustment set

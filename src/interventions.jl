@@ -256,7 +256,7 @@ function dagplot_intervention(
     g::AbstractGraph, 
     intervention::Intervention;
     show_original::Bool = true,
-    intervention_color = :orange,
+    intervention_color = :darkorange,
     removed_edge_color = :lightgray,
     removed_edge_style = :dash,
     figure_size::Tuple{Int, Int} = (600, 400),
@@ -293,7 +293,7 @@ function dagplot_intervention!(
     node_strokewidth = nothing,
     node_strokecolor = nothing,
     node_marker = nothing,
-    intervention_color = :orange,
+    intervention_color = :darkorange,
     edge_color = nothing,
     edge_width = nothing,
     edge_linestyle = nothing,
@@ -309,8 +309,9 @@ function dagplot_intervention!(
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
-    auto_align_labels = true,
+    auto_align_labels = false,
     show_original::Bool = true,
+    relabel_nodes::Bool = false,
     kwargs...
 )
     # Apply intervention
@@ -324,7 +325,7 @@ function dagplot_intervention!(
         end
     end
     
-    # Build node colors
+    # Build node colours
     n = nv(g)
     style_config = _resolve_style(style)
     base_node_color = something(node_color, style_config.node_color)
@@ -335,8 +336,9 @@ function dagplot_intervention!(
         end
     end
     
-    # Update labels if provided
-    if nlabels !== nothing
+    # Optionally rewrite node labels to do(·); prefer axis title for that notation
+    # so short in-node labels stay centred and readable.
+    if nlabels !== nothing && relabel_nodes
         nlabels = format_intervention_labels(nlabels, intervention)
     end
     

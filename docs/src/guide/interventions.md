@@ -124,8 +124,8 @@ println(format_intervention_labels(labels, Intervention(2; label = "do(X)")))
 ## Complete Workflow Example
 
 ```@example interventions
-# Create confounded graph
-g2, labels2 = confounding_graph(["Confounder", "Treatment", "Outcome"])
+# Create confounded graph (short labels suit in-node rendering)
+g2, labels2 = confounding_graph(["Z", "X", "Y"])
 
 # Check identifiability
 if causal_effect_identifiable(g2, 2, 3)
@@ -135,7 +135,7 @@ if causal_effect_identifiable(g2, 2, 3)
     adj = find_minimal_adjustment_set(g2, 2, 3)
     println("Adjust for: ", [labels2[i] for i in adj])
 
-    # Visualise
+    # Visualise (axis titles carry do(·); node labels stay short)
     fig = dagplot_do_comparison(g2, 2, nlabels=labels2)
 else
     println("Effect is NOT identifiable via backdoor adjustment")
