@@ -1,12 +1,10 @@
 # DAGMakie.jl
 
 [![CI](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/CI.yml)
-[![Documentation](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/Documentation.yml/badge.svg)](https://SimonAB.github.io/DAGMakie.jl/dev/)
+[![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://simonab.github.io/DAGMakie.jl/dev/)
 [![codecov](https://codecov.io/gh/SimonAB/DAGMakie.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/SimonAB/DAGMakie.jl)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-> ⚠️ **Not yet registered** — Install from GitHub until the first General registry release.
 
 Publication-ready visualisation of directed acyclic, directed cyclic, and mixed causal graphs for causal inference.
 
@@ -24,17 +22,20 @@ DAGMakie provides clean, minimal DAG visualisation with sensible defaults for ac
 
 ## Installation
 
-Until registration, install from GitHub:
-
 ```julia
 using Pkg
+Pkg.add("DAGMakie")
+```
+
+v0.1.0 is pending AutoMerge in the [General registry](https://github.com/JuliaRegistries/General/pull/161837). Until that lands, install from GitHub:
+
+```julia
 Pkg.add(url="https://github.com/SimonAB/DAGMakie.jl")
 ```
 
 For local development:
 
 ```julia
-using Pkg
 Pkg.develop(path="/path/to/DAGMakie.jl")
 ```
 

@@ -18,10 +18,14 @@ API names follow Pearl (`Intervention`, `do_surgery`, `find_backdoor_paths`, …
 
 ## Installation
 
-Since this package is not yet registered, install from GitHub:
-
 ```julia
 using Pkg
+Pkg.add("DAGMakie")
+```
+
+v0.1.0 is pending AutoMerge in the [General registry](https://github.com/JuliaRegistries/General/pull/161837). Until that lands:
+
+```julia
 Pkg.add(url="https://github.com/SimonAB/DAGMakie.jl")
 ```
 

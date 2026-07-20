@@ -7,7 +7,7 @@ makedocs(
     modules = [DAGMakie],
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
-        canonical = "https://SimonAB.github.io/DAGMakie.jl",
+        canonical = "https://simonab.github.io/DAGMakie.jl",
         assets = String[],
     ),
     pages = [
