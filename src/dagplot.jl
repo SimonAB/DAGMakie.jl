@@ -275,7 +275,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
             arrow_sizes = overlay_arrow_sizes,
             arrow_shifts = overlay_arrow_shifts,
             waypoints = overlay_waypoints,
-            to_px = p[:to_px][],
+            to_px = _plot_to_px(p),
         )
     end
 
@@ -286,7 +286,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
 
     if !isempty(node_positions)
         if nlabels !== nothing
-            label_aligns = p[:nlabels_align_processed][]
+            label_aligns = _plot_attr(p, :nlabels_align_processed, resolved_nlabels_align)
             xlim, ylim = compute_padded_limits(
                 node_positions,
                 nlabels,
@@ -294,7 +294,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
                 resolved_label_distance,
                 resolved_label_fontsize;
                 padding = resolved_padding,
-                to_px = p[:to_px][],
+                to_px = _plot_to_px(p),
                 extra_points = extra_bound_points,
                 node_sizes = node_sizes,
             )
@@ -306,7 +306,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
                 resolved_label_distance,
                 resolved_label_fontsize;
                 padding = resolved_padding,
-                to_px = p[:to_px][],
+                to_px = _plot_to_px(p),
                 extra_points = extra_bound_points,
                 node_sizes = node_sizes,
             )
@@ -905,7 +905,7 @@ function dagplot!(ax, mg::MixedGraph;
             positions,
             resolved_node_marker,
             resolved_node_size,
-            p[:to_px][];
+            _plot_to_px(p);
             curvature = bidirected_curvature,
             arrow_size = bidirected_arrow_size,
         )
@@ -939,11 +939,11 @@ function dagplot!(ax, mg::MixedGraph;
                 xlim, ylim = compute_padded_limits(
                     positions,
                     nlabels,
-                    p[:nlabels_align_processed][],
+                    _plot_attr(p, :nlabels_align_processed, nlabels_align),
                     resolved_label_distance,
                     resolved_label_fontsize;
                     padding = resolved_padding,
-                    to_px = p[:to_px][],
+                    to_px = _plot_to_px(p),
                     extra_points = extra_points,
                     node_sizes = resolved_node_size,
                 )
@@ -955,7 +955,7 @@ function dagplot!(ax, mg::MixedGraph;
                     resolved_label_distance,
                     resolved_label_fontsize;
                     padding = resolved_padding,
-                    to_px = p[:to_px][],
+                    to_px = _plot_to_px(p),
                     extra_points = extra_points,
                     node_sizes = resolved_node_size,
                 )

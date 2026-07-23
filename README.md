@@ -27,11 +27,7 @@ using Pkg
 Pkg.add("DAGMakie")
 ```
 
-v0.1.0 is pending AutoMerge in the [General registry](https://github.com/JuliaRegistries/General/pull/161837). Until that lands, install from GitHub:
-
-```julia
-Pkg.add(url="https://github.com/SimonAB/DAGMakie.jl")
-```
+v0.1.0 is on the [General registry](https://github.com/JuliaRegistries/General). Prefer the latest release (0.1.1+): visualisation-only core with optional CausalInference.jl for adjustment / d-separation in plots.
 
 For local development:
 
@@ -156,46 +152,34 @@ fig, ax, p = dagplot(mg,
 )
 ```
 
-### d-Separation and Backdoor Paths
+### Path Highlighting and Adjustment
+
+Identification (d-separation, adjustment sets) lives in
+[CausalInference.jl](https://github.com/mschauer/CausalInference.jl) or
+[CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl). Pass results into
+`dagplot_*` via `adjustment=` / `paths=`, or load CausalInference so the optional
+extension can compute a minimal backdoor set.
 
 ```julia
-# Create a confounded DAG: Z → X → Y, Z → Y
+using DAGMakie, CausalInference, CairoMakie
+
+# Confounded DAG: Z → X → Y, Z → Y
 g, labels = confounding_graph(["Z", "X", "Y"])
 
-# Test d-separation
-is_d_separated(g, 2, 3, Set{Int}())  # false - X and Y connected via Z
-is_d_separated(g, 2, 3, Set([1]))    # true - conditioning on Z blocks the path
-
-# Find backdoor paths from X to Y
-backdoor = find_backdoor_paths(g, 2, 3)
-
-# Check if adjustment set is valid
-is_valid_adjustment_set(g, 2, 3, Set([1]))  # true - Z blocks backdoor
-
-# Find minimal adjustment set
-adj = find_minimal_adjustment_set(g, 2, 3)  # returns Set([1])
-```
-
-### Path Highlighting Visualisation
-
-```julia
-# Visualise backdoor paths (open paths in red, blocked in grey)
-fig, ax, p = dagplot_backdoor(g, 2, 3, nlabels=labels)
-
-# With adjustment set - shows paths are blocked
-fig, ax, p = dagplot_backdoor(g, 2, 3, 
+# Pass an explicit adjustment set
+fig, ax, p = dagplot_backdoor(g, 2, 3;
     adjustment = Set([1]),
-    nlabels = labels
+    nlabels = labels,
 )
 
-# Visualise d-separation status
-fig, ax, p = dagplot_dsep(g, 1, 3, Set([2]), nlabels=labels)
+# Or let the CausalInference extension compute a minimal backdoor set
+fig, ax, p = dagplot_adjustment(g, 2, 3; nlabels = labels)
 
-# Show causal (directed) paths
-fig, ax, p = dagplot_causal_paths(g, 2, 3, nlabels=labels)
+# Visualise d-separation status (pass conditioning set explicitly)
+fig, ax, p = dagplot_dsep(g, 1, 3, Set([2]); nlabels = labels)
 
-# Auto-compute and show adjustment set
-fig, ax, p = dagplot_adjustment(g, 2, 3, nlabels=labels)
+# Show directed (causal) paths when you already have them
+fig, ax, p = dagplot_causal_paths(g, 2, 3; nlabels = labels)
 ```
 
 ### Interventions (do-operator)
@@ -222,42 +206,7 @@ fig = dagplot_do_comparison(g, 2, nlabels=labels)
 
 ### CausalDynamics.jl Integration
 
-> Deferred for v0.1.0 — the package extension will return once [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) is registered. The extension source remains under `ext/` for that follow-up.
-
-```julia
-using DAGMakie, CausalDynamics, CairoMakie, Graphs
-
-# Create an SCM
-g = DiGraph(3)
-add_edge!(g, 1, 2)  # Z → X
-add_edge!(g, 2, 3)  # X → Y
-add_edge!(g, 1, 3)  # Z → Y
-
-scm = GraphSCM(g, Dict{Int,Function}(), Set{Int}())
-
-# Plot the SCM directly
-fig, ax, p = dagplot(scm, nlabels=["Z", "X", "Y"])
-
-# Use CausalDynamics' d-separation
-CausalDynamics.d_separated(g, 2, 3, [1])  # true
-
-# Get the extension module for advanced functions
-ext = Base.get_extension(DAGMakie, :DAGMakieCausalDynamicsExt)
-
-# Comprehensive causal analysis
-analysis = ext.causal_analysis(g, 2, 3)
-# Returns: (backdoor_paths, adjustment_set, identifiable, d_separated_unconditional)
-
-# Print formatted analysis report
-ext.print_causal_analysis(g, 2, 3, nlabels=["Z", "X", "Y"])
-
-# Plot with CausalDynamics-computed adjustment
-fig, ax, p = ext.dagplot_adjustment_cd(g, 2, 3, nlabels=["Z", "X", "Y"])
-
-# Visualise SCM with exogenous variables highlighted
-scm_with_exog = GraphSCM(g, Dict{Int,Function}(), Set([1]))  # Z is exogenous
-fig, ax, p = ext.dagplot_scm(scm_with_exog, nlabels=["Z", "X", "Y"], show_exogenous=true)
-```
+> Deferred until [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) is on General. Prefer plotting via CausalDynamics’ own DAGMakie extension (`using CausalDynamics, DAGMakie`). The reverse extension source remains under `ext/DAGMakieCausalDynamicsExt.jl` for a follow-up release.
 
 ### Style Presets
 
@@ -346,28 +295,14 @@ style = presentation_style()  # Extra large for slides
 | `frontdoor_graph(labels)` | X → M → Y with X ↔ Y |
 | `is_dag(g)` | Check if graph is acyclic |
 
-### Causal Analysis
-
-| Function | Description |
-|----------|-------------|
-| `find_all_paths(g, src, dst)` | Find all paths (any direction) |
-| `find_directed_paths(g, src, dst)` | Find causal paths |
-| `find_backdoor_paths(g, treatment, outcome)` | Find backdoor paths |
-| `is_d_separated(g, x, y, z)` | Test d-separation |
-| `is_valid_adjustment_set(g, t, o, adj)` | Check backdoor criterion |
-| `find_minimal_adjustment_set(g, t, o)` | Find smallest valid adjustment |
-| `list_all_adjustment_sets(g, t, o)` | List all valid adjustments |
-| `ancestors(g, node)` | Find all ancestors |
-| `descendants(g, node)` | Find all descendants |
-
 ### Highlighting Functions
 
 | Function | Description |
 |----------|-------------|
-| `dagplot_backdoor(g, t, o)` | Show backdoor paths |
+| `dagplot_backdoor(g, t, o; adjustment, paths)` | Highlight treatment, outcome, adjustment, paths |
 | `dagplot_dsep(g, x, y, z)` | Show d-separation status |
-| `dagplot_causal_paths(g, t, o)` | Show directed paths |
-| `dagplot_adjustment(g, t, o)` | Show auto-computed adjustment |
+| `dagplot_causal_paths(g, t, o; paths)` | Show directed paths |
+| `dagplot_adjustment(g, t, o; adjustment)` | Show adjustment (or compute via CausalInference) |
 | `dagplot_highlighted(g, spec)` | Custom highlighting |
 
 ### Intervention Functions
@@ -379,23 +314,6 @@ style = presentation_style()  # Extra large for slides
 | `dagplot_do(g, node)` | Single-node intervention plot |
 | `dagplot_comparison(g, int)` | Side-by-side comparison |
 | `dagplot_do_comparison(g, node)` | Side-by-side for single intervention |
-
-Identification helpers (`dsep`, adjustment sets) live in CausalInference.jl /
-CausalDynamics.jl; pass results into the highlighting functions above.
-
-### CausalDynamics.jl Integration
-
-Deferred until CausalDynamics is on General (extension source remains under `ext/`):
-
-| Function | Description |
-|----------|-------------|
-| `dagplot(scm)` | Plot an SCM's causal graph |
-| `dagplot_scm(scm)` | Plot with exogenous highlighting |
-| `dagplot_dsep_cd(g, x, y, z)` | d-separation using CausalDynamics |
-| `dagplot_backdoor_cd(g, t, o)` | Backdoor analysis via CausalDynamics |
-| `dagplot_adjustment_cd(g, t, o)` | Show CausalDynamics adjustment set |
-| `causal_analysis(g, t, o)` | Comprehensive causal analysis |
-| `print_causal_analysis(g, t, o)` | Formatted analysis report |
 
 ## Roadmap
 
@@ -413,18 +331,14 @@ Deferred until CausalDynamics is on General (extension source remains under `ext
 - [x] Convenience functions for common confounded graphs
 
 ### Phase 3 ✅ (Complete)
-- [x] Path finding algorithms (all paths, directed paths, backdoor paths)
-- [x] d-separation testing
-- [x] Adjustment set computation (validity checking, minimal sets)
 - [x] Path highlighting visualisation
 - [x] Convenience functions for backdoor, d-separation, and adjustment plots
+- [x] Optional CausalInference.jl weakdep for auto-adjustment in plots (v0.1.1+)
 
 ### Phase 4 ✅ (Complete)
 - [x] Graph surgery for do-operator
 - [x] Intervention notation (`do(X)`) rendering
 - [x] Intervention visualisation (single and comparison views)
-- [x] Causal effect identifiability checking
-- [x] Causal query representation
 
 ### Phase 5 🚧
 - [ ] CausalDynamics.jl package extension (deferred until CausalDynamics is in General)

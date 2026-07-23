@@ -5,7 +5,7 @@ All notable changes to DAGMakie.jl will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.1] - 2026-07-20
+## [0.1.1] - 2026-07-23
 
 ### Changed
 
@@ -13,7 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (optional extension) or CausalDynamics.jl for d-separation and adjustment sets.
   `dagplot_*` helpers take precomputed `adjustment` / `paths`, or auto-compute when
   `using CausalInference`.
-- Local monorepo `[sources]` for sibling `CausalInference.jl` / `GraphMakie.jl` forks.
+- Optional `CausalInference` weakdep / `DAGMakieCausalInferenceExt`.
+- Dropped local monorepo `[sources]` so the release resolves GraphMakie and
+  CausalInference from General.
+- Compat tightened to `GraphMakie = "0.6"` and `Makie = "0.24"` (registry
+  CausalInference still caps GraphMakie at 0.5, so it is not in the default
+  test target).
+- Defensive GraphMakie attribute access (`:to_px`, `:nlabels_align_processed`)
+  with headless fallbacks.
 
 ## [0.1.0] - 2026-07-20
 
@@ -52,4 +59,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integration with CausalDynamics analysis functions
   - `causal_analysis` and `print_causal_analysis` helpers
 
+[0.1.1]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.1
 [0.1.0]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.0

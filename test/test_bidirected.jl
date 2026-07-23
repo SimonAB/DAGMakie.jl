@@ -99,7 +99,7 @@ using Makie: Point2f
             positions,
             fill(:circle, 2),
             fill(20, 2),
-            p[:to_px][];
+            DAGMakie._plot_to_px(p);
             curvature = 0.3,
             arrow_size = 8,
         )

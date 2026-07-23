@@ -325,7 +325,7 @@ function dagplot_intervention!(
             arrow_sizes = overlay_arrow_sizes,
             arrow_shifts = overlay_arrow_shifts,
             waypoints = [Point2f[] for _ in removed_edges],
-            to_px = p[:to_px][],
+            to_px = _plot_to_px(p),
         )
     end
     

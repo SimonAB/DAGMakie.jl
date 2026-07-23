@@ -109,7 +109,7 @@
             fill(:circle, 2),
             fill(20, 2),
             [[Makie.Point2f(0, 1.4)]],
-            p[:to_px][];
+            DAGMakie._plot_to_px(p);
             arrow_size = [10],
             arrow_shift = [:end],
         )

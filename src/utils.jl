@@ -33,6 +33,39 @@ function apply_dag_theme!(ax)
 end
 
 """
+    _plot_has_attr(p, key::Symbol) -> Bool
+
+Return whether a GraphMakie plot exposes attribute `key` (Makie 0.23 Dict attrs
+or 0.24+ compute-pipeline attrs).
+"""
+function _plot_has_attr(p, key::Symbol)
+    return haskey(p.attributes, key)
+end
+
+"""
+    _plot_attr(p, key::Symbol, default)
+
+Return `p[key][]` when present, otherwise `default`. Used so DAGMakie works when
+GraphMakie has not yet published derived attributes (headless / older Makie).
+"""
+function _plot_attr(p, key::Symbol, default)
+    return _plot_has_attr(p, key) ? p[key][] : default
+end
+
+"""
+Fallback pixel transform when GraphMakie `:to_px` is unavailable: treat data
+units as pixels so geometry helpers still run in headless tests.
+"""
+_default_to_px(p) = Point2f(p)
+
+"""
+    _plot_to_px(p)
+
+Return GraphMakie's `:to_px` transform, or `_default_to_px` as a headless fallback.
+"""
+_plot_to_px(p) = _plot_attr(p, :to_px, _default_to_px)
+
+"""
     get_node_positions(p)
 
 Extract node positions from a GraphPlot object.
