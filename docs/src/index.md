@@ -11,7 +11,7 @@ DAGMakie provides clean, minimal DAG visualisation with sensible defaults for ac
 - **Causal diagram conventions**: Support for observed, latent, treatment, and outcome nodes
 - **Common patterns**: Convenience functions for chain, fork, collider, confounding DAGs
 - **Bidirected edges**: Support for unmeasured confounding (↔)
-- **Causal analysis**: d-separation, backdoor paths, adjustment sets
+- **Path highlighting**: Backdoor / d-separation / adjustment plots (pass sets or load CausalInference)
 - **Interventions**: do-operator visualisation and graph surgery
 
 ## Installation
@@ -21,11 +21,8 @@ using Pkg
 Pkg.add("DAGMakie")
 ```
 
-v0.1.0 is pending AutoMerge in the [General registry](https://github.com/JuliaRegistries/General/pull/161837). Until that lands:
-
-```julia
-Pkg.add(url="https://github.com/SimonAB/DAGMakie.jl")
-```
+Prefer **0.1.1+** (visualisation-only core; identification via CausalInference.jl /
+CausalDynamics.jl). v0.1.0 remains on General as the initial release.
 
 Or for development:
 
