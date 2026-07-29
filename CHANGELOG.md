@@ -5,6 +5,15 @@ All notable changes to DAGMakie.jl will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-07-29
+
+### Changed
+
+- Clarified that `do_surgery` / `do_surgery!` are **display-only** (plot
+  mutilation), not CausalDynamics identification APIs.
+- Documented that `ext/DAGMakieCausalDynamicsExt.jl` remains intentionally
+  unregistered until CausalDynamics is on General.
+
 ## [0.1.1] - 2026-07-23
 
 ### Changed

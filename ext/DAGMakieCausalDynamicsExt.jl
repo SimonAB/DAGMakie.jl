@@ -1,3 +1,12 @@
+# Status: intentionally unregistered in DAGMakie Project.toml `[extensions]`.
+# Re-enable once CausalDynamics.jl is on General (see CausalInference.jl/FORK.md).
+# Until then prefer `using CausalDynamics, DAGMakie` so CausalDynamicsDAGMakieExt loads.
+#
+# DAGMakie extension for CausalDynamics.jl integration.
+#
+# Provides seamless plotting of CausalDynamics SCM types and integration
+# with CausalDynamics' causal analysis functions.
+
 """
 DAGMakie extension for CausalDynamics.jl integration.
 

@@ -14,9 +14,14 @@ using Graphs: AbstractGraph, SimpleDiGraph, nv, ne, add_edge!, rem_edge!,
 """
     do_surgery(g::AbstractGraph, intervention_nodes::Vector{Int})
 
-Perform graph surgery for `do(·)`: remove all incoming edges to intervention nodes.
+Perform **display-only** graph surgery for `do(·)`: remove all incoming edges to
+intervention nodes. Use this to draw mutilated DAGs in Makie; it is **not** an
+identification API.
 
-Returns a graph where intervened nodes are fixed and no longer depend on parents.
+For CausalDynamics identification and CDM interventions, use
+`DoIntervention` / `apply_intervention` (and related helpers) in CausalDynamics.jl.
+
+Returns a graph where intervened nodes no longer have parents (for plotting).
 
 # Arguments
 - `g`: Original DAG
@@ -63,7 +68,8 @@ do_surgery(g::AbstractGraph, intervention_node::Int) = do_surgery(g, [interventi
 """
     do_surgery!(g::SimpleDiGraph, intervention_nodes::Vector{Int})
 
-In-place graph surgery - modifies the original graph.
+In-place **display-only** graph surgery — modifies the original graph.
+Same boundary as `do_surgery`: for plotting mutilated DAGs, not CausalDynamics ID.
 """
 function do_surgery!(g::SimpleDiGraph, intervention_nodes::Vector{Int})
     for node in intervention_nodes

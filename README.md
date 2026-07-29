@@ -8,6 +8,8 @@
 
 Publication-ready visualisation of directed acyclic, directed cyclic, and mixed causal graphs for causal inference.
 
+**Design principles:** [DESIGN.md](DESIGN.md) · [ecosystem](../DESIGN_PRINCIPLES.md)
+
 DAGMakie provides clean, minimal DAG visualisation with sensible defaults for academic papers and presentations. It builds on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl) with features specifically designed for causal diagrams.
 
 ## Features
@@ -184,6 +186,10 @@ fig, ax, p = dagplot_causal_paths(g, 2, 3; nlabels = labels)
 
 ### Interventions (do-operator)
 
+`do_surgery` / `dagplot_do` are **display-only**: they mutilate a graph for
+figures. They are not an identification API — use CausalDynamics
+(`DoIntervention`, `apply_intervention`, …) or CausalInference for that.
+
 ```julia
 # Graph surgery: remove incoming edges to intervention target
 g, labels = confounding_graph(["Z", "X", "Y"])
@@ -309,7 +315,7 @@ style = presentation_style()  # Extra large for slides
 
 | Function | Description |
 |----------|-------------|
-| `do_surgery(g, nodes)` | Remove incoming edges (graph surgery) |
+| `do_surgery(g, nodes)` | Display-only: remove incoming edges (plot surgery) |
 | `dagplot_intervention(g, int)` | Show intervention with removed edges |
 | `dagplot_do(g, node)` | Single-node intervention plot |
 | `dagplot_comparison(g, int)` | Side-by-side comparison |
