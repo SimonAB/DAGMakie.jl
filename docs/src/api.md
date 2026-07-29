@@ -54,6 +54,8 @@ MixedGraph
 ```@docs
 CausalPath
 PathSegment
+path_edges
+is_directed_path
 ```
 
 ### Interventions
@@ -77,15 +79,6 @@ confounded_graph
 frontdoor_graph
 iv_confounded_graph
 m_bias_graph
-```
-
-## Path types (for highlights)
-
-```@docs
-CausalPath
-PathSegment
-path_edges
-is_directed_path
 ```
 
 ## Highlighting

@@ -102,4 +102,4 @@ fig
 
 - [Basic Plotting](@ref) — Customising node and edge appearance
 - [Node Types & Styling](@ref) — Using semantic node types
-- [Causal Analysis](@ref) — d-separation and adjustment sets
+- [Causal Analysis](guide/causal.md) — d-separation and adjustment sets

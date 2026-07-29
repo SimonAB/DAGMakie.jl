@@ -1,6 +1,7 @@
 using Documenter
 using DAGMakie
 using CairoMakie
+using Graphs
 
 # Prefer PNG MIME so Documenter writes figure files instead of huge inline HTML.
 CairoMakie.activate!(type = "png")
