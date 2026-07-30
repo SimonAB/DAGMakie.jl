@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Publication-ready themes for DAG visualisation.
-
-Provides clean, minimal themes suitable for academic papers and presentations.
+Themes for DAG visualisation (no axes or grids by default).
 """
 
 using Makie: Theme, Attributes

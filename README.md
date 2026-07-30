@@ -7,11 +7,11 @@
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Publication-ready visualisation of directed acyclic, directed cyclic, and mixed
-causal graphs. Clean defaults for papers and talks, built on
-[GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl) with conventions for
-observed / latent / treatment / outcome nodes, bidirected confounding, path
-highlighting, and display-only `do(·)` surgery.
+DAGMakie plots directed acyclic, directed cyclic, and mixed causal graphs with
+Makie, building on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl).
+Defaults omit axes and grids; node types follow common causal-diagram
+conventions (observed, latent, treatment, outcome), with helpers for bidirected
+confounding, path highlighting, and display-only `do(·)` surgery.
 
 **Design principles:** [DESIGN.md](DESIGN.md) · [ecosystem](DESIGN_PRINCIPLES.md)
 
@@ -52,23 +52,23 @@ fig, ax, p = dagplot_collider(["Cause₁", "Effect", "Cause₂"])
 fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 ```
 
-## Features
+## Capabilities
 
-- **In-node white labels** on steel-blue nodes by default (short variable names)
-- **Deterministic layered DAG layout** for acyclic graphs (not a generic spring layout)
-- **SCC-aware cyclic layout** with explicit curved feedback edges
-- **Publication-ready themes**: no axes or grids; default / minimal / bold / presentation presets
-- **Causal diagram conventions**: observed, latent, treatment, outcome, bidirected confounding
-- **Path highlighting**: backdoor / d-separation / adjustment plots (pass sets, or load CausalInference)
-- **Interventions**: display-only `do(·)` surgery and comparison figures
+- In-node white labels on steel-blue nodes by default (short variable names)
+- Deterministic layered DAG layout for acyclic graphs (not a generic spring layout)
+- SCC-aware cyclic layout with explicit curved feedback edges
+- Themes without axes or grids (`default`, `minimal`, `bold`, `presentation`)
+- Causal diagram conventions: observed, latent, treatment, outcome, bidirected confounding
+- Path highlighting: backdoor / d-separation / adjustment plots (pass sets, or load CausalInference)
+- Interventions: display-only `do(·)` surgery and comparison figures
 
-## Role in the stack
+## Ecosystem
 
 | Package | Role |
 |---------|------|
 | [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) | Graphs, identification, CDMs (plot via its DAGMakie extension) |
 | [CausalTargeted.jl](https://github.com/SimonAB/CausalTargeted.jl) | Cross-fitted LMTP / interventional mediation |
-| **DAGMakie** | Publication DAG figures |
+| **DAGMakie** | DAG figures |
 | Application repos | Cohort data, registries, concordance (thin) |
 
 Identification algorithms live in CausalInference.jl or CausalDynamics.jl.
@@ -134,7 +134,7 @@ See [CITATION.cff](CITATION.cff) or:
 ```bibtex
 @software{dagmakie2026,
   author = {Babayan, Simon A.},
-  title  = {DAGMakie.jl: Publication-ready DAG visualisation for Julia},
+  title  = {DAGMakie.jl: DAG visualisation for causal diagrams in Julia},
   year   = {2026},
   doi    = {10.5281/zenodo.21703327},
   url    = {https://github.com/SimonAB/DAGMakie.jl}

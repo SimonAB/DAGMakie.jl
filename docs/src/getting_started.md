@@ -1,10 +1,8 @@
 # Getting Started
 
-This guide will help you create your first DAG visualisations with DAGMakie.
-
 ## Prerequisites
 
-DAGMakie requires a Makie backend for rendering. We recommend CairoMakie for publication-quality output:
+DAGMakie requires a Makie backend. CairoMakie is typical for static figures:
 
 ```julia
 using Pkg
@@ -12,7 +10,7 @@ Pkg.add("CairoMakie")
 Pkg.add("Graphs")
 ```
 
-## Your First DAG
+## A chain DAG
 
 ```@example getting_started
 using Graphs, DAGMakie, CairoMakie
@@ -27,23 +25,23 @@ fig, ax, p = dagplot(g, nlabels=["A", "B", "C"])
 fig
 ```
 
-The `dagplot` function returns:
+`dagplot` returns:
 
-- `fig`: The Figure object
-- `ax`: The Axis object
-- `p`: The GraphPlot object (for accessing node positions)
+- `fig`: the `Figure`
+- `ax`: the `Axis`
+- `p`: the `GraphPlot` (node positions and plot attributes)
 
-## Saving Figures
+## Saving figures
 
 ```julia
-save("my_dag.png", fig)           # PNG format
-save("my_dag.pdf", fig)           # PDF format (vector graphics)
-save("my_dag.svg", fig)           # SVG format (vector graphics)
+save("my_dag.png", fig)           # PNG
+save("my_dag.pdf", fig)           # PDF (vector)
+save("my_dag.svg", fig)           # SVG (vector)
 ```
 
-## Common Patterns
+## Common patterns
 
-DAGMakie provides convenience functions for common causal structures:
+Convenience constructors for frequent causal structures:
 
 ```@example getting_started
 fig = Figure(size = (1000, 220))
@@ -79,7 +77,7 @@ Confounding, mediation, and mixed-graph helpers (`dagplot_frontdoor`,
 `dagplot_iv_confounded`, etc.) use fixed triangle layouts by default so
 shortcut and bidirected edges remain visible. Pass `layout=...` to override.
 
-## Multiple DAGs in One Figure
+## Multiple DAGs in one figure
 
 ```@example getting_started
 fig = Figure(size = (900, 280))
@@ -98,8 +96,8 @@ dagplot!(ax3, g_collider, nlabels = ["A", "B", "C"])
 fig
 ```
 
-## Next Steps
+## See also
 
-- [Basic Plotting](@ref) — Customising node and edge appearance
-- [Node Types & Styling](@ref) — Using semantic node types
+- [Basic Plotting](@ref) — node and edge appearance
+- [Node Types & Styling](@ref) — semantic node types
 - [Causal Analysis](guide/causal.md) — d-separation and adjustment sets

@@ -1,37 +1,29 @@
 # SPDX-License-Identifier: MIT
 
 """
-    DAGMakie.jl
+    DAGMakie
 
-Publication-ready visualisation of Directed Acyclic Graphs (DAGs) for causal inference.
-
-DAGMakie provides clean, minimal DAG visualisation with sensible defaults for
-academic papers and presentations. It builds on GraphMakie.jl with features
-specifically designed for causal diagrams.
+Plot directed acyclic and related causal graphs with Makie, building on
+GraphMakie.jl. Defaults omit axes and grids; helpers cover common causal
+diagram conventions, bidirected confounding, and display-only `do(·)` surgery.
 
 Identification (d-separation, adjustment sets) belongs in CausalInference.jl;
 executable SCMs belong in CausalDynamics.jl. Optional convenience plots that
 call CausalInference activate via `using CausalInference`.
 
-# Features
-
-- **Automatic label alignment**: Labels positioned to avoid edge overlaps
-- **Publication-ready themes**: Clean styling with no axes or grids
-- **Causal diagram conventions**: Support for observed, latent, and intervention nodes
-- **Common patterns**: Convenience functions for chain, fork, collider, confounding DAGs
+Layouts are deterministic for DAGs; themes (`dag_theme`, …) control stroke and
+spacing. Pattern constructors include chain, fork, collider, and confounding.
 
 # Quick Start
 
 ```julia
 using Graphs, DAGMakie, CairoMakie
 
-# Create a simple confounding DAG
 g = SimpleDiGraph(3)
 add_edge!(g, 1, 2)  # Z → X
 add_edge!(g, 1, 3)  # Z → Y
 add_edge!(g, 2, 3)  # X → Y
 
-# Plot with labels
 fig, ax, p = dagplot(g, nlabels=["Z", "X", "Y"])
 save("confounding_dag.png", fig)
 ```
@@ -41,7 +33,7 @@ save("confounding_dag.png", fig)
 - `dagplot(g; kwargs...)` - Create a new figure with DAG plot
 - `dagplot!(ax, g; kwargs...)` - Plot DAG into existing axis
 - `compute_auto_label_aligns(g, positions)` - Compute optimal label positions
-- `dag_theme()` - Get publication-ready Makie theme
+- `dag_theme()` - Return the default Makie theme for DAG figures
 
 # Convenience Patterns
 

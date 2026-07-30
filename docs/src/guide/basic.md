@@ -1,6 +1,6 @@
 # Basic Plotting
 
-This guide covers the core plotting functions and customisation options.
+Core plotting entry points and customisation options.
 
 ```@example basic
 using Graphs, DAGMakie, CairoMakie

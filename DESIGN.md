@@ -1,6 +1,6 @@
 # DAGMakie.jl — design principles
 
-This package is **visualisation only**: publication-ready causal DAGs on top of GraphMakie/Makie, with optional highlighting tied to identification.
+This package is **visualisation only**: causal DAGs on GraphMakie/Makie, with optional highlighting tied to identification.
 
 **Shared principles:** [DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)
 

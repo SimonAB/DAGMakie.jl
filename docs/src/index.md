@@ -1,18 +1,19 @@
 # DAGMakie.jl
 
-Publication-ready visualisation of Directed Acyclic Graphs (DAGs) for causal inference.
+DAGMakie plots directed acyclic, directed cyclic, and mixed causal graphs with
+Makie, building on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl).
+Defaults omit axes and grids; node types follow common causal-diagram
+conventions (observed, latent, treatment, outcome), with helpers for bidirected
+confounding, path highlighting, and display-only `do(·)` surgery.
 
-DAGMakie provides clean, minimal DAG visualisation with sensible defaults for academic papers and presentations. It builds on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl) with features specifically designed for causal diagrams.
+## Capabilities
 
-## Features
-
-- **Automatic label alignment**: Labels positioned to avoid edge overlaps
-- **Publication-ready themes**: Clean styling with no axes or grids
-- **Causal diagram conventions**: Support for observed, latent, treatment, and outcome nodes
-- **Common patterns**: Convenience functions for chain, fork, collider, confounding DAGs
-- **Bidirected edges**: Support for unmeasured confounding (↔)
-- **Path highlighting**: Backdoor / d-separation / adjustment plots (pass sets or load CausalInference)
-- **Interventions**: do-operator visualisation and graph surgery
+Layouts are deterministic for DAGs (layered) and SCC-aware for cyclic graphs.
+Themes (`default`, `minimal`, `bold`, `presentation`) control stroke weight and
+spacing. Convenience constructors cover chain, fork, collider, confounding, and
+mediation patterns. Path helpers accept adjustment sets directly, or load
+CausalInference / CausalDynamics when identification should be computed at plot
+time.
 
 ## Installation
 
@@ -30,7 +31,7 @@ Or for development:
 Pkg.develop(url="https://github.com/SimonAB/DAGMakie.jl")
 ```
 
-## Quick Example
+## Quick example
 
 ```@example home
 using DAGMakie, CairoMakie
@@ -40,7 +41,7 @@ fig, ax, p = dagplot_confounding(["Z", "X", "Y"])
 fig
 ```
 
-## Package Overview
+## Package overview
 
 ```@contents
 Pages = [
