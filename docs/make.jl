@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 using Documenter
 using DAGMakie
 using CairoMakie

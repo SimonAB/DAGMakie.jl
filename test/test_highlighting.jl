@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 @testset "Highlighting" begin
     @testset "HighlightSpec construction" begin
         hs = HighlightSpec()

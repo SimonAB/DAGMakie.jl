@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Path highlighting for causal DAG visualisation.
 

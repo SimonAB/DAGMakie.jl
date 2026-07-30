@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 # Test CausalDynamics extension
 # Run with: julia --project=. -e 'include("test/test_causaldynamics_ext.jl")'
 # Requires CausalDynamics.jl to be available

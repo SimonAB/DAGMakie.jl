@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Automatic label alignment algorithm for DAG visualisation.
 

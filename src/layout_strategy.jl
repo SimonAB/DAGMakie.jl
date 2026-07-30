@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 using LinearAlgebra: norm
 using Statistics: mean
 

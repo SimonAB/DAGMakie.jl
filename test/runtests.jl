@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 using Test
 using DAGMakie
 using Graphs

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 @testset "DAG Plotting" begin
     @testset "dagplot basic" begin
         g = SimpleDiGraph(3)

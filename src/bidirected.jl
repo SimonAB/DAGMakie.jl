@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Bidirected edge support for causal diagrams.
 

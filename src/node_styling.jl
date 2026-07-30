@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Visual node type styling for causal diagrams.
 

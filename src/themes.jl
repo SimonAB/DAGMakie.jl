@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Publication-ready themes for DAG visualisation.
 

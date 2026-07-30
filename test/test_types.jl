@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 @testset "Types" begin
     @testset "NodeType" begin
         # Test all node types exist

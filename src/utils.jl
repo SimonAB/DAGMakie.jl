@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Utility functions for DAGMakie.jl
 """

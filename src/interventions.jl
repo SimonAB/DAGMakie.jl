@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Intervention (`do(·)`) support for causal DAGs.
 

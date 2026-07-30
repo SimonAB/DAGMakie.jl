@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 # Status: intentionally unregistered in DAGMakie Project.toml `[extensions]`.
 # Re-enable once CausalDynamics.jl is on General (see CausalInference.jl/FORK.md).
 # Until then prefer `using CausalDynamics, DAGMakie` so CausalDynamicsDAGMakieExt loads.

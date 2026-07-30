@@ -1,0 +1,29 @@
+{
+    "title": "DAGMakie.jl",
+    "description": "Publication-ready visualisation of directed acyclic, directed cyclic, and mixed causal graphs for causal inference in Julia.",
+    "upload_type": "software",
+    "creators": [
+        {
+            "name": "Babayan, Simon A.",
+            "orcid": "0000-0002-4949-1117",
+            "affiliation": "University of Glasgow"
+        }
+    ],
+    "access_right": "open",
+    "license": "MIT",
+    "related_identifiers": [
+        {
+            "scheme": "url",
+            "identifier": "https://github.com/SimonAB/DAGMakie.jl",
+            "relation": "isSupplementTo"
+        }
+    ],
+    "keywords": [
+        "julia",
+        "causal inference",
+        "DAG",
+        "visualisation",
+        "Makie",
+        "GraphMakie"
+    ]
+}

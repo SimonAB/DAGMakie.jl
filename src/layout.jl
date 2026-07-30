@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Layout utilities for DAG visualisation.
 

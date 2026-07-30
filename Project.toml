@@ -1,8 +1,9 @@
 name = "DAGMakie"
 uuid = "4e3bd891-6b6d-4d36-a31e-f0404dd10c7d"
-version = "0.1.2"
-authors = ["Simon A. Babayan <simon.babayan@glasgow.ac.uk>"]
 license = "MIT"
+authors = ["Simon A. Babayan <simon.babayan@glasgow.ac.uk>"]
+version = "0.1.2"
+repo = "https://github.com/SimonAB/DAGMakie.jl.git"
 
 [deps]
 GraphMakie = "1ecd5474-83a3-4783-bb4f-06765db800d2"
@@ -29,6 +30,11 @@ NetworkLayout = "0.4"
 Reexport = "1"
 Statistics = "1"
 julia = "1.10"
+
+[[author_details]]
+name = "Simon A. Babayan"
+orcid = "0000-0002-4949-1117"
+email = "simon.babayan@glasgow.ac.uk"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"

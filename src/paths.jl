@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Path data types for DAG visualisation highlights.
 

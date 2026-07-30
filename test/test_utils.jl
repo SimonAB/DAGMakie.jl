@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 using Makie: Point2f
 
 @testset "Utilities" begin

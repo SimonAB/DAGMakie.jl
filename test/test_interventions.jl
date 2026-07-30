@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 @testset "Interventions (do-operator)" begin
     @testset "Graph surgery" begin
         g = SimpleDiGraph(3)

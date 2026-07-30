@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 using Makie: Point2f
 
 @testset "Bidirected Edges" begin

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Main dagplot recipe for DAG visualisation.
 
