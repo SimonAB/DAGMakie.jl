@@ -355,9 +355,21 @@ style = presentation_style()  # Extra large for slides
 
 ## Related Packages
 
-- [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl) — General graph visualisation for Makie
-- [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) — Causal inference algorithms
-- [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) — Graph data structures
+**Owned CDCS stack**
+
+- [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) — graphs, identification, CDMs
+- [CausalTargeted.jl](https://github.com/SimonAB/CausalTargeted.jl) — LMTP / mediation estimation
+
+**Julia causal ecosystem**
+
+- [TMLE.jl](https://github.com/TARGENE/TMLE.jl) — point-treatment TMLE / OSE (CM, ATE, AIE)
+- [CausalInference.jl](https://github.com/mschauer/CausalInference.jl) — optional weakdep for adjustment / d-separation in plots
+- [CausalTables.jl](https://github.com/salbalkus/CausalTables.jl) — SCM-aware tables (often paired with TMLE.jl)
+
+**Visualisation / graphs**
+
+- [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl) — general graph visualisation for Makie
+- [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) — graph data structures
 
 ## License
 
