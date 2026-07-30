@@ -1,7 +1,7 @@
 # DAGMakie.jl
 
 [![CI](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/SimonAB/DAGMakie.jl/actions/workflows/CI.yml)
-[![DOI](https://zenodo.org/badge/latestdoi/1131563648.svg)](https://zenodo.org/badge/latestdoi/1131563648)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21703327.svg)](https://doi.org/10.5281/zenodo.21703327)
 [![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://simonab.github.io/DAGMakie.jl/dev/)
 [![codecov](https://codecov.io/gh/SimonAB/DAGMakie.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/SimonAB/DAGMakie.jl)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
