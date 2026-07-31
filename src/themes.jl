@@ -121,6 +121,12 @@ const DEFAULT_LABEL_COLOR = :white
 """Default label distance from node (pixels); 0 centres labels in nodes."""
 const DEFAULT_LABEL_DISTANCE = 0
 
+"""Pixel offset used when `auto_align_labels=true` places labels outside nodes."""
+const AUTO_ALIGN_LABEL_DISTANCE = 14
+
+"""Label colour for outside-node auto-aligned labels."""
+const AUTO_ALIGN_LABEL_COLOR = :black
+
 """Default label alignment (centred in the node)."""
 const DEFAULT_LABEL_ALIGN = (:center, :center)
 

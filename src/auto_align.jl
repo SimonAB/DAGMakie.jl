@@ -60,6 +60,9 @@ aligns = compute_auto_label_aligns(g, positions)
 - Works with any layout algorithm (uses computed node positions)
 - Handles both directed and undirected graphs
 - Time complexity: O(V × E) where V is vertices and E is edges
+- Intended for **outside-node** labels: pair with a positive `nlabels_distance`
+  (see [`resolve_auto_align_label_settings`](@ref)). With distance 0 the
+  non-centred alignments only shift text inside the marker and look broken.
 """
 function compute_auto_label_aligns(g::AbstractGraph, node_positions::AbstractVector)
     n = nv(g)
@@ -233,4 +236,43 @@ function align_to_direction(align::Tuple{Symbol, Symbol})
     end
     
     return (x / len, y / len)
+end
+
+"""
+    resolve_auto_align_label_settings(g, positions; align, distance, color,
+        distance_explicit, color_explicit)
+
+Resolve label align / distance / colour when `auto_align_labels=true`.
+
+Auto-align places labels in the largest angular gap **outside** the node. If the
+caller left the in-node defaults (`distance == 0`, white text), switch to
+[`AUTO_ALIGN_LABEL_DISTANCE`](@ref) and [`AUTO_ALIGN_LABEL_COLOR`](@ref).
+Explicit `nlabels_distance` / `nlabels_color` from the caller are preserved.
+"""
+function resolve_auto_align_label_settings(
+    g::AbstractGraph,
+    positions::AbstractVector;
+    align = DEFAULT_LABEL_ALIGN,
+    distance = DEFAULT_LABEL_DISTANCE,
+    color = DEFAULT_LABEL_COLOR,
+    distance_explicit::Bool = false,
+    color_explicit::Bool = false,
+)
+    resolved_align = compute_auto_label_aligns(g, positions)
+    resolved_distance = if !distance_explicit && (distance == 0 || distance === 0.0)
+        AUTO_ALIGN_LABEL_DISTANCE
+    else
+        distance
+    end
+    resolved_color = if !color_explicit && resolved_distance > 0 &&
+            (color === DEFAULT_LABEL_COLOR || color === :white)
+        AUTO_ALIGN_LABEL_COLOR
+    else
+        color
+    end
+    return (
+        align = resolved_align,
+        distance = resolved_distance,
+        color = resolved_color,
+    )
 end

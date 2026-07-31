@@ -107,4 +107,38 @@ using Makie: Point2f
         # -π/2 or 3π/2 radians = South
         @test DAGMakie._angle_to_alignment(Float64(3π/2)) == (:center, :top)
     end
+
+    @testset "resolve_auto_align_label_settings" begin
+        g, _ = confounding_graph(["Z", "X", "Y"])
+        positions = Point2f[Point2f(0, 1), Point2f(-1, 0), Point2f(1, 0)]
+        settings = resolve_auto_align_label_settings(
+            g, positions;
+            distance = 0,
+            color = :white,
+            distance_explicit = false,
+            color_explicit = false,
+        )
+        @test length(settings.align) == 3
+        @test settings.distance == AUTO_ALIGN_LABEL_DISTANCE
+        @test settings.color == AUTO_ALIGN_LABEL_COLOR
+
+        # Explicit in-node distance is preserved (even if unusual with auto-align)
+        kept = resolve_auto_align_label_settings(
+            g, positions;
+            distance = 0,
+            color = :white,
+            distance_explicit = true,
+            color_explicit = true,
+        )
+        @test kept.distance == 0
+        @test kept.color == :white
+    end
+
+    @testset "dagplot auto_align uses outside labels" begin
+        g, labels = confounding_graph(["Z", "X", "Y"])
+        fig, ax, p = dagplot(g; nlabels = labels, auto_align_labels = true)
+        @test fig isa Figure
+        @test p[:nlabels_distance][] == AUTO_ALIGN_LABEL_DISTANCE
+        @test p[:nlabels_color][] == AUTO_ALIGN_LABEL_COLOR
+    end
 end

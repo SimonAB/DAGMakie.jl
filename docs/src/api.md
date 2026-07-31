@@ -153,6 +153,7 @@ ancestors_via_graphs
 ```@docs
 compute_auto_label_aligns
 align_to_direction
+resolve_auto_align_label_settings
 ```
 
 ## Layout Utilities

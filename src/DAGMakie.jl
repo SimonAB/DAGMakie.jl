@@ -89,6 +89,8 @@ export dagplot_confounded, dagplot_frontdoor, dagplot_iv_confounded, dagplot_m_b
 # Auto-alignment
 export compute_auto_label_aligns
 export align_to_direction
+export resolve_auto_align_label_settings
+export AUTO_ALIGN_LABEL_DISTANCE, AUTO_ALIGN_LABEL_COLOR
 
 # Layout utilities
 export estimate_label_extent, compute_label_bounds, compute_padded_limits

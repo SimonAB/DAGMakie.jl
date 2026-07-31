@@ -91,9 +91,10 @@ dagplot(g,
 
 ### Label Alignment
 
-By default, labels use a fixed alignment. Pass `auto_align_labels = true` to compute
-per-node alignments that avoid edges (via package-local `compute_auto_label_aligns`,
-which does not require a GraphMakie fork):
+By default labels sit **inside** the node (`nlabels_distance = 0`, centred).
+Pass `auto_align_labels = true` to place labels **outside** in the largest
+angular gap between incident edges (dagitty-style external labels). That mode
+automatically uses a positive distance and dark text unless you override them:
 
 ```@example basic
 fig, ax, p = dagplot(g,
@@ -103,7 +104,8 @@ fig, ax, p = dagplot(g,
 fig
 ```
 
-Manual alignment options:
+Manual alignment options (still typically with a positive `nlabels_distance`
+when labels sit outside the fill):
 
 ```julia
 dagplot(g,

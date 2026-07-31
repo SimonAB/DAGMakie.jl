@@ -101,7 +101,9 @@ limits to prevent clipping of nodes and labels.
 #| Label Keyword Arguments
 - `nlabels = nothing`: Node labels (vector of strings, or `nothing`)
 - `nlabels_align = (:center, :center)`: Label alignment (or vector); centred for in-node labels
-- `auto_align_labels = false`: When true, use package-local `compute_auto_label_aligns` (works with registry GraphMakie)
+- `auto_align_labels = false`: When true, place labels **outside** nodes in the
+  largest angular gap (sets a positive distance and dark label colour unless you
+  override them)
 - `nlabels_distance = 0`: Label distance from node in pixels (0 centres labels in nodes)
 - `nlabels_fontsize = 16`: Label font size
 - `nlabels_color = :white`: Label colour (white on dark node fills)
@@ -350,9 +352,22 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
 
     # Use package-local auto-align so registry GraphMakie (without
     # `nlabels_auto_align`) still gets sensible label placement.
+    # Auto-align is for *outside* labels: with the in-node default
+    # (distance 0, white text) non-centred aligns only clip text inside markers.
     resolved_nlabels_align = nlabels_align
     if auto_align_labels && nlabels !== nothing
-        resolved_nlabels_align = compute_auto_label_aligns(g, layout_result.positions)
+        auto_settings = resolve_auto_align_label_settings(
+            g,
+            layout_result.positions;
+            align = nlabels_align,
+            distance = resolved_label_distance,
+            color = resolved_label_color,
+            distance_explicit = nlabels_distance !== nothing,
+            color_explicit = nlabels_color !== nothing,
+        )
+        resolved_nlabels_align = auto_settings.align
+        resolved_label_distance = auto_settings.distance
+        resolved_label_color = auto_settings.color
     end
 
     p = graphplot!(ax, g;
