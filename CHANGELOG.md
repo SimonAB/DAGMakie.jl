@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   adjustment emphasis, fork + smart).
 - Guide page `guide/skeletons_and_time.md` for CPDAG skeletons and time-indexed
   grids.
+- [`structural_edge_labels`](@ref): build GraphMakie `elabels` from a structural
+  parameter matrix `B` (or a custom vector), with optional Makie `LaTeXString`
+  maths on edges. (`edge_coefficient_labels` remains as a deprecated alias.)
+  Documented with rendered examples in Getting started and Basic plotting;
+  `dagplot` documents `elabels` / `elabels_*` passthrough.
 
 ## [0.1.4] - 2026-07-31
 

@@ -26,6 +26,12 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
     )
     @test fig_sk isa Figure
 
+    # Auto layout must not call directed-only Algorithms on SimpleGraph
+    fig_auto, ax_auto, p_auto = dagplot(sk; layout_mode = :acyclic, nlabels = ["1", "2", "3", "4"])
+    @test fig_auto isa Figure
+    fig_spring, ax_spring, p_spring = dagplot(sk; layout_mode = :spring, nlabels = ["1", "2", "3", "4"])
+    @test fig_spring isa Figure
+
     fig_sk2, ax_sk2, p_sk2 = dagplot_skeleton(g;
         layout = Point2f[Point2f(0, 1), Point2f(-1, 0), Point2f(1, 0), Point2f(2, 0)],
         nlabels = ["1", "2", "3", "4"],

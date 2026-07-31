@@ -242,21 +242,71 @@ function _materialise_layout_positions(g::Graphs.AbstractGraph, layout)
     return Point2f.(raw_positions)
 end
 
-function _graph_structure_metadata(g::Graphs.AbstractGraph)
-    if !Graphs.is_directed(g) || is_dag(g)
-        if Graphs.is_directed(g)
-            topo_order = Graphs.topological_sort_by_dfs(g)
-            node_layers = _longest_path_layers(g, topo_order)
-        else
-            node_layers = ones(Int, Graphs.nv(g))
+"""
+    _layout_components(g)
+
+Strongly connected components for directed graphs; ordinary connected components
+for undirected graphs (Tarjan SCC is directed-only in Graphs.jl).
+"""
+function _layout_components(g::Graphs.AbstractGraph)
+    raw = if Graphs.is_directed(g)
+        Graphs.strongly_connected_components(g)
+    else
+        Graphs.connected_components(g)
+    end
+    return _sorted_components(raw)
+end
+
+"""
+    _undirected_bfs_order_and_layers(g)
+
+Deterministic BFS order and layer indices for undirected graphs, starting from
+the lowest-index node in each connected component.
+"""
+function _undirected_bfs_order_and_layers(g::Graphs.AbstractGraph)
+    n = Graphs.nv(g)
+    node_layers = zeros(Int, n)
+    order = Int[]
+    visited = falses(n)
+    for start in 1:n
+        visited[start] && continue
+        queue = Int[start]
+        visited[start] = true
+        node_layers[start] = 1
+        while !isempty(queue)
+            u = popfirst!(queue)
+            push!(order, u)
+            for v in sort!(collect(Graphs.neighbors(g, u)))
+                if !visited[v]
+                    visited[v] = true
+                    node_layers[v] = node_layers[u] + 1
+                    push!(queue, v)
+                end
+            end
         end
+    end
+    return order, node_layers
+end
+
+function _graph_structure_metadata(g::Graphs.AbstractGraph)
+    if !Graphs.is_directed(g)
+        node_layers = ones(Int, Graphs.nv(g))
         component_index = collect(1:Graphs.nv(g))
         components = [[node] for node in 1:Graphs.nv(g)]
         component_layers = copy(node_layers)
         return node_layers, component_index, components, component_layers
     end
 
-    components = _sorted_components(Graphs.strongly_connected_components(g))
+    if is_dag(g)
+        topo_order = Graphs.topological_sort_by_dfs(g)
+        node_layers = _longest_path_layers(g, topo_order)
+        component_index = collect(1:Graphs.nv(g))
+        components = [[node] for node in 1:Graphs.nv(g)]
+        component_layers = copy(node_layers)
+        return node_layers, component_index, components, component_layers
+    end
+
+    components = _layout_components(g)
     component_index = _component_index(components, Graphs.nv(g))
     condensation = _condensation_graph(g, component_index, length(components))
     component_order = Graphs.topological_sort_by_dfs(condensation)
@@ -271,8 +321,12 @@ function _compute_layered_positions(
     layer_gap::Real,
     node_gap::Real,
 )
-    topo_order = Graphs.topological_sort_by_dfs(g)
-    node_layers = _longest_path_layers(g, topo_order)
+    if Graphs.is_directed(g)
+        topo_order = Graphs.topological_sort_by_dfs(g)
+        node_layers = _longest_path_layers(g, topo_order)
+    else
+        topo_order, node_layers = _undirected_bfs_order_and_layers(g)
+    end
     layers = _collect_layers(node_layers, topo_order)
     _barycentric_sweeps!(g, layers)
     positions = _positions_from_layers(
@@ -293,7 +347,7 @@ function _compute_cyclic_positions(
     component_gap::Real,
     scc_radius::Real,
 )
-    components = _sorted_components(Graphs.strongly_connected_components(g))
+    components = _layout_components(g)
     component_index = _component_index(components, Graphs.nv(g))
     condensation = _condensation_graph(g, component_index, length(components))
     component_positions, component_layers = _compute_layered_positions(

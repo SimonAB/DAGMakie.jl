@@ -557,6 +557,91 @@ function digraph_skeleton(g::AbstractGraph)
 end
 
 """
+    structural_edge_labels(g, B; latex=true, digits=2)
+
+Build GraphMakie `elabels` for `g` from a structural parameter matrix `B`
+(linear SEM / linear SCM weights).
+
+Convention: `B[i, j]` is the structural weight of node `j` in the assignment for
+node `i`, i.e. the parameter on the directed edge `j → i`. Labels are returned in
+`Graphs.edges(g)` order (the order GraphMakie expects for `elabels`).
+
+This is deliberately not named “effects”: in the Pearl ladder an *effect* is
+usually an interventional or counterfactual estimand, whereas these labels are
+structural parameters (or other short mechanism annotations) on the graph.
+
+When `latex=true` (default), each entry is a Makie `LaTeXString` so parameters
+render as maths on the edge. Set `latex=false` for plain `String` labels.
+
+# Examples
+
+```julia
+g = SimpleDiGraph(3)
+add_edge!(g, 1, 2); add_edge!(g, 2, 3); add_edge!(g, 1, 3)
+B = [0 0 0; 0.8 0 0; 0.5 1.2 0]
+fig, ax, p = dagplot(g;
+    nlabels = ["Z", "X", "Y"],
+    elabels = structural_edge_labels(g, B),
+    elabels_fontsize = 14,
+    elabels_distance = 12,
+    elabels_rotation = 0,
+)
+```
+"""
+function structural_edge_labels(
+    g::AbstractGraph,
+    B::AbstractMatrix{<:Real};
+    latex::Bool = true,
+    digits::Integer = 2,
+)
+    size(B, 1) == size(B, 2) || throw(ArgumentError("B must be square"))
+    size(B, 1) == Graphs.nv(g) || throw(ArgumentError("size(B, 1) must equal nv(g)"))
+    labels = map(Graphs.edges(g)) do e
+        β = B[Graphs.dst(e), Graphs.src(e)]
+        _format_edge_label(β; latex = latex, digits = digits)
+    end
+    return collect(labels)
+end
+
+"""
+    structural_edge_labels(g, labels; latex=false)
+
+Pass edge annotations already ordered as `Graphs.edges(g)`. With `latex=true`,
+wrap plain strings (or numbers) as `LaTeXString` via `Makie.latexstring` so short
+TeX such as `"\\\\beta_{ZX}"` or a fragment of a structural assignment renders on
+the edge.
+"""
+function structural_edge_labels(
+    g::AbstractGraph,
+    labels::AbstractVector;
+    latex::Bool = false,
+)
+    length(labels) == Graphs.ne(g) ||
+        throw(ArgumentError("need one label per edge (ne(g) = $(Graphs.ne(g)))"))
+    return [_format_edge_label(lab; latex = latex, digits = 2) for lab in labels]
+end
+
+"""
+    edge_coefficient_labels(args...; kwargs...)
+
+Deprecated alias for [`structural_edge_labels`](@ref).
+"""
+edge_coefficient_labels(args...; kwargs...) = structural_edge_labels(args...; kwargs...)
+
+function _format_edge_label(β::Real; latex::Bool, digits::Integer)
+    text = string(round(Float64(β); digits = digits))
+    return latex ? Makie.latexstring(text) : text
+end
+
+function _format_edge_label(text::AbstractString; latex::Bool, digits::Integer)
+    return latex ? Makie.latexstring(String(text)) : String(text)
+end
+
+function _format_edge_label(text::Makie.LaTeXString; latex::Bool, digits::Integer)
+    return text
+end
+
+"""
     dagplot_skeleton(g; kwargs...)
 
 Plot the undirected skeleton of `g` ([`digraph_skeleton`](@ref)).

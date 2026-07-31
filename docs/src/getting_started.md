@@ -31,6 +31,52 @@ fig
 - `ax`: the `Axis`
 - `p`: the `GraphPlot` (node positions and plot attributes)
 
+## Edge labels (structural parameters)
+
+GraphMakie `elabels` pass through `dagplot`. Prefer
+[`structural_edge_labels`](@ref) so labels follow `Graphs.edges(g)` order and
+optional LaTeX maths (path coefficients or short mechanism fragments):
+
+```@example getting_started
+g_w, labels_w = confounding_graph(["Z", "X", "Y"])
+# B[i,j] = structural weight on j → i
+B = [
+    0.0  0.0  0.0;
+    0.8  0.0  0.0;
+    0.5  1.2  0.0;
+]
+fig, ax, p = dagplot(g_w;
+    nlabels = labels_w,
+    elabels = structural_edge_labels(g_w, B; digits = 1),
+    elabels_fontsize = 14,
+    elabels_distance = 12,
+    elabels_rotation = 0,
+    padding = 0.45,
+)
+fig
+```
+
+Symbolic TeX on the same topology:
+
+```@example getting_started
+fig, ax, p = dagplot(g_w;
+    nlabels = labels_w,
+    elabels = structural_edge_labels(
+        g_w,
+        ["\\beta_{ZX}", "\\beta_{ZY}", "\\beta_{XY}"];
+        latex = true,
+    ),
+    elabels_fontsize = 14,
+    elabels_distance = 12,
+    elabels_rotation = 0,
+    padding = 0.45,
+)
+fig
+```
+
+See [Basic plotting](guide/basic.md#structural-edge-labels-latex) for more
+`elabels_*` options.
+
 ## Saving figures
 
 ```julia

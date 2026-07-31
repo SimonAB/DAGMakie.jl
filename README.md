@@ -40,6 +40,15 @@ using DAGMakie, CairoMakie
 
 # Confounding DAG Z → X → Y, Z → Y (triangle layout: confounder on top)
 fig, ax, p = dagplot_confounding(["Z", "X", "Y"])
+
+# Structural path coefficients on edges (Graphs.edges order via helper)
+g, labels = confounding_graph(["Z", "X", "Y"])
+B = [0.0 0.0 0.0; 0.8 0.0 0.0; 0.5 1.2 0.0]
+fig, ax, p = dagplot(g;
+    nlabels = labels,
+    elabels = structural_edge_labels(g, B; digits = 1),
+    elabels_rotation = 0,
+)
 ```
 
 ![Confounding DAG](docs/images/confounding_dag.png)
@@ -56,6 +65,7 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 ## Capabilities
 
 - In-node white labels on steel-blue nodes by default (short variable names)
+- Edge labels via GraphMakie `elabels` and [`structural_edge_labels`](https://simonab.github.io/DAGMakie.jl/dev/) (numeric \(B\) or LaTeX path coefficients)
 - Deterministic layered DAG layout for acyclic graphs (not a generic spring layout)
 - SCC-aware cyclic layout with explicit curved feedback edges
 - Themes without axes or grids (`default`, `minimal`, `bold`, `presentation`)

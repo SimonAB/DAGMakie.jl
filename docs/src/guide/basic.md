@@ -188,6 +188,47 @@ fig, ax, p = dagplot(g,
 fig
 ```
 
+## Structural edge labels (LaTeX)
+
+GraphMakie `elabels` pass through `dagplot` / `dagplot!`. Use
+[`structural_edge_labels`](@ref) to annotate edges with linear-SCM structural
+weights from a matrix $B$ (with $B_{ij}$ the parameter on $j\to i$), or with
+short TeX fragments of a mechanism, optionally as Makie `LaTeXString`s:
+
+```@example basic
+B = [
+    0.0  0.0  0.0;
+    0.8  0.0  0.0;
+    0.5  1.2  0.0;
+]
+fig, ax, p = dagplot(g;
+    nlabels = labels,
+    elabels = structural_edge_labels(g, B; digits = 1),
+    elabels_fontsize = 14,
+    elabels_distance = 12,
+    elabels_rotation = 0,   # keep maths upright
+)
+fig
+```
+
+Custom TeX on edges (still one label per `Graphs.edges(g)` entry):
+
+```@example basic
+fig, ax, p = dagplot(g;
+    nlabels = labels,
+    elabels = structural_edge_labels(
+        g,
+        ["\\beta_{ZX}", "\\beta_{ZY}", "\\beta_{XY}"];
+        latex = true,
+    ),
+    elabels_fontsize = 14,
+    elabels_distance = 12,
+    elabels_rotation = 0,
+    padding = 0.45,
+)
+fig
+```
+
 ## Padding
 
 Control spacing around the graph:

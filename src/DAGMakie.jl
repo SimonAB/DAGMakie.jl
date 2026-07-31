@@ -144,6 +144,7 @@ export get_node_positions, graph_extent, is_dag, edge_list
 export adjacency_to_graph, graph_from_edges
 export chain_graph, fork_graph, collider_graph, confounding_graph, mediation_graph, instrumental_graph
 export digraph_skeleton, dagplot_skeleton
+export structural_edge_labels, edge_coefficient_labels
 
 # Bidirected edges / Mixed graphs
 export MixedGraph, mixed_graph

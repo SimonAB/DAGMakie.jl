@@ -97,9 +97,14 @@ limits to prevent clipping of nodes and labels.
 - `edge_width = 1.0`: Edge line width
 - `arrow_size = 10`: Arrowhead size
 - `arrow_shift = :end`: Arrow position (`:end` or Float64 0-1)
+- `elabels = nothing`: Edge labels in `Graphs.edges(g)` order. Accepts plain
+  `String`s or Makie `LaTeXString`s (e.g. from [`structural_edge_labels`](@ref)
+  with `latex=true`) for structural parameters or short mechanism TeX on edges
+- `elabels_fontsize`, `elabels_distance`, `elabels_rotation`, `elabels_side`, …
+  : forwarded to GraphMakie (use `elabels_rotation = 0` to keep maths upright)
 
-#| Label Keyword Arguments
-- `nlabels = nothing`: Node labels (vector of strings, or `nothing`)
+# Label Keyword Arguments
+- `nlabels = nothing`: Node labels (vector of strings / `LaTeXString`s, or `nothing`)
 - `nlabels_align = (:center, :center)`: Makie **text-box anchor** (or vector of
   anchors). Named sides are edges of the *label*, not “label goes this side of
   the node”: `(:left, :center)` left-anchors the text so it sits to the **right**

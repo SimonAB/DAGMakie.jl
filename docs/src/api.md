@@ -7,6 +7,8 @@ time_indexed_layout
 dagplot_time_indexed
 digraph_skeleton
 dagplot_skeleton
+structural_edge_labels
+edge_coefficient_labels
 ```
 
 ## Main Plotting Functions

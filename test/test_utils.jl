@@ -109,4 +109,25 @@ using Makie: Point2f
         @test has_edge(g, 4, 2)  # U → X
         @test has_edge(g, 4, 3)  # U → Y
     end
+
+    @testset "structural_edge_labels" begin
+        g = SimpleDiGraph(3)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+        add_edge!(g, 1, 3)
+        B = [0.0 0.0 0.0; 0.8 0.0 0.0; 0.5 1.2 0.0]
+        el = structural_edge_labels(g, B; latex = true, digits = 1)
+        @test length(el) == 3
+        @test el isa Vector{<:Makie.LaTeXString}
+        # edges order: 1→2, 1→3, 2→3 → B[2,1], B[3,1], B[3,2]
+        @test String(el[1]) == "\$0.8\$" || occursin("0.8", String(el[1]))
+        plain = structural_edge_labels(g, B; latex = false, digits = 1)
+        @test plain == ["0.8", "0.5", "1.2"]
+        tex = structural_edge_labels(g, ["\\beta_{ZX}", "\\beta_{ZY}", "\\beta_{XY}"]; latex = true)
+        @test length(tex) == 3
+        @test tex[1] isa Makie.LaTeXString
+        @test edge_coefficient_labels(g, B; latex = false, digits = 1) == plain
+        fig, ax, p = dagplot(g; nlabels = ["Z", "X", "Y"], elabels = el, elabels_rotation = 0)
+        @test fig isa Figure
+    end
 end
