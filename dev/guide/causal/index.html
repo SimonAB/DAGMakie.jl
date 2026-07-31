@@ -38,11 +38,24 @@ roles = classify_smart_roles(g, 4, 5)
 @show roles
 
 fig = with_theme(dag_theme()) do
-    fig, ax, p = dagplot_smart(g, 4, 5; nlabels = labels, figure_size = (700, 420))
+    # Place X below the Z→Y chord so A→X and Z→X do not cross it.
+    layout = Point2f[
+        (0.0, -2.7),  # A
+        (0.0, -0.9),  # Z
+        (0.0, 0.9),   # B
+        (2.6, -2.2),  # X (below Z→Y so parent edges do not cross it)
+        (5.2, 0.0),   # Y
+        (0.0, 2.7),   # W
+    ]
+    fig, ax, p = dagplot_smart(g, 4, 5;
+        nlabels = labels,
+        layout = layout,
+        figure_size = (700, 420),
+    )
     ax.title = &quot;A: anc. exposure · B: anc. outcome · Z: both · W: irrelevant&quot;
     fig
 end
-fig</code></pre><img src="fbb39c6c.png" alt="Example block output"/><h3 id="Emphasise-an-adjustment-set"><a class="docs-heading-anchor" href="#Emphasise-an-adjustment-set">Emphasise an adjustment set</a><a id="Emphasise-an-adjustment-set-1"></a><a class="docs-heading-anchor-permalink" href="#Emphasise-an-adjustment-set" title="Permalink"></a></h3><p><code>smart=:adjustment</code> keeps the ancestor colours and draws a thicker dark-red outline on adjustment nodes. Pass <code>adjustment=</code> explicitly when CausalInference is not loaded (as in this documentation build).</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+fig</code></pre><img src="4e32b048.png" alt="Example block output"/><h3 id="Emphasise-an-adjustment-set"><a class="docs-heading-anchor" href="#Emphasise-an-adjustment-set">Emphasise an adjustment set</a><a id="Emphasise-an-adjustment-set-1"></a><a class="docs-heading-anchor-permalink" href="#Emphasise-an-adjustment-set" title="Permalink"></a></h3><p><code>smart=:adjustment</code> keeps the ancestor colours and draws a thicker dark-red outline on adjustment nodes. Pass <code>adjustment=</code> explicitly when CausalInference is not loaded (as in this documentation build).</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 g, labels = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])
 
@@ -57,8 +70,23 @@ fig = with_theme(dag_theme()) do
     ax.title = &quot;smart = :adjustment (Z emphasised)&quot;
     fig
 end
-fig</code></pre><img src="71b37416.png" alt="Example block output"/><p>With CausalInference available in your environment you can omit <code>adjustment</code> and let the extension compute a minimal backdoor set (same visual as the explicit-<code>adjustment</code> example above):</p><pre><code class="language-julia hljs">using CausalInference  # activates DAGMakieCausalInferenceExt
-fig, ax, p = dagplot(g; smart = :adjustment, treatment = 2, outcome = 3, nlabels = labels)</code></pre><h2 id="d-Separation-titles"><a class="docs-heading-anchor" href="#d-Separation-titles">d-Separation titles</a><a id="d-Separation-titles-1"></a><a class="docs-heading-anchor-permalink" href="#d-Separation-titles" title="Permalink"></a></h2><p>Pass <code>separated</code> from <code>dsep</code> / <code>d_separated</code> for axis titles. Use a <strong>fork</strong> <span>$X ← Z → Y$</span> (no direct <span>$X → Y$</span>): conditioning on <span>$Z$</span> d-separates <span>$X$</span> and <span>$Y$</span>. A confounding triangle with <span>$X → Y$</span> keeps them d-connected.</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+fig</code></pre><img src="71b37416.png" alt="Example block output"/><p>With CausalInference available in your environment you can omit <code>adjustment</code> and let the extension compute a minimal backdoor set:</p><pre><code class="language-julia hljs">using CausalInference  # activates DAGMakieCausalInferenceExt
+fig, ax, p = dagplot(g; smart = :adjustment, treatment = 2, outcome = 3, nlabels = labels)</code></pre><p>That call draws the same emphasis as below (for this DAG the extension returns <span>${Z}$</span>). The documentation environment does not load CausalInference (registry builds pin GraphMakie incompatible with 0.6), so the figure uses the equivalent explicit set:</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+
+g, labels = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])
+
+fig = with_theme(dag_theme()) do
+    fig, ax, p = dagplot(g;
+        smart = :adjustment,
+        treatment = 2,
+        outcome = 3,
+        adjustment = Set([1]),  # same as find_min_backdoor_adjustment(g, 2, 3)
+        nlabels = labels,
+    )
+    ax.title = &quot;smart = :adjustment (Z from backdoor set)&quot;
+    fig
+end
+fig</code></pre><img src="a026e415.png" alt="Example block output"/><h2 id="d-Separation-titles"><a class="docs-heading-anchor" href="#d-Separation-titles">d-Separation titles</a><a id="d-Separation-titles-1"></a><a class="docs-heading-anchor-permalink" href="#d-Separation-titles" title="Permalink"></a></h2><p>Pass <code>separated</code> from <code>dsep</code> / <code>d_separated</code> for axis titles. Use a <strong>fork</strong> <span>$X ← Z → Y$</span> (no direct <span>$X → Y$</span>): conditioning on <span>$Z$</span> d-separates <span>$X$</span> and <span>$Y$</span>. A confounding triangle with <span>$X → Y$</span> keeps them d-connected.</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 g, labels = fork_graph([&quot;X&quot;, &quot;Z&quot;, &quot;Y&quot;])  # X ← Z → Y
 # X ⊥ Y | Z (Z blocks the only path)
@@ -76,4 +104,4 @@ fig = with_theme(dag_theme()) do
     ax.title = &quot;X ⊥ Y | Z (d-separated) · smart ancestors&quot;
     fig
 end
-fig</code></pre><img src="c8e7e33f.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../bidirected/">« Bidirected Edges</a><a class="docs-footer-nextpage" href="../interventions/">Interventions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 31 July 2026 14:26">Friday 31 July 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><img src="c8e7e33f.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../bidirected/">« Bidirected Edges</a><a class="docs-footer-nextpage" href="../interventions/">Interventions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 31 July 2026 16:30">Friday 31 July 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
