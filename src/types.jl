@@ -50,14 +50,14 @@ Specification for a single node in a DAG.
 - `label::String`: Display label for the node
 - `type::NodeType`: Type of node (determines styling)
 - `color`: Override colour (`nothing` = use type default)
-- `size::Union{Real, Nothing}`: Override size (nothing = use default)
-- `marker::Union{Symbol, Char, Nothing}`: Override marker shape
+- `size::Union{Real, Tuple, Nothing}`: Override size (nothing = use default;
+  a `(width, height)` tuple is passed through to Makie for non-square markers)
 """
 struct NodeSpec
     label::String
     type::NodeType
     color
-    size::Union{Real, Nothing}
+    size::Union{Real, Tuple, Nothing}
     marker::Union{Symbol, Char, Nothing}
 end
 
@@ -76,7 +76,7 @@ NodeSpec("A", type=Treatment, color=:blue)  # Treatment with custom colour
 function NodeSpec(label::AbstractString; 
     type::NodeType = Observed,
     color = nothing,
-    size::Union{Real, Nothing} = nothing,
+    size::Union{Real, Tuple, Nothing} = nothing,
     marker::Union{Symbol, Char, Nothing} = nothing
 )
     return NodeSpec(String(label), type, color, size, marker)

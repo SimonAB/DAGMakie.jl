@@ -229,7 +229,7 @@ function compute_padded_limits(
     node_radius_data = 0.0
     if node_sizes !== nothing
         sizes = node_sizes isa AbstractVector ? node_sizes : [node_sizes]
-        max_node_px = Float64(maximum(sizes))
+        max_node_px = Float64(maximum(_marker_extent_px(s) for s in sizes))
         node_radius_data = 0.5 * max_node_px * max(abs(scale_x), abs(scale_y))
     end
 
@@ -259,6 +259,11 @@ function compute_padded_limits(
         (y_min - y_padding, y_max + y_padding)
     )
 end
+
+"""Return the largest pixel extent of a marker size (scalar or `(w, h)`)."""
+_marker_extent_px(size::Real) = Float64(size)
+_marker_extent_px(size::Tuple{<:Real, <:Real}) = Float64(max(size[1], size[2]))
+_marker_extent_px(size) = Float64(maximum(size))
 
 function _pixel_to_data_scale(xs::Vector{Float64}, ys::Vector{Float64}; to_px, pixel_size::Tuple{Real, Real})
     if to_px === nothing

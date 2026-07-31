@@ -207,9 +207,11 @@ function did_2x2_swig_spec(;
         NodeSpec(labels[1]; type = Confounder),
         NodeSpec(labels[2]; type = Latent),
         NodeSpec(labels[3]; type = Outcome),
-        NodeSpec(labels[4]; type = Outcome),
+        # Non-square rects: wide labels need width; height set for clear vertical pad.
+        # (GraphMakie circle markers render ≈ 0.7× markersize, so circles clip Y₁(0).)
+        NodeSpec(labels[4]; type = Outcome, marker = :rect, size = (132, 84)),
         NodeSpec(labels[5]; type = Treatment),
-        NodeSpec(labels[6]; type = SwigFixed),
+        NodeSpec(labels[6]; type = SwigFixed, size = (105, 80)),
     ]
     return DAGSpec(g, nodes, EdgeSpec[], "2×2 DiD SWIG (a=0)")
 end
@@ -239,9 +241,9 @@ function did_2x2_swig_layout()
         Point2f(-1.6, 0.4),  # G
         Point2f(0.2, 1.6),   # U
         Point2f(0.0, 0.0),   # Y₀
-        Point2f(2.6, 0.0),   # Y₁(0)
-        Point2f(0.9, -1.2),  # A₁ (random)
-        Point2f(1.7, -1.2),  # a=0 (fixed)
+        Point2f(3.2, 0.0),   # Y₁(0) (wide rounded rect)
+        Point2f(0.55, -1.45), # A₁ (random)
+        Point2f(2.1, -1.45), # a=0 (fixed)
     ]
 end
 
@@ -262,7 +264,10 @@ function dagplot_did_swig(;
         titles = ("Factual 2×2 DAG", "SWIG under do(A₁ = 0)"),
         figure_size = figure_size,
         left_kwargs = (layout = did_2x2_factual_layout(),),
-        right_kwargs = (layout = did_2x2_swig_layout(),),
+        right_kwargs = (
+            layout = did_2x2_swig_layout(),
+            nlabels_fontsize = 12,
+        ),
         kwargs...,
     )
 end

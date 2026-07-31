@@ -93,6 +93,21 @@ fig
 
 ### Label Alignment
 
+`nlabels_align` is the Makie **text-box anchor** (passed through GraphMakie), not
+“put the label on this side of the node”. The named side is which edge of the
+**label** sits on the anchor point, so the node ends up on that side of the
+label:
+
+| `nlabels_align` | Anchor meaning | Label ends up… |
+|-----------------|----------------|----------------|
+| `(:left, :center)` | left edge of text on point | **right** of the node |
+| `(:right, :center)` | right edge of text on point | **left** of the node |
+| `(:center, :bottom)` | bottom of text on point | **above** the node |
+| `(:center, :top)` | top of text on point | **below** the node |
+
+With a positive `nlabels_distance`, GraphMakie also shifts the anchor along the
+same direction (so `(:left, :center)` both left-anchors and nudges east).
+
 By default labels sit **inside** the node (`nlabels_distance = 0`, centred).
 Pass `auto_align_labels = true` to place labels **outside** in the largest
 angular gap between incident edges (dagitty-style external labels). That mode
@@ -106,13 +121,14 @@ fig, ax, p = dagplot(g,
 fig
 ```
 
-Manual alignment options (still typically with a positive `nlabels_distance`
-when labels sit outside the fill):
+Manual anchors (still typically with a positive `nlabels_distance` when labels
+sit outside the fill). Panel titles show where the **label** appears relative
+to the node:
 
 ```@example basic
 fig = Figure(size = (720, 280))
-ax1 = Axis(fig[1, 1], title = "Fixed align")
-ax2 = Axis(fig[1, 2], title = "Per-node align")
+ax1 = Axis(fig[1, 1], title = "(:right, :bottom) → label NW of node")
+ax2 = Axis(fig[1, 2], title = "Per-node anchors")
 dagplot!(ax1, g;
     nlabels = labels,
     auto_align_labels = false,
@@ -125,7 +141,8 @@ dagplot!(ax2, g;
     auto_align_labels = false,
     nlabels_distance = 12,
     nlabels_color = :black,
-    nlabels_align = [(:left, :center), (:center, :top), (:right, :center)],
+    # Z right-anchored → label west; X top-anchored → label south; Y left-anchored → label east
+    nlabels_align = [(:right, :center), (:center, :top), (:left, :center)],
 )
 fig
 ```

@@ -90,7 +90,20 @@ roles = classify_smart_roles(g, 4, 5)
 @show roles
 
 fig = with_theme(dag_theme()) do
-    fig, ax, p = dagplot_smart(g, 4, 5; nlabels = labels, figure_size = (700, 420))
+    # Place X below the Z→Y chord so A→X and Z→X do not cross it.
+    layout = Point2f[
+        (0.0, -2.7),  # A
+        (0.0, -0.9),  # Z
+        (0.0, 0.9),   # B
+        (2.6, -2.2),  # X (below Z→Y so parent edges do not cross it)
+        (5.2, 0.0),   # Y
+        (0.0, 2.7),   # W
+    ]
+    fig, ax, p = dagplot_smart(g, 4, 5;
+        nlabels = labels,
+        layout = layout,
+        figure_size = (700, 420),
+    )
     ax.title = "A: anc. exposure · B: anc. outcome · Z: both · W: irrelevant"
     fig
 end
@@ -123,12 +136,35 @@ fig
 ```
 
 With CausalInference available in your environment you can omit `adjustment`
-and let the extension compute a minimal backdoor set (same visual as the
-explicit-`adjustment` example above):
+and let the extension compute a minimal backdoor set:
 
 ```julia
 using CausalInference  # activates DAGMakieCausalInferenceExt
 fig, ax, p = dagplot(g; smart = :adjustment, treatment = 2, outcome = 3, nlabels = labels)
+```
+
+That call draws the same emphasis as below (for this DAG the extension returns
+``{Z}``). The documentation environment does not load CausalInference (registry
+builds pin GraphMakie incompatible with 0.6), so the figure uses the equivalent
+explicit set:
+
+```@example causal-smart-adj-auto
+using Graphs, DAGMakie, CairoMakie
+
+g, labels = confounding_graph(["Z", "X", "Y"])
+
+fig = with_theme(dag_theme()) do
+    fig, ax, p = dagplot(g;
+        smart = :adjustment,
+        treatment = 2,
+        outcome = 3,
+        adjustment = Set([1]),  # same as find_min_backdoor_adjustment(g, 2, 3)
+        nlabels = labels,
+    )
+    ax.title = "smart = :adjustment (Z from backdoor set)"
+    fig
+end
+fig
 ```
 
 ## d-Separation titles

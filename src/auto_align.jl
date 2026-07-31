@@ -195,19 +195,24 @@ end
 """
     align_to_direction(align::Tuple{Symbol, Symbol})
 
-Convert an alignment tuple to a normalised direction vector.
+Convert a Makie text-box `align` to the offset direction GraphMakie uses with
+`nlabels_distance`.
+
+Makie `align` names the edge of the **label** that sits on the anchor. Combined
+with a positive distance, that places the label on the **opposite** side of the
+node (e.g. `(:left, :center)` → offset east → label to the right of the node).
 
 # Arguments
-- `align`: Tuple of `(:horizontal, :vertical)` alignment symbols
+- `align`: Tuple of `(:horizontal, :vertical)` Makie text-align symbols
 
 # Returns
-- `Point2f`: Normalised direction vector pointing from node towards label
+- Direction from node toward the label (for use as `distance .* dir`)
 
 # Examples
 ```julia
-align_to_direction((:left, :center))   # Point2f(1.0, 0.0) - East
-align_to_direction((:right, :center))  # Point2f(-1.0, 0.0) - West
-align_to_direction((:center, :bottom)) # Point2f(0.0, 1.0) - North
+align_to_direction((:left, :center))   # (1, 0)  — label ends up east of node
+align_to_direction((:right, :center))  # (-1, 0) — label ends up west of node
+align_to_direction((:center, :bottom)) # (0, 1)  — label ends up north of node
 ```
 """
 function align_to_direction(align::Tuple{Symbol, Symbol})

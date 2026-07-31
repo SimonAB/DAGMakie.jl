@@ -100,7 +100,10 @@ limits to prevent clipping of nodes and labels.
 
 #| Label Keyword Arguments
 - `nlabels = nothing`: Node labels (vector of strings, or `nothing`)
-- `nlabels_align = (:center, :center)`: Label alignment (or vector); centred for in-node labels
+- `nlabels_align = (:center, :center)`: Makie **text-box anchor** (or vector of
+  anchors). Named sides are edges of the *label*, not “label goes this side of
+  the node”: `(:left, :center)` left-anchors the text so it sits to the **right**
+  of the node. See the Label Alignment guide.
 - `auto_align_labels = false`: When true, place labels **outside** nodes in the
   largest angular gap (sets a positive distance and dark label colour unless you
   override them)
