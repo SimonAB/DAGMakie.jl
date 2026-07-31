@@ -28,11 +28,16 @@ p = dagplot!(ax, g; kwargs...)
 
 ### Size and Colour
 
+Default plots use steel-blue fills with **white in-node labels**. When you choose
+light fills, set `nlabels_color` accordingly (and keep nodes large enough for
+the label):
+
 ```@example basic
 fig, ax, p = dagplot(g,
     nlabels = labels,
-    node_size = 18,
-    node_color = [:yellow, :lightgreen, :lightblue],
+    node_size = 34,
+    node_color = [:goldenrod, :seagreen, :steelblue],
+    nlabels_color = :white,
 )
 fig
 ```
@@ -65,12 +70,22 @@ fig
 
 ### Basic Labels
 
+In-node labels (default) want a contrasting colour on the fill. For external
+labels, increase `nlabels_distance` and typically use black text:
+
 ```julia
 dagplot(g,
-    nlabels = ["X", "Y", "Z"],
-    nlabels_fontsize = 16,       # Font size
-    nlabels_color = :black,      # Label colour
-    nlabels_distance = 12,       # Distance from node (pixels)
+    nlabels = ["Z", "X", "Y"],
+    nlabels_fontsize = 16,
+    nlabels_color = :white,      # default: white on dark fills
+    nlabels_distance = 0,        # 0 centres labels in nodes
+)
+
+# Outside the node
+dagplot(g,
+    nlabels = ["Z", "X", "Y"],
+    nlabels_color = :black,
+    nlabels_distance = 12,
 )
 ```
 
