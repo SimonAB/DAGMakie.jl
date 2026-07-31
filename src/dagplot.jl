@@ -844,6 +844,14 @@ const _LAYOUT_TRIANGLE_MEDIATOR_TOP = Point2f[
     Point2f(0.0, 1.0),
     Point2f(1.0, 0.0),
 ]
+# Classic M-bias letter shape: latents on top, X–M–Y along the base.
+const _LAYOUT_M_BIAS = Point2f[
+    Point2f(-1.0, 1.35),  # U₁
+    Point2f(1.0, 1.35),   # U₂
+    Point2f(-1.6, 0.0),   # X
+    Point2f(0.0, 0.0),    # M (collider)
+    Point2f(1.6, 0.0),    # Y
+]
 const _LAYOUT_PAIR_HORIZONTAL = Point2f[
     Point2f(-1.0, 0.0),
     Point2f(1.0, 0.0),
@@ -1208,19 +1216,23 @@ end
 """
     dagplot_m_bias(labels; kwargs...)
 
-Plot an M-bias graph: X → Y with X ↔ M ↔ Y.
+Plot the classic five-node M-bias DAG with explicit latents:
 
-Uses a triangle layout by default (collider on top) so the bow-tie bidirected
-paths are readable; pass `layout` to override.
+```
+U₁ → X, U₁ → M, U₂ → M, U₂ → Y
+```
+
+Default layout forms the letter M (latents on top, ``X``–``M``–``Y`` on the
+base). Pass `layout` to override.
 
 # Arguments
-- `labels::Vector{String}`: Labels [treatment, collider, outcome]
+- `labels::Vector{<:AbstractString}`: Labels ``[U₁, U₂, X, M, Y]``
 """
 function dagplot_m_bias(
-    labels::Vector{String};
-    layout = _LAYOUT_TRIANGLE_MEDIATOR_TOP,
+    labels::Vector{<:AbstractString} = ["U₁", "U₂", "X", "M", "Y"];
+    layout = _LAYOUT_M_BIAS,
     kwargs...,
 )
-    mg, _ = m_bias_graph(labels)
-    return dagplot(mg; nlabels = labels, layout = layout, kwargs...)
+    spec = m_bias_spec(labels)
+    return dagplot(spec; layout = layout, kwargs...)
 end

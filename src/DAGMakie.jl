@@ -150,7 +150,7 @@ export MixedGraph, mixed_graph
 export add_directed_edge!, add_bidirected_edge!
 export has_bidirected_edge, bidirected_edges, num_bidirected_edges
 export compute_bidirected_path, compute_all_bidirected_paths, bidirected_arrow_positions
-export confounded_graph, frontdoor_graph, iv_confounded_graph, m_bias_graph
+export confounded_graph, frontdoor_graph, iv_confounded_graph, m_bias_graph, m_bias_spec
 
 # Paths (data for highlights — not identification algorithms)
 export CausalPath, PathSegment

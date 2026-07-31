@@ -88,6 +88,7 @@ confounded_graph
 frontdoor_graph
 iv_confounded_graph
 m_bias_graph
+m_bias_spec
 ```
 
 ## Highlighting

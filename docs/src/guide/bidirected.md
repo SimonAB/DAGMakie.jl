@@ -107,8 +107,12 @@ fig
 
 ### M-Bias
 
+The classic five-node form with explicit latents (the letter **M**). Conditioning
+on the collider ``M`` opens ``X ← U₁ → M ← U₂ → Y``. The ADMG projection of the
+same structure is ``X ↔ M ↔ Y``.
+
 ```@example bidirected
-fig, ax, p = dagplot_m_bias(["X", "M", "Y"])
+fig, ax, p = dagplot_m_bias()  # U₁, U₂, X, M, Y
 fig
 ```
 
@@ -120,7 +124,8 @@ Get the underlying mixed graph objects:
 mg, labels = confounded_graph(["X", "Y"])
 mg, labels = frontdoor_graph(["X", "M", "Y"])
 mg, labels = iv_confounded_graph(["Z", "X", "Y"])
-mg, labels = m_bias_graph(["X", "M", "Y"])
+mg, labels = m_bias_graph()                 # U₁, U₂, X, M, Y (explicit latents)
+spec = m_bias_spec()                        # same DAG with Latent / Collider styling
 ```
 
 ## Querying Bidirected Edges

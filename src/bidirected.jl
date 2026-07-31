@@ -476,23 +476,63 @@ function iv_confounded_graph(labels::Vector{String})
 end
 
 """
-    m_bias_graph(labels::Vector{String})
+    m_bias_graph(labels)
 
-Create an M-bias (bow-tie) graph: U₁ → X, U₁ → M, U₂ → M, U₂ → Y, X → Y.
+Create the classic five-node M-bias DAG with explicit latents:
 
-This is represented with bidirected edges as: X ↔ M ↔ Y, X → Y.
+```
+U₁ → X, U₁ → M, U₂ → M, U₂ → Y
+```
+
+No directed edge ``X → Y`` (pure M-bias). Conditioning on the collider ``M``
+opens the non-causal path ``X ← U₁ → M ← U₂ → Y``.
 
 # Arguments
-- `labels`: Vector of 3 labels [treatment, collider, outcome]
+- `labels`: Vector of 5 labels ``[U₁, U₂, X, M, Y]`` (defaults to those symbols)
 
 # Returns
-- Tuple `(mg, labels)` where `mg` is a MixedGraph
+- Tuple `(mg, labels)` where `mg` is a `MixedGraph` with no bidirected edges
+  (latents are drawn explicitly rather than as ``X ↔ M ↔ Y``)
 """
-function m_bias_graph(labels::Vector{String})
-    @assert length(labels) == 3 "M-bias graph requires exactly 3 nodes"
-    mg = mixed_graph(3,
-        [(1, 3)],           # X → Y
-        [(1, 2), (2, 3)]    # X ↔ M ↔ Y
-    )
-    return (mg, labels)
+function m_bias_graph(
+    labels::Vector{<:AbstractString} = ["U₁", "U₂", "X", "M", "Y"],
+)
+    length(labels) == 5 || throw(ArgumentError(
+        "expected 5 labels [U₁, U₂, X, M, Y]",
+    ))
+    g = SimpleDiGraph(5)
+    add_edge!(g, 1, 3)  # U₁ → X
+    add_edge!(g, 1, 4)  # U₁ → M
+    add_edge!(g, 2, 4)  # U₂ → M
+    add_edge!(g, 2, 5)  # U₂ → Y
+    return (MixedGraph(g), String.(labels))
+end
+
+"""
+    m_bias_spec(labels)
+
+DAGSpec for the five-node M-bias DAG with latent / collider styling.
+
+Same edges as [`m_bias_graph`](@ref): ``U₁ → X``, ``U₁ → M``, ``U₂ → M``,
+``U₂ → Y``.
+"""
+function m_bias_spec(
+    labels::Vector{<:AbstractString} = ["U₁", "U₂", "X", "M", "Y"],
+)
+    length(labels) == 5 || throw(ArgumentError(
+        "expected 5 labels [U₁, U₂, X, M, Y]",
+    ))
+    g = SimpleDiGraph(5)
+    add_edge!(g, 1, 3)  # U₁ → X
+    add_edge!(g, 1, 4)  # U₁ → M
+    add_edge!(g, 2, 4)  # U₂ → M
+    add_edge!(g, 2, 5)  # U₂ → Y
+    nodes = [
+        NodeSpec(labels[1]; type = Latent),
+        NodeSpec(labels[2]; type = Latent),
+        NodeSpec(labels[3]; type = Treatment),
+        NodeSpec(labels[4]; type = Collider),
+        NodeSpec(labels[5]; type = Outcome),
+    ]
+    return DAGSpec(g, nodes, EdgeSpec[], "M-bias")
 end

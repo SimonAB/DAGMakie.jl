@@ -134,12 +134,20 @@ using Makie: Point2f
         @test has_edge(mg, 2, 3)
         @test has_bidirected_edge(mg, 2, 3)
         
-        # M-bias
-        mg, labels = m_bias_graph(["X", "M", "Y"])
-        @test nv(mg) == 3
-        @test has_edge(mg, 1, 3)
-        @test has_bidirected_edge(mg, 1, 2)
-        @test has_bidirected_edge(mg, 2, 3)
+        # M-bias (five-node form with explicit latents)
+        mg, labels = m_bias_graph()
+        @test nv(mg) == 5
+        @test labels == ["U₁", "U₂", "X", "M", "Y"]
+        @test has_edge(mg, 1, 3)  # U₁ → X
+        @test has_edge(mg, 1, 4)  # U₁ → M
+        @test has_edge(mg, 2, 4)  # U₂ → M
+        @test has_edge(mg, 2, 5)  # U₂ → Y
+        @test !has_edge(mg, 3, 5)  # no X → Y
+        @test num_bidirected_edges(mg) == 0
+        spec = m_bias_spec()
+        @test length(spec.nodes) == 5
+        @test spec.nodes[1].type == Latent
+        @test spec.nodes[4].type == Collider
     end
     
     @testset "dagplot with MixedGraph" begin
@@ -179,9 +187,10 @@ using Makie: Point2f
         @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
         
         # dagplot_m_bias
-        fig, ax, p = dagplot_m_bias(["X", "M", "Y"])
+        fig, ax, p = dagplot_m_bias()
         @test fig isa Makie.Figure
         positions = p[:node_pos][]
+        @test length(positions) == 5
         @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
     end
 end
