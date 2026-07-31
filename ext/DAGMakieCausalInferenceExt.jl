@@ -22,4 +22,11 @@ function min_backdoor_adjustment(g::AbstractGraph, treatment::Int, outcome::Int)
     return adj === false ? Set{Int}() : Set{Int}(adj)
 end
 
+"""Ancestor sets of treatment and outcome via CausalInference.ancestors."""
+function ancestor_sets(g::AbstractGraph, treatment::Int, outcome::Int)
+    ax = CausalInference.ancestors(g, Set([treatment]))
+    ay = CausalInference.ancestors(g, Set([outcome]))
+    return (Set{Int}(ax), Set{Int}(ay))
+end
+
 end # module

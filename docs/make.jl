@@ -25,6 +25,7 @@ makedocs(
         "User Guide" => [
             "Basic Plotting" => "guide/basic.md",
             "Node Types & Styling" => "guide/styling.md",
+            "Skeletons & Time" => "guide/skeletons_and_time.md",
             "Visual Grammar" => "guide/visual_grammar.md",
             "Bidirected Edges" => "guide/bidirected.md",
             "Causal Analysis" => "guide/causal.md",

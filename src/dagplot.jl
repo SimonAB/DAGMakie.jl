@@ -49,11 +49,23 @@ positions = p[:node_pos][]
 """
 function dagplot(g::Graphs.AbstractGraph;
     figure_size::Tuple{Int, Int} = (600, 400),
+    smart = false,
+    treatment = nothing,
+    outcome = nothing,
+    adjustment = nothing,
     kwargs...
 )
     fig = Figure(size = figure_size)
     ax = Axis(fig[1, 1])
-    p = dagplot!(ax, g; kwargs...)
+    p = dagplot!(
+        ax,
+        g;
+        smart = smart,
+        treatment = treatment,
+        outcome = outcome,
+        adjustment = adjustment,
+        kwargs...,
+    )
     return fig, ax, p
 end
 
@@ -86,13 +98,20 @@ limits to prevent clipping of nodes and labels.
 - `arrow_size = 10`: Arrowhead size
 - `arrow_shift = :end`: Arrow position (`:end` or Float64 0-1)
 
-# Label Keyword Arguments
+#| Label Keyword Arguments
 - `nlabels = nothing`: Node labels (vector of strings, or `nothing`)
 - `nlabels_align = (:center, :center)`: Label alignment (or vector); centred for in-node labels
 - `auto_align_labels = false`: When true, use package-local `compute_auto_label_aligns` (works with registry GraphMakie)
 - `nlabels_distance = 0`: Label distance from node in pixels (0 centres labels in nodes)
 - `nlabels_fontsize = 16`: Label font size
 - `nlabels_color = :white`: Label colour (white on dark node fills)
+
+# Smart / dagitty colouring
+- `smart = false`: Set `true` / `:ancestors` for dagitty-style ancestor colours, or
+  `:adjustment` to also emphasise a backdoor adjustment set (needs CausalInference
+  or `adjustment=`)
+- `treatment`, `outcome`: Exposure and outcome node indices (required when `smart` is on)
+- `adjustment`: Optional `Set{Int}` for `smart=:adjustment`
 
 # Additional Arguments
 - Additional keyword arguments are passed to `GraphMakie.graphplot!`
@@ -141,6 +160,11 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     padding = nothing,
     style::Union{Nothing, DAGStyle} = nothing,
     title = nothing,
+    # Smart / dagitty colouring
+    smart = false,
+    treatment = nothing,
+    outcome = nothing,
+    adjustment = nothing,
     # Nodes
     node_size = nothing,
     node_color = nothing,
@@ -165,6 +189,89 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
     # Pass-through
+    kwargs...
+)
+    smart_kwargs = apply_smart_kwargs(
+        g;
+        smart = smart,
+        treatment = treatment,
+        outcome = outcome,
+        adjustment = adjustment,
+        node_size = node_size,
+        node_color = node_color,
+        node_strokewidth = node_strokewidth,
+        node_strokecolor = node_strokecolor,
+        node_marker = node_marker,
+        edge_color = edge_color,
+        edge_width = edge_width,
+        edge_linestyle = edge_linestyle,
+        feedback_color = feedback_color,
+        feedback_width = feedback_width,
+        feedback_linestyle = feedback_linestyle,
+        arrow_size = arrow_size,
+        arrow_shift = arrow_shift,
+        waypoints = waypoints,
+        nlabels = nlabels,
+        nlabels_align = nlabels_align,
+        auto_align_labels = auto_align_labels,
+        nlabels_distance = nlabels_distance,
+        nlabels_fontsize = nlabels_fontsize,
+        nlabels_color = nlabels_color,
+        kwargs...,
+    )
+    return _dagplot_core!(
+        ax,
+        g;
+        layout = layout,
+        layout_mode = layout_mode,
+        orientation = orientation,
+        layer_gap = layer_gap,
+        node_gap = node_gap,
+        component_gap = component_gap,
+        scc_radius = scc_radius,
+        feedback_curvature = feedback_curvature,
+        padding = padding,
+        style = style,
+        title = title,
+        smart_kwargs...,
+    )
+end
+
+"""
+Internal plotting body for [`dagplot!`](@ref) after smart-kwargs merging.
+"""
+function _dagplot_core!(ax, g::Graphs.AbstractGraph;
+    layout = nothing,
+    layout_mode::Symbol = :auto,
+    orientation::Symbol = :lr,
+    layer_gap::Real = 2.6,
+    node_gap::Real = 1.8,
+    component_gap::Real = 3.2,
+    scc_radius::Real = 0.9,
+    feedback_curvature::Real = 0.75,
+    padding = nothing,
+    style::Union{Nothing, DAGStyle} = nothing,
+    title = nothing,
+    node_size = nothing,
+    node_color = nothing,
+    node_strokewidth = nothing,
+    node_strokecolor = nothing,
+    node_marker = nothing,
+    edge_color = nothing,
+    edge_width = nothing,
+    edge_linestyle = nothing,
+    feedback_color = nothing,
+    feedback_width = nothing,
+    feedback_linestyle = nothing,
+    arrow_size = nothing,
+    arrow_shift = nothing,
+    waypoints = nothing,
+    nlabels = nothing,
+    nlabels_align = DEFAULT_LABEL_ALIGN,
+    auto_align_labels = false,
+    nlabels_distance = nothing,
+    nlabels_fontsize = nothing,
+    nlabels_color = nothing,
     kwargs...
 )
     style_config = _resolve_style(style)

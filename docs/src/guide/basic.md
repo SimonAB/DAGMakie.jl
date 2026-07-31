@@ -114,6 +114,10 @@ DAGMakie now defaults to an automatic layout strategy:
 - `layout_mode = :spring` falls back to a force-directed layout
 - `layout = ...` still accepts explicit node positions or a `NetworkLayout.jl` layout object
 
+For CPDAG skeletons and occasion×variable grids, see
+[Skeletons & Time](skeletons_and_time.md) (`dagplot_skeleton`,
+`dagplot_time_indexed`).
+
 You can still use `NetworkLayout.jl` directly when you want a force-directed layout:
 
 ```@example basic

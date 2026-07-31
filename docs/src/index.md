@@ -10,7 +10,9 @@ grammar](guide/visual_grammar.md) for interaction IDAGs and DiD SWIGs.
 ## Capabilities
 
 Layouts are deterministic for DAGs (layered) and SCC-aware for cyclic graphs.
-Themes (`default`, `minimal`, `bold`, `presentation`) control stroke weight and
+Undirected skeletons and time-indexed grids cover CPDAG output and unrolled
+temporal DAGs ([Skeletons & Time](guide/skeletons_and_time.md)). Themes
+(`default`, `minimal`, `bold`, `presentation`) control stroke weight and
 spacing. Convenience constructors cover chain, fork, collider, confounding, and
 mediation patterns. Path helpers accept adjustment sets directly, or load
 CausalInference / CausalDynamics when identification should be computed at plot
@@ -49,6 +51,7 @@ Pages = [
     "getting_started.md",
     "guide/basic.md",
     "guide/styling.md",
+    "guide/skeletons_and_time.md",
     "guide/visual_grammar.md",
     "guide/bidirected.md",
     "guide/causal.md",

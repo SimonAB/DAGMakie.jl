@@ -70,6 +70,7 @@ include("node_styling.jl")
 include("paths.jl")
 include("highlighting.jl")
 include("interventions.jl")
+include("smart.jl")
 include("dagplot.jl")
 include("visual_grammar.jl")
 
@@ -125,6 +126,16 @@ export vaccine_nutrition_outcome_spec, vaccine_nutrition_idag_spec
 export vaccine_nutrition_layout, dagplot_vaccine_nutrition_interaction
 export did_2x2_factual_spec, did_2x2_swig_spec
 export did_2x2_factual_layout, did_2x2_swig_layout, dagplot_did_swig
+
+# Smart / dagitty-style colouring
+export SmartNodeRole, SmartExposure, SmartOutcome
+export SmartAncestorExposure, SmartAncestorOutcome, SmartAncestorBoth, SmartIrrelevant
+export smart_node_color, smart_label_color
+export ancestors_via_graphs, ancestor_sets, classify_smart_roles
+export smart_style_for_graph, dagplot_smart
+export SMART_COLOR_EXPOSURE, SMART_COLOR_OUTCOME
+export SMART_COLOR_ANC_EXPOSURE, SMART_COLOR_ANC_OUTCOME, SMART_COLOR_ANC_BOTH
+export SMART_COLOR_IRRELEVANT
 
 # Utilities
 export get_node_positions, graph_extent, is_dag, edge_list

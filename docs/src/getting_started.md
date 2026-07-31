@@ -100,4 +100,6 @@ fig
 
 - [Basic Plotting](@ref) — node and edge appearance
 - [Node Types & Styling](@ref) — semantic node types
-- [Causal Analysis](guide/causal.md) — d-separation and adjustment sets
+- [Skeletons & Time](guide/skeletons_and_time.md) — CPDAG skeletons and time grids
+- [Causal Analysis](guide/causal.md) — d-separation, adjustment sets, and
+  dagitty-style `smart` colouring

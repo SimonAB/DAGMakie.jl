@@ -137,6 +137,17 @@ did_2x2_swig_layout
 dagplot_did_swig
 ```
 
+## Smart / dagitty colouring
+
+```@docs
+SmartNodeRole
+classify_smart_roles
+smart_style_for_graph
+dagplot_smart
+ancestor_sets
+ancestors_via_graphs
+```
+
 ## Label Alignment
 
 ```@docs

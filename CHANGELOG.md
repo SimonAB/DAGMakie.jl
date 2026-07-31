@@ -5,6 +5,19 @@ All notable changes to DAGMakie.jl will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2026-07-31
+
+### Added
+
+- Dagitty-style `smart=true` / `:ancestors` / `:adjustment` node colouring on
+  `dagplot` (exposure, outcome, ancestral roles; optional adjustment emphasis).
+  Uses CausalInference.jl ancestors when loaded; Graphs fallback otherwise.
+  See `dagplot_smart` and `guide/causal.md`.
+- Guide examples for smart colouring (default vs smart, full role palette,
+  adjustment emphasis, fork + smart).
+- Guide page `guide/skeletons_and_time.md` for CPDAG skeletons and time-indexed
+  grids.
+
 ## [0.1.4] - 2026-07-31
 
 ### Added

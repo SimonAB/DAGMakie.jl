@@ -2,7 +2,7 @@ name = "DAGMakie"
 uuid = "4e3bd891-6b6d-4d36-a31e-f0404dd10c7d"
 license = "MIT"
 authors = ["Simon A. Babayan <simon.babayan@glasgow.ac.uk>"]
-version = "0.1.4"
+version = "0.1.5"
 repo = "https://github.com/SimonAB/DAGMakie.jl.git"
 
 [deps]
