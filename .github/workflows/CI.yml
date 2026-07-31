@@ -38,6 +38,15 @@ jobs:
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
+      # Registry GraphMakie 0.6.x cannot multiply tuple/Vec2 marker sizes in
+      # distance_between_markers; DiD SWIG uses rectangular node_size. Use the
+      # book fork until that lands on General.
+      - name: Override GraphMakie with fork
+        run: |
+          julia --project=. -e '
+            using Pkg
+            Pkg.add(url="https://github.com/SimonAB/GraphMakie.jl.git", rev="master")
+          '
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v4
