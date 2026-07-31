@@ -63,7 +63,31 @@ dagplot!(ax4, g_conf, nlabels = ["Z", "X", "Y"])
 fig
 ```
 
-Each pattern also has a one-liner:
+Each pattern also has a one-liner (`dagplot_chain`, `dagplot_fork`, …). Composed
+into one figure:
+
+```@example getting_started
+fig = Figure(size = (1100, 200))
+ax1 = Axis(fig[1, 1], title = "chain")
+ax2 = Axis(fig[1, 2], title = "fork")
+ax3 = Axis(fig[1, 3], title = "collider")
+ax4 = Axis(fig[1, 4], title = "confounding")
+ax5 = Axis(fig[1, 5], title = "mediation")
+
+g_chain, _ = chain_graph(["X", "Y", "Z"])
+g_fork, _ = fork_graph(["X", "Y", "Z"])
+g_collider, _ = collider_graph(["X", "Y", "Z"])
+g_conf, _ = confounding_graph(["Z", "X", "Y"])
+g_med, _ = mediation_graph(["X", "M", "Y"])
+dagplot!(ax1, g_chain; nlabels = ["X", "Y", "Z"])
+dagplot!(ax2, g_fork; nlabels = ["X", "Y", "Z"])
+dagplot!(ax3, g_collider; nlabels = ["X", "Y", "Z"])
+dagplot!(ax4, g_conf; nlabels = ["Z", "X", "Y"])
+dagplot!(ax5, g_med; nlabels = ["X", "M", "Y"])
+fig
+```
+
+Stand-alone one-liners return `(fig, ax, p)`:
 
 ```julia
 fig, ax, p = dagplot_chain(["X", "Y", "Z"])
@@ -100,6 +124,7 @@ fig
 
 - [Basic Plotting](@ref) — node and edge appearance
 - [Node Types & Styling](@ref) — semantic node types
+- [Visual Grammar](guide/visual_grammar.md) — IDAGs, SWIGs, modifier edges
 - [Skeletons & Time](guide/skeletons_and_time.md) — CPDAG skeletons and time grids
 - [Causal Analysis](guide/causal.md) — d-separation, adjustment sets, and
   dagitty-style `smart` colouring

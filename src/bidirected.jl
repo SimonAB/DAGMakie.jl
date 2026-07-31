@@ -329,7 +329,15 @@ function compute_bidirected_geometry(
             arrow_size,
         )
 
-        trimmed_path = trim_polyline(path, start_distance, end_distance, to_px)
+        r_start = pixel_length_to_data(start_distance, to_px)
+        r_end = pixel_length_to_data(end_distance, to_px)
+        trimmed_path = trim_polyline_to_circles(
+            path,
+            Point2f(positions[i]),
+            r_start,
+            Point2f(positions[j]),
+            r_end,
+        )
         length(trimmed_path) < 2 && (trimmed_path = path)
 
         push!(paths, trimmed_path)

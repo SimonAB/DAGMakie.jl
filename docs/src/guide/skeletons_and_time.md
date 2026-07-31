@@ -21,7 +21,8 @@ add_edge!(g, 2, 1)  # Y → X  (undirected {X,Y})
 add_edge!(g, 3, 1)  # Z → X
 
 labels = ["X", "Y", "Z"]
-layout = Point2f[Point2f(-1, 0), Point2f(1, 0), Point2f(0, 1)]
+# Z above X so reciprocal X–Y arcs stay clear of Z.
+layout = Point2f[Point2f(-1, 0), Point2f(1, 0), Point2f(-1, 1.2)]
 
 fig = Figure(size = (720, 280))
 ax1 = Axis(fig[1, 1], title = "Directed (misleading)")
@@ -33,8 +34,9 @@ fig
 
 One-liner when you only need the skeleton figure:
 
-```julia
+```@example skeleton
 fig, ax, p = dagplot_skeleton(g; nlabels = labels, layout = layout)
+fig
 ```
 
 Passing an undirected `SimpleGraph` to [`dagplot`](@ref) / [`dagplot!`](@ref)
@@ -45,21 +47,31 @@ also suppresses arrowheads and applies the undirected edge colour.
 For a graph with `n_variables × n_times` nodes in CausalDynamics order (outer
 loop over occasions, inner loop over variables), use
 [`dagplot_time_indexed`](@ref). Columns run left→right in time; rows are
-variables.
+variables. Colour and stroke can follow node roles (here ``A`` as treatment,
+``B`` as outcome) via [`apply_node_type_styling`](@ref).
 
 ```@example time-indexed
 using Graphs, DAGMakie, CairoMakie
 
-# Two variables (A, B), two occasions. Nodes: A₁, B₁, A₂, B₂.
-g = SimpleDiGraph(4)
+# Two variables (A, B), three occasions. Nodes: A₁, B₁, A₂, B₂, A₃, B₃.
+g = SimpleDiGraph(6)
 add_edge!(g, 1, 3)  # A₁ → A₂
+add_edge!(g, 3, 5)  # A₂ → A₃
 add_edge!(g, 2, 4)  # B₁ → B₂
+add_edge!(g, 4, 6)  # B₂ → B₃
 add_edge!(g, 1, 4)  # A₁ → B₂
+add_edge!(g, 3, 6)  # A₂ → B₃
+
+types = [Treatment, Outcome, Treatment, Outcome, Treatment, Outcome]
+colors, markers, strokewidths = apply_node_type_styling(types)
 
 fig, ax, p = dagplot_time_indexed(
-    g, 2, 2;
-    nlabels = ["A₁", "B₁", "A₂", "B₂"],
-    figure_size = (520, 260),
+    g, 2, 3;
+    nlabels = ["A₁", "B₁", "A₂", "B₂", "A₃", "B₃"],
+    node_color = colors,
+    node_marker = markers,
+    node_strokewidth = strokewidths,
+    figure_size = (640, 260),
 )
 fig
 ```
@@ -72,4 +84,5 @@ Spacing keywords `dx` and `dy` stretch columns and rows. For a
 ## See also
 
 - [Visual Grammar](visual_grammar.md) — DiD SWIGs and interaction IDAGs
+- [Node Types & Styling](styling.md) — `EffectMeasure` / `SwigFixed` colours
 - [Basic Plotting](basic.md) — `layout_mode` and general `dagplot` options

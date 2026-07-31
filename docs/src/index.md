@@ -25,8 +25,9 @@ using Pkg
 Pkg.add("DAGMakie")
 ```
 
-Prefer **0.1.1+** (visualisation-only core; identification via CausalInference.jl /
-CausalDynamics.jl). v0.1.0 remains on General as the initial release.
+DAGMakie is on the Julia General registry. It is **visualisation-only**;
+identification and `do(·)` calculus stay in [CausalInference.jl](https://github.com/mschauer/CausalInference.jl)
+or [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl).
 
 Or for development:
 
@@ -51,8 +52,8 @@ Pages = [
     "getting_started.md",
     "guide/basic.md",
     "guide/styling.md",
-    "guide/skeletons_and_time.md",
     "guide/visual_grammar.md",
+    "guide/skeletons_and_time.md",
     "guide/bidirected.md",
     "guide/causal.md",
     "guide/interventions.md",

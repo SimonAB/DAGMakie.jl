@@ -27,29 +27,41 @@ fig
 
 ### From Scratch
 
-```julia
-mg = MixedGraph(3)
+```@example bidirected-scratch
+using Graphs, DAGMakie, CairoMakie
+
+mg = MixedGraph(2)
 add_directed_edge!(mg, 1, 2)
 add_bidirected_edge!(mg, 1, 2)
+fig, ax, p = dagplot(mg; nlabels = ["X", "Y"])
+fig
 ```
 
 ### From Edge Lists
 
-```julia
+```@example bidirected-lists
+using Graphs, DAGMakie, CairoMakie
+
 mg = mixed_graph(3,
     [(1, 2), (2, 3)],    # Directed edges
     [(1, 3)]              # Bidirected edges
 )
+fig, ax, p = dagplot(mg; nlabels = ["X", "Y", "Z"])
+fig
 ```
 
 ### From Existing DiGraph
 
-```julia
+```@example bidirected-digraph
+using Graphs, DAGMakie, CairoMakie
+
 g = SimpleDiGraph(3)
 add_edge!(g, 1, 2)
 add_edge!(g, 2, 3)
 
 mg = MixedGraph(g, [(1, 3)])  # Add bidirected X ↔ Z
+fig, ax, p = dagplot(mg; nlabels = ["X", "Y", "Z"])
+fig
 ```
 
 ## Customising Bidirected Edges

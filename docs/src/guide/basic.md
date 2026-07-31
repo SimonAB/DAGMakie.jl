@@ -73,20 +73,22 @@ fig
 In-node labels (default) want a contrasting colour on the fill. For external
 labels, increase `nlabels_distance` and typically use black text:
 
-```julia
-dagplot(g,
-    nlabels = ["Z", "X", "Y"],
+```@example basic
+fig = Figure(size = (720, 280))
+ax1 = Axis(fig[1, 1], title = "In-node (default)")
+ax2 = Axis(fig[1, 2], title = "Outside the node")
+dagplot!(ax1, g;
+    nlabels = labels,
     nlabels_fontsize = 16,
-    nlabels_color = :white,      # default: white on dark fills
-    nlabels_distance = 0,        # 0 centres labels in nodes
+    nlabels_color = :white,
+    nlabels_distance = 0,
 )
-
-# Outside the node
-dagplot(g,
-    nlabels = ["Z", "X", "Y"],
+dagplot!(ax2, g;
+    nlabels = labels,
     nlabels_color = :black,
     nlabels_distance = 12,
 )
+fig
 ```
 
 ### Label Alignment
@@ -107,19 +109,25 @@ fig
 Manual alignment options (still typically with a positive `nlabels_distance`
 when labels sit outside the fill):
 
-```julia
-dagplot(g,
-    nlabels = ["X", "Y", "Z"],
+```@example basic
+fig = Figure(size = (720, 280))
+ax1 = Axis(fig[1, 1], title = "Fixed align")
+ax2 = Axis(fig[1, 2], title = "Per-node align")
+dagplot!(ax1, g;
+    nlabels = labels,
     auto_align_labels = false,
-    nlabels_align = (:right, :bottom),  # Fixed alignment for all
+    nlabels_distance = 12,
+    nlabels_color = :black,
+    nlabels_align = (:right, :bottom),
 )
-
-# Per-node alignment
-dagplot(g,
-    nlabels = ["X", "Y", "Z"],
+dagplot!(ax2, g;
+    nlabels = labels,
     auto_align_labels = false,
+    nlabels_distance = 12,
+    nlabels_color = :black,
     nlabels_align = [(:left, :center), (:center, :top), (:right, :center)],
 )
+fig
 ```
 
 ## Layout
@@ -142,29 +150,35 @@ fig, ax, p = dagplot(g, nlabels = labels, layout_mode = :spring)
 fig
 ```
 
-```julia
+```@example basic
 using NetworkLayout
 
-dagplot(g, nlabels = labels, layout = Spring())
-dagplot(g, nlabels = labels, layout = Stress())
+fig = Figure(size = (720, 280))
+ax1 = Axis(fig[1, 1], title = "Spring()")
+ax2 = Axis(fig[1, 2], title = "Stress()")
+dagplot!(ax1, g; nlabels = labels, layout = Spring())
+dagplot!(ax2, g; nlabels = labels, layout = Stress())
+fig
 ```
 
 ## Figure Size
 
-```julia
+```@example basic
 fig, ax, p = dagplot(g,
-    nlabels = ["A", "B", "C"],
-    figure_size = (800, 600),    # Width × Height in pixels
+    nlabels = labels,
+    figure_size = (480, 320),    # Width × Height in pixels
 )
+fig
 ```
 
 ## Padding
 
 Control spacing around the graph:
 
-```julia
-dagplot(g,
-    nlabels = ["A", "B", "C"],
+```@example basic
+fig, ax, p = dagplot(g,
+    nlabels = labels,
     padding = 0.15,              # 15% padding (fraction of range)
 )
+fig
 ```

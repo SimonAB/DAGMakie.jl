@@ -159,6 +159,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     component_gap::Real = 3.2,
     scc_radius::Real = 0.9,
     feedback_curvature::Real = 0.75,
+    feedback_overlay::Bool = true,
     padding = nothing,
     style::Union{Nothing, DAGStyle} = nothing,
     title = nothing,
@@ -232,6 +233,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         component_gap = component_gap,
         scc_radius = scc_radius,
         feedback_curvature = feedback_curvature,
+        feedback_overlay = feedback_overlay,
         padding = padding,
         style = style,
         title = title,
@@ -251,6 +253,7 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     component_gap::Real = 3.2,
     scc_radius::Real = 0.9,
     feedback_curvature::Real = 0.75,
+    feedback_overlay::Bool = true,
     padding = nothing,
     style::Union{Nothing, DAGStyle} = nothing,
     title = nothing,
@@ -335,7 +338,11 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     )
 
     edge_lookup = _edge_index_lookup(g)
-    feedback_mask = feedback_edge_mask(g, layout_result)
+    feedback_mask = if feedback_overlay
+        feedback_edge_mask(g, layout_result)
+    else
+        falses(edge_count)
+    end
     user_waypoints = _materialise_waypoints(g, waypoints)
     base_waypoints = [
         feedback_mask[index] ? Point2f[] : user_waypoints[index]
@@ -370,6 +377,18 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         resolved_label_color = auto_settings.color
     end
 
+    # Set axis limits *before* `graphplot!`. GraphMakie trims edges using the
+    # current `to_px` transform; changing limits afterwards leaves curved (and
+    # sometimes straight) edges floating off the markers.
+    apply_dag_theme!(ax)
+    extra_bound_points = _extra_bound_points(layout_result.edge_waypoints)
+    _apply_data_limits!(
+        ax,
+        layout_result.positions,
+        extra_bound_points;
+        padding = resolved_padding,
+    )
+
     p = graphplot!(ax, g;
         layout = layout_result.positions,
         node_size = node_sizes,
@@ -391,9 +410,6 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         user_kwargs...
     )
 
-    apply_dag_theme!(ax)
-
-    feedback_bound_points = Point2f[]
     if any(feedback_mask)
         feedback_edges = layout_result.feedback_edges
         overlay_colours = _overlay_values(feedback_color, feedback_edges, edge_lookup, edge_colours)
@@ -403,7 +419,7 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         overlay_arrow_shifts = _overlay_values(nothing, feedback_edges, edge_lookup, edge_arrow_shifts)
         overlay_waypoints = [get(layout_result.edge_waypoints, edge, Point2f[]) for edge in feedback_edges]
 
-        feedback_bound_points = _plot_directed_overlay!(
+        _plot_directed_overlay!(
             ax,
             feedback_edges,
             layout_result.positions;
@@ -417,43 +433,6 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
             waypoints = overlay_waypoints,
             to_px = _plot_to_px(p),
         )
-    end
-
-    tightlimits!(ax)
-    node_positions = p[:node_pos][]
-    extra_bound_points = _extra_bound_points(layout_result.edge_waypoints)
-    append!(extra_bound_points, feedback_bound_points)
-
-    if !isempty(node_positions)
-        if nlabels !== nothing
-            label_aligns = _plot_attr(p, :nlabels_align_processed, resolved_nlabels_align)
-            xlim, ylim = compute_padded_limits(
-                node_positions,
-                nlabels,
-                label_aligns,
-                resolved_label_distance,
-                resolved_label_fontsize;
-                padding = resolved_padding,
-                to_px = _plot_to_px(p),
-                extra_points = extra_bound_points,
-                node_sizes = node_sizes,
-            )
-        else
-            xlim, ylim = compute_padded_limits(
-                node_positions,
-                nothing,
-                nlabels_align,
-                resolved_label_distance,
-                resolved_label_fontsize;
-                padding = resolved_padding,
-                to_px = _plot_to_px(p),
-                extra_points = extra_bound_points,
-                node_sizes = node_sizes,
-            )
-        end
-
-        xlims!(ax, xlim)
-        ylims!(ax, ylim)
     end
 
     if title !== nothing
@@ -574,8 +553,16 @@ function compute_feedback_geometry(
             arrow_size_value,
         )
 
-        trimmed_path = trim_polyline(raw_path, start_distance, end_distance, to_px)
-        if length(trimmed_path) < 2 || polyline_length_px(trimmed_path, to_px) <= 1e-6
+        r_start = pixel_length_to_data(start_distance, to_px)
+        r_end = pixel_length_to_data(end_distance, to_px)
+        trimmed_path = trim_polyline_to_circles(
+            raw_path,
+            Point2f(positions[source]),
+            r_start,
+            Point2f(positions[destination]),
+            r_end,
+        )
+        if length(trimmed_path) < 2
             trimmed_path = raw_path
         end
 
@@ -731,6 +718,38 @@ function _overlay_values(override, edge_pairs, edge_lookup, base_values)
     end
 
     return _fill_attribute(override, length(edge_pairs))
+end
+
+function _apply_data_limits!(
+    ax,
+    positions::AbstractVector,
+    extra_points::AbstractVector;
+    padding::Real = 0.15,
+)
+    isempty(positions) && return ax
+    pts = Point2f[Point2f(p) for p in positions]
+    append!(pts, Point2f(p) for p in extra_points)
+    xs = [Float64(p[1]) for p in pts]
+    ys = [Float64(p[2]) for p in pts]
+    x_min, x_max = extrema(xs)
+    y_min, y_max = extrema(ys)
+    x_range = max(x_max - x_min, 1e-3)
+    y_range = max(y_max - y_min, 1e-3)
+    # Match DataAspect-friendly padding used by compute_padded_limits.
+    min_aspect = 0.35
+    x_pad = max(Float64(padding) * x_range, 0.05 * x_range, 0.15)
+    y_pad = max(Float64(padding) * y_range, 0.05 * y_range, 0.15)
+    x_span = x_range + 2 * x_pad
+    y_span = y_range + 2 * y_pad
+    if y_span < min_aspect * x_span
+        y_pad = max(y_pad, 0.5 * (min_aspect * x_span - y_range))
+    end
+    if x_span < min_aspect * y_span
+        x_pad = max(x_pad, 0.5 * (min_aspect * y_span - x_range))
+    end
+    xlims!(ax, x_min - x_pad, x_max + x_pad)
+    ylims!(ax, y_min - y_pad, y_max + y_pad)
+    return ax
 end
 
 function _extra_bound_points(edge_waypoints::Dict{Tuple{Int, Int}, Vector{Point2f}})
@@ -1048,6 +1067,43 @@ function dagplot!(ax, mg::MixedGraph;
         style_config = _resolve_style(style)
         resolved_node_size = _fill_attribute(something(node_size, style_config.node_size), Graphs.nv(mg))
         resolved_node_marker = _fill_attribute(something(node_marker, :circle), Graphs.nv(mg))
+        resolved_padding = something(padding, style_config.padding)
+        resolved_label_distance = something(nlabels_distance, style_config.label_distance)
+        resolved_label_fontsize = something(nlabels_fontsize, style_config.label_fontsize)
+
+        # Set limits from raw arcs before trimming (same to_px ordering as feedback overlays).
+        raw_paths = compute_all_bidirected_paths(mg, positions; curvature = bidirected_curvature)
+        raw_bound_points = Point2f[point for path in raw_paths for point in path]
+        if !isempty(raw_bound_points)
+            if nlabels !== nothing
+                xlim, ylim = compute_padded_limits(
+                    positions,
+                    nlabels,
+                    _plot_attr(p, :nlabels_align_processed, nlabels_align),
+                    resolved_label_distance,
+                    resolved_label_fontsize;
+                    padding = resolved_padding,
+                    to_px = _plot_to_px(p),
+                    extra_points = raw_bound_points,
+                    node_sizes = resolved_node_size,
+                )
+            else
+                xlim, ylim = compute_padded_limits(
+                    positions,
+                    nothing,
+                    nlabels_align,
+                    resolved_label_distance,
+                    resolved_label_fontsize;
+                    padding = resolved_padding,
+                    to_px = _plot_to_px(p),
+                    extra_points = raw_bound_points,
+                    node_sizes = resolved_node_size,
+                )
+            end
+            xlims!(ax, xlim)
+            ylims!(ax, ylim)
+        end
+
         geometry = compute_bidirected_geometry(
             mg,
             positions,
@@ -1074,43 +1130,6 @@ function dagplot!(ax, mg::MixedGraph;
                 rotation = geometry.arrow_rotations,
                 markerspace = :pixel
             )
-        end
-
-        extra_points = geometry.boundary_points
-        if !isempty(extra_points)
-            style_config = _resolve_style(style)
-            resolved_padding = something(padding, style_config.padding)
-            resolved_label_distance = something(nlabels_distance, style_config.label_distance)
-            resolved_label_fontsize = something(nlabels_fontsize, style_config.label_fontsize)
-
-            if nlabels !== nothing
-                xlim, ylim = compute_padded_limits(
-                    positions,
-                    nlabels,
-                    _plot_attr(p, :nlabels_align_processed, nlabels_align),
-                    resolved_label_distance,
-                    resolved_label_fontsize;
-                    padding = resolved_padding,
-                    to_px = _plot_to_px(p),
-                    extra_points = extra_points,
-                    node_sizes = resolved_node_size,
-                )
-            else
-                xlim, ylim = compute_padded_limits(
-                    positions,
-                    nothing,
-                    nlabels_align,
-                    resolved_label_distance,
-                    resolved_label_fontsize;
-                    padding = resolved_padding,
-                    to_px = _plot_to_px(p),
-                    extra_points = extra_points,
-                    node_sizes = resolved_node_size,
-                )
-            end
-
-            xlims!(ax, xlim)
-            ylims!(ax, ylim)
         end
     end
 

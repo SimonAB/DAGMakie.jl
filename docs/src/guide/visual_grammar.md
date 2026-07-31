@@ -1,10 +1,23 @@
 # Visual grammar: interactions and DiD SWIGs
 
 DAGMakie keeps a small, fixed visual vocabulary for **effect modification /
-interaction** figures and **difference-in-differences (DiD)** SWIGs. The grammar
+interaction** figures and **difference-in-differences (DiD)** single-world
+intervention graphs (SWIGs). The grammar
 extends the publication defaults in [`dag_theme`](@ref) / [`default_style`](@ref):
 white ground, no axes, in-node labels, steel-blue fills, goldenrod confounders,
 seagreen mediators / effect nodes, and gray hollow latents.
+
+## Terms
+
+- **SWIG** (single-world intervention graph; Richardson & Robins, 2013): under
+  ``do(A = a)``, the intervened node is drawn as a split — a random half ``A``
+  that still receives incoming edges, and a fixed half ``a`` from which outgoing
+  edges leave. Counterfactual labels such as ``Y(0)`` live on this graph; the
+  factual DAG alone does not carry them.
+- **IDAG** (interaction DAG): companion to an ordinary outcome DAG in which the
+  outcome node is replaced by an **effect-measure** node (e.g. ``δ``). Use it
+  when the question is how an effect varies with a modifier, not when identifying
+  ``E[Y \mid do(A)]``.
 
 !!! note "Display only"
     Modifier edges, effect-measure nodes, and SWIG fixed halves are **pedagogical
@@ -84,9 +97,9 @@ effect node is not an outcome random variable.*
 
 Two groups ``G``, two periods, treatment ``A_1`` only for the treated group in
 period 1, with unit-level latent ``U``. The left panel is the factual
-time-expanded DAG; the right panel is a SWIG under ``do(A_1 = 0)``. Incoming
-edges stay on the random half ``A_1``; outflows leave from the fixed half
-``a=0``, and the post-period outcome is labelled ``Y_1(0)``.
+time-expanded DAG; the right panel is a SWIG under ``do(A_1 = 0)`` (split node
+as above). Incoming edges stay on the random half ``A_1``; outflows leave from
+the fixed half ``a=0``, and the post-period outcome is labelled ``Y_1(0)``.
 
 ```@example grammar-did
 using DAGMakie, CairoMakie

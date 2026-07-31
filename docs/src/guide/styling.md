@@ -21,8 +21,8 @@ The `NodeType` enum defines common roles in causal diagrams:
 end
 ```
 
-For interaction / DiD conventions (IDAGs, modifier edges, SWIGs), see
-[Visual Grammar](visual_grammar.md).
+For interaction / DiD conventions (IDAGs, modifier edges, SWIGs — defined there),
+see [Visual Grammar](visual_grammar.md).
 
 ## Using DAGSpec
 
@@ -110,31 +110,31 @@ fig, ax, p = dagplot(spec)
 fig
 ```
 
-```julia
-# Mediation pattern with types
-spec = typed_mediation_graph()
-
-# Instrumental variable pattern
-spec = typed_instrumental_graph()
-
-# Collider pattern
-spec = typed_collider_graph()
+```@example styling
+fig = Figure(size = (900, 240))
+ax1 = Axis(fig[1, 1], title = "typed_mediation")
+ax2 = Axis(fig[1, 2], title = "typed_instrumental")
+ax3 = Axis(fig[1, 3], title = "typed_collider")
+dagplot!(ax1, typed_mediation_graph())
+dagplot!(ax2, typed_instrumental_graph())
+dagplot!(ax3, typed_collider_graph())
+fig
 ```
 
 ## Style Presets
 
 DAGMakie provides style presets for different contexts:
 
-```julia
-# Standard academic paper style
-style = default_style()
-
-# Minimal style (thin lines, small nodes)
-style = minimal_style()
-
-# Bold style (thick lines, large nodes)
-style = bold_style()
-
-# Presentation style (extra large for slides)
-style = presentation_style()
+```@example styling
+g, labels = confounding_graph(["Z", "X", "Y"])
+fig = Figure(size = (900, 240))
+ax1 = Axis(fig[1, 1], title = "default_style")
+ax2 = Axis(fig[1, 2], title = "minimal_style")
+ax3 = Axis(fig[1, 3], title = "bold_style")
+ax4 = Axis(fig[1, 4], title = "presentation_style")
+dagplot!(ax1, g; nlabels = labels, style = default_style())
+dagplot!(ax2, g; nlabels = labels, style = minimal_style())
+dagplot!(ax3, g; nlabels = labels, style = bold_style())
+dagplot!(ax4, g; nlabels = labels, style = presentation_style())
+fig
 ```

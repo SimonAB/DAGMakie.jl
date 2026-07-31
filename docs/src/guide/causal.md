@@ -123,7 +123,8 @@ fig
 ```
 
 With CausalInference available in your environment you can omit `adjustment`
-and let the extension compute a minimal backdoor set:
+and let the extension compute a minimal backdoor set (same visual as the
+explicit-`adjustment` example above):
 
 ```julia
 using CausalInference  # activates DAGMakieCausalInferenceExt

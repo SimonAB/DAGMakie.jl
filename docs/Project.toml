@@ -3,6 +3,7 @@ CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DAGMakie = "4e3bd891-6b6d-4d36-a31e-f0404dd10c7d"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+NetworkLayout = "46757867-2c16-5918-afeb-47bfcb05e46a"
 
 [compat]
 CairoMakie = "0.13, 0.14, 0.15"

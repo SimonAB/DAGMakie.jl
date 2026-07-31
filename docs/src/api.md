@@ -177,6 +177,8 @@ minimal_style
 bold_style
 presentation_style
 UNDIRECTED_EDGE_COLOR
+AUTO_ALIGN_LABEL_DISTANCE
+AUTO_ALIGN_LABEL_COLOR
 ```
 
 ## Node Type Styling

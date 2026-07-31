@@ -214,6 +214,89 @@ function pixel_delta_to_data(delta_px::Point2f, to_px)
 end
 
 """
+    pixel_length_to_data(distance_px, to_px)
+
+Convert a pixel length to an isotropic data-space length (uses the x scale).
+"""
+function pixel_length_to_data(distance_px::Real, to_px)
+    return Float64(abs(pixel_delta_to_data(Point2f(Float32(distance_px), 0f0), to_px)[1]))
+end
+
+"""
+    trim_polyline_to_circles(path, centre_start, radius_start, centre_end, radius_end)
+
+Trim a polyline so endpoints lie on circles around the start/end node centres.
+
+Unlike arc-length trimming in pixel space, this keeps curved edges attached to
+marker boundaries even when the Bézier leaves a node at a steep angle.
+"""
+function trim_polyline_to_circles(
+    path::AbstractVector,
+    centre_start::Point2f,
+    radius_start::Real,
+    centre_end::Point2f,
+    radius_end::Real,
+)
+    @assert length(path) >= 2 "A polyline requires at least two points."
+    ordered = Point2f.(path)
+    r0 = max(Float64(radius_start), 0.0)
+    r1 = max(Float64(radius_end), 0.0)
+
+    start_point = _polyline_circle_point(ordered, centre_start, r0; from_start = true)
+    end_point = _polyline_circle_point(ordered, centre_end, r1; from_start = false)
+
+    trimmed = Point2f[start_point]
+    for point in ordered
+        if norm(point - centre_start) < r0 - 1e-9
+            continue
+        end
+        if norm(point - centre_end) < r1 - 1e-9
+            break
+        end
+        if norm(point - trimmed[end]) > 1e-8
+            push!(trimmed, point)
+        end
+    end
+    if norm(trimmed[end] - end_point) > 1e-8
+        push!(trimmed, end_point)
+    end
+    return length(trimmed) < 2 ? Point2f[start_point, end_point] : trimmed
+end
+
+function _polyline_circle_point(
+    path::Vector{Point2f},
+    centre::Point2f,
+    radius::Real;
+    from_start::Bool,
+)
+    radius <= 0 && return from_start ? path[1] : path[end]
+    n = length(path)
+    indices = from_start ? (1:(n - 1)) : ((n - 1):-1:1)
+    for index in indices
+        hit = _segment_circle_hit(path[index], path[index + 1], centre, radius)
+        hit !== nothing && return hit
+    end
+    endpoint = from_start ? path[1] : path[end]
+    neighbour = from_start ? path[2] : path[end - 1]
+    direction = neighbour - endpoint
+    norm(direction) <= 1e-9 && return endpoint
+    # Path never reaches the circle: place a point on the ray toward the path.
+    return Point2f(centre + Float32(radius) * (direction / norm(direction)))
+end
+
+function _segment_circle_hit(p1::Point2f, p2::Point2f, centre::Point2f, radius::Real)
+    d1 = norm(p1 - centre)
+    d2 = norm(p2 - centre)
+    abs(d1 - radius) <= 1e-8 && return p1
+    abs(d2 - radius) <= 1e-8 && return p2
+    if (d1 - radius) * (d2 - radius) <= 0
+        t = abs(d2 - d1) <= 1e-9 ? 0.5 : (radius - d1) / (d2 - d1)
+        return Point2f(p1 + Float32(clamp(t, 0.0, 1.0)) * (p2 - p1))
+    end
+    return nothing
+end
+
+"""
     polyline_point_at_distance(path, distance_px, to_px; from_start=true)
 
 Return the point `distance_px` pixels along a polyline.

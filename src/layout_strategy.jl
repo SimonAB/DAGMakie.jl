@@ -563,10 +563,15 @@ function _feedback_waypoint(
     chord_length = max(norm(chord), 1f-3)
 
     if length(component_nodes) == 2
+        # Use a chord-independent perpendicular so the two opposing arcs of a
+        # 2-cycle bow opposite ways (not the same side). Keep curvature modest
+        # so arcs stay near the chord and do not leap over neighbouring nodes.
         ordered_nodes = sort(component_nodes)
+        base_chord = positions[ordered_nodes[2]] - positions[ordered_nodes[1]]
+        direction = _normalised_perpendicular(base_chord)
         sign = (source == ordered_nodes[1] && destination == ordered_nodes[2]) ? 1.0f0 : -1.0f0
-        direction = _normalised_perpendicular(chord)
-        return midpoint + sign * Float32(feedback_curvature * chord_length) * direction
+        curvature = min(Float32(feedback_curvature), 0.4f0)
+        return midpoint + sign * curvature * Float32(chord_length) * direction
     end
 
     radial = midpoint - component_centre

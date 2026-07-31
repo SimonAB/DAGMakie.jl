@@ -94,6 +94,11 @@
         @test Set(cyclic_result.feedback_edges) == Set([(1, 2), (2, 1)])
         @test haskey(cyclic_result.edge_waypoints, (1, 2))
         @test haskey(cyclic_result.edge_waypoints, (2, 1))
+        # Opposing arcs of a 2-cycle must bow opposite ways
+        wp12 = only(cyclic_result.edge_waypoints[(1, 2)])
+        wp21 = only(cyclic_result.edge_waypoints[(2, 1)])
+        mid = (cyclic_result.positions[1] + cyclic_result.positions[2]) / 2
+        @test (wp12 - mid) ≈ -(wp21 - mid)
     end
 
     @testset "feedback overlay geometry" begin

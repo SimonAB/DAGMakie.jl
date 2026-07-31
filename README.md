@@ -15,9 +15,10 @@ confounding, path highlighting, and display-only `do(·)` surgery.
 
 **Design principles:** [DESIGN.md](DESIGN.md) · [ecosystem](DESIGN_PRINCIPLES.md)
 
-> Prefer release **0.1.1+** (visualisation-only core; identification via
-> CausalInference.jl / CausalDynamics.jl). v0.1.0 remains on General as the
-> initial release.
+DAGMakie is on the Julia **General** registry (`Pkg.add("DAGMakie")`). It is a
+**visualisation-only** package; identification and `do(·)` calculus stay in
+[CausalInference.jl](https://github.com/mschauer/CausalInference.jl) /
+[CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl).
 
 ## Installation
 
