@@ -17,10 +17,13 @@
         # Stroke widths
         @test node_type_strokewidth(Latent) == 2.0
         @test node_type_strokewidth(Observed) == 1.0
+        @test node_type_strokewidth(Treatment) == TREATMENT_STROKEWIDTH
         
         # Stroke colours
         @test node_type_strokecolor(Latent) == :gray
         @test node_type_strokecolor(Observed) == :black
+        @test node_type_strokecolor(Outcome) == :darkgray
+        @test node_type_label_color(SwigFixed) == :black
     end
     
     @testset "apply_node_type_styling" begin

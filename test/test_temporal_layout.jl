@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 using Makie: Point2f, Figure
-using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge
+using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
 
 @testset "time-indexed layout and skeleton" begin
     pts = time_indexed_layout(2, 3; dx = 2.0, dy = 1.5)
@@ -22,10 +22,16 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge
 
     fig_sk, ax_sk, p_sk = dagplot(sk;
         layout = Point2f[Point2f(0, 1), Point2f(-1, 0), Point2f(1, 0), Point2f(2, 0)],
-        arrow_size = 0,
         nlabels = ["1", "2", "3", "4"],
     )
     @test fig_sk isa Figure
+
+    fig_sk2, ax_sk2, p_sk2 = dagplot_skeleton(g;
+        layout = Point2f[Point2f(0, 1), Point2f(-1, 0), Point2f(1, 0), Point2f(2, 0)],
+        nlabels = ["1", "2", "3", "4"],
+    )
+    @test fig_sk2 isa Figure
+    @test !is_directed(digraph_skeleton(g))
 
     u = SimpleDiGraph(4)
     add_edge!(u, 1, 3)

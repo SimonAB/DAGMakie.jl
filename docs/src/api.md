@@ -6,6 +6,7 @@
 time_indexed_layout
 dagplot_time_indexed
 digraph_skeleton
+dagplot_skeleton
 ```
 
 ## Main Plotting Functions
@@ -120,6 +121,22 @@ format_intervention_labels
 query_to_string
 ```
 
+## Visual grammar (interactions / DiD)
+
+```@docs
+modifier_edge
+dagplot_side_by_side
+vaccine_nutrition_outcome_spec
+vaccine_nutrition_idag_spec
+vaccine_nutrition_layout
+dagplot_vaccine_nutrition_interaction
+did_2x2_factual_spec
+did_2x2_swig_spec
+did_2x2_factual_layout
+did_2x2_swig_layout
+dagplot_did_swig
+```
+
 ## Label Alignment
 
 ```@docs
@@ -147,6 +164,7 @@ default_style
 minimal_style
 bold_style
 presentation_style
+UNDIRECTED_EDGE_COLOR
 ```
 
 ## Node Type Styling

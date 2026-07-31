@@ -11,6 +11,8 @@
         @test Confounder isa NodeType
         @test Mediator isa NodeType
         @test Collider isa NodeType
+        @test EffectMeasure isa NodeType
+        @test SwigFixed isa NodeType
     end
     
     @testset "NodeSpec" begin
@@ -39,6 +41,7 @@
         @test Directed isa EdgeType
         @test Bidirected isa EdgeType
         @test Undirected isa EdgeType
+        @test Modifier isa EdgeType
     end
     
     @testset "EdgeSpec" begin
@@ -93,5 +96,8 @@
 
         @test default_node_strokewidth(Latent) == 2.0
         @test default_node_strokewidth(Observed) == 1.0
+        @test default_node_strokewidth(Treatment) == TREATMENT_STROKEWIDTH
+        @test default_node_marker(EffectMeasure) == :rect
+        @test default_node_label_color(SwigFixed) == :black
     end
 end

@@ -5,6 +5,19 @@ All notable changes to DAGMakie.jl will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-07-31
+
+### Added
+
+- Visual grammar for interactions and DiD SWIGs: `EffectMeasure` / `SwigFixed`
+  node types, `Modifier` edge type, `modifier_edge`, and companion plot helpers
+  `dagplot_vaccine_nutrition_interaction` / `dagplot_did_swig`.
+- Guide page `guide/visual_grammar.md` documenting node/edge conventions and
+  the two worked examples.
+- Undirected CPDAG stroke defaults: undirected `SimpleGraph` plots suppress
+  arrowheads (`arrow_show=false`) and use `UNDIRECTED_EDGE_COLOR`; convenience
+  `dagplot_skeleton` wraps [`digraph_skeleton`](@ref).
+
 ## [0.1.3] - 2026-07-31
 
 ### Added

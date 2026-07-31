@@ -4,7 +4,7 @@
 Themes for DAG visualisation (no axes or grids by default).
 """
 
-using Makie: Theme, Attributes
+using Makie: Theme, Attributes, RGBf
 
 """
     dag_theme()
@@ -69,6 +69,30 @@ const NODE_COLOR_CONFOUNDER = :goldenrod
 
 """Highlight colour for mediators or other focal nodes."""
 const NODE_COLOR_MEDIATOR = :seagreen
+
+"""Fill for IDAG effect-measure nodes (same family as mediators)."""
+const NODE_COLOR_EFFECT = :seagreen
+
+"""Fill for the fixed half of a SWIG split node."""
+const NODE_COLOR_SWIG_FIXED = :white
+
+"""Stroke width for treatment / exposure nodes."""
+const TREATMENT_STROKEWIDTH = 2.5
+
+"""Stroke width for outcome nodes (emphasised outline)."""
+const OUTCOME_STROKEWIDTH = 2.0
+
+"""Line style for pedagogical modifier annotations."""
+const MODIFIER_EDGE_STYLE = :dashdot
+
+"""Colour for pedagogical modifier annotations."""
+const MODIFIER_EDGE_COLOR = :darkgray
+
+"""Line width for pedagogical modifier annotations."""
+const MODIFIER_EDGE_WIDTH = 1.25
+
+"""Default colour for undirected (CPDAG skeleton) edges."""
+const UNDIRECTED_EDGE_COLOR = RGBf(0.35, 0.35, 0.38)
 
 """Default node stroke width."""
 const DEFAULT_NODE_STROKEWIDTH = 1.0

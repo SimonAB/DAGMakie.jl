@@ -71,6 +71,7 @@ include("paths.jl")
 include("highlighting.jl")
 include("interventions.jl")
 include("dagplot.jl")
+include("visual_grammar.jl")
 
 # =============================================================================
 # Exports
@@ -97,25 +98,39 @@ export time_indexed_layout, dagplot_time_indexed
 export dag_theme
 export DAGStyle, default_style, minimal_style, bold_style, presentation_style
 export DEFAULT_NODE_COLOR, NODE_COLOR_CONFOUNDER, NODE_COLOR_MEDIATOR
+export NODE_COLOR_EFFECT, NODE_COLOR_SWIG_FIXED
+export TREATMENT_STROKEWIDTH, OUTCOME_STROKEWIDTH
+export MODIFIER_EDGE_STYLE, MODIFIER_EDGE_COLOR, MODIFIER_EDGE_WIDTH
+export UNDIRECTED_EDGE_COLOR
 export apply_dag_theme!
 
 # Types
 export NodeType, Observed, Latent, Treatment, Outcome, Instrument, Confounder, Mediator, Collider
+export EffectMeasure, SwigFixed
 export NodeSpec, EdgeSpec, DAGSpec
-export EdgeType, Directed, Bidirected, Undirected
+export EdgeType, Directed, Bidirected, Undirected, Modifier
 export node, edge
 export default_node_color, default_node_marker, default_node_strokewidth
+export default_node_strokecolor, default_node_label_color
 
 # Node type styling
 export node_type_marker, node_type_color, node_type_strokewidth, node_type_strokecolor
+export node_type_label_color
 export apply_node_type_styling
 export typed_confounding_graph, typed_mediation_graph, typed_instrumental_graph, typed_collider_graph
+
+# Visual grammar (interactions / DiD SWIGs)
+export modifier_edge, dagplot_side_by_side
+export vaccine_nutrition_outcome_spec, vaccine_nutrition_idag_spec
+export vaccine_nutrition_layout, dagplot_vaccine_nutrition_interaction
+export did_2x2_factual_spec, did_2x2_swig_spec
+export did_2x2_factual_layout, did_2x2_swig_layout, dagplot_did_swig
 
 # Utilities
 export get_node_positions, graph_extent, is_dag, edge_list
 export adjacency_to_graph, graph_from_edges
 export chain_graph, fork_graph, collider_graph, confounding_graph, mediation_graph, instrumental_graph
-export digraph_skeleton
+export digraph_skeleton, dagplot_skeleton
 
 # Bidirected edges / Mixed graphs
 export MixedGraph, mixed_graph

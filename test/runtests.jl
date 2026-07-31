@@ -17,5 +17,6 @@ using CairoMakie
     include("test_highlighting.jl")
     include("test_interventions.jl")
     include("test_dagplot.jl")
+    include("test_visual_grammar.jl")
     include("test_aqua.jl")
 end

@@ -14,25 +14,11 @@ roles in causal diagrams (observed, latent, treatment, outcome, etc.).
 """
     node_type_marker(type::NodeType)
 
-Return the marker shape for a given node type.
-
-Standard causal diagram conventions:
-- `Observed`: Filled circle
-- `Latent`: Circle (hollow via styling)
-- `Treatment`/`Outcome`: Circle (highlighted via colour)
-- `Instrument`: Diamond
-- `Confounder`: Circle
-- `Mediator`: Circle
-- `Collider`: Circle
+Return the marker shape for a given node type (delegates to
+[`default_node_marker`](@ref)).
 """
 function node_type_marker(type::NodeType)
-    return if type == Latent
-        :circle  # Hollow via strokewidth
-    elseif type == Instrument
-        :diamond
-    else
-        :circle
-    end
+    return default_node_marker(type)
 end
 
 """
@@ -48,15 +34,9 @@ end
     node_type_strokewidth(type::NodeType)
 
 Return the stroke width for a given node type.
-
-Latent nodes have thicker stroke to emphasise the hollow appearance.
 """
 function node_type_strokewidth(type::NodeType)
-    return if type == Latent
-        2.0
-    else
-        1.0
-    end
+    return default_node_strokewidth(type)
 end
 
 """
@@ -65,11 +45,16 @@ end
 Return the stroke colour for a given node type.
 """
 function node_type_strokecolor(type::NodeType)
-    return if type == Latent
-        :gray  # More visible for hollow nodes
-    else
-        :black
-    end
+    return default_node_strokecolor(type)
+end
+
+"""
+    node_type_label_color(type::NodeType)
+
+Return the in-node label colour for a given node type.
+"""
+function node_type_label_color(type::NodeType)
+    return default_node_label_color(type)
 end
 
 # =============================================================================
@@ -90,14 +75,15 @@ Generate styling arrays for a list of node types.
   - `markers`: Vector of marker shapes
   - `strokewidths`: Vector of stroke widths
   - `strokecolors`: Vector of stroke colours
+- `label_colors`: Vector of in-node label colours
 """
 function apply_node_type_styling(node_types::Vector{NodeType})
-    n = length(node_types)
     return (
         colors = [node_type_color(t) for t in node_types],
         markers = [node_type_marker(t) for t in node_types],
         strokewidths = [node_type_strokewidth(t) for t in node_types],
-        strokecolors = [node_type_strokecolor(t) for t in node_types]
+        strokecolors = [node_type_strokecolor(t) for t in node_types],
+        label_colors = [node_type_label_color(t) for t in node_types],
     )
 end
 

@@ -19,12 +19,14 @@ Enumeration of node types in causal diagrams.
 # Values
 - `Observed`: Measured variable (filled circle)
 - `Latent`: Unmeasured variable (hollow circle or dashed outline)
-- `Treatment`: Treatment/exposure variable (special highlight)
-- `Outcome`: Outcome variable (special highlight)
+- `Treatment`: Treatment/exposure variable (thick stroke)
+- `Outcome`: Outcome variable (emphasised stroke)
 - `Instrument`: Instrumental variable
 - `Confounder`: Confounding variable
 - `Mediator`: Mediating variable
 - `Collider`: Collider variable
+- `EffectMeasure`: Causal-effect node on an IDAG (not a factual outcome)
+- `SwigFixed`: Fixed half of a SWIG split node (intervened value)
 """
 @enum NodeType begin
     Observed
@@ -35,6 +37,8 @@ Enumeration of node types in causal diagrams.
     Confounder
     Mediator
     Collider
+    EffectMeasure
+    SwigFixed
 end
 
 """
@@ -91,11 +95,14 @@ Enumeration of edge types in causal diagrams.
 - `Directed`: Standard directed edge (→)
 - `Bidirected`: Bidirected edge for unmeasured confounding (↔)
 - `Undirected`: Undirected edge (—)
+- `Modifier`: Pedagogical annotation that one variable modifies an effect
+  (dash-dot; **not** an input to d-separation)
 """
 @enum EdgeType begin
     Directed
     Bidirected
     Undirected
+    Modifier
 end
 
 """
@@ -271,6 +278,10 @@ function default_node_color(type::NodeType)
         NODE_COLOR_MEDIATOR
     elseif type == Collider
         :mediumpurple
+    elseif type == EffectMeasure
+        NODE_COLOR_EFFECT
+    elseif type == SwigFixed
+        NODE_COLOR_SWIG_FIXED
     else
         DEFAULT_NODE_COLOR
     end
@@ -283,7 +294,13 @@ Return the default marker for a given node type.
 """
 function default_node_marker(type::NodeType)
     return if type == Latent
-        :circle  # Will be hollow via strokewidth
+        :circle  # Hollow via strokewidth
+    elseif type == EffectMeasure
+        :rect
+    elseif type == SwigFixed
+        :rect
+    elseif type == Instrument
+        :diamond
     else
         :circle
     end
@@ -296,8 +313,42 @@ Return the default stroke width for a given node type.
 """
 function default_node_strokewidth(type::NodeType)
     return if type == Latent
-        2.0  # Prominent outline for latent
+        2.0
+    elseif type == Treatment
+        TREATMENT_STROKEWIDTH
+    elseif type == Outcome
+        OUTCOME_STROKEWIDTH
+    elseif type == SwigFixed
+        2.0
     else
         1.0
+    end
+end
+
+"""
+    default_node_strokecolor(type::NodeType)
+
+Return the default outline colour for a given node type.
+"""
+function default_node_strokecolor(type::NodeType)
+    return if type == Latent
+        :gray
+    elseif type == Outcome
+        :darkgray
+    else
+        :black
+    end
+end
+
+"""
+    default_node_label_color(type::NodeType)
+
+Return the default in-node label colour for a given node type.
+"""
+function default_node_label_color(type::NodeType)
+    return if type == SwigFixed || type == Latent
+        :black
+    else
+        :white
     end
 end

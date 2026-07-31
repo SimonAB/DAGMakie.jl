@@ -337,8 +337,8 @@ function dagplot_dsep(
     y::Int,
     z::Set{Int};
     separated::Union{Nothing, Bool} = nothing,
-    x_color = DEFAULT_NODE_COLOR,
-    y_color = DEFAULT_NODE_COLOR,
+    x_color = :seagreen,
+    y_color = :goldenrod,
     z_color = :indianred,
     kwargs...
 )

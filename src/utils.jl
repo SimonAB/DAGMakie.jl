@@ -459,7 +459,8 @@ Undirected skeleton of a directed graph: keep an undirected edge `{i,j}` wheneve
 `g` has `i → j`, `j → i`, or both.
 
 Useful for CPDAG-style PC output that encodes an undirected edge as a pair of
-opposing directed edges. Prefer this over plotting both arrows.
+opposing directed edges. Prefer this over plotting both arrows. See
+[`dagplot_skeleton`](@ref) for a ready-made figure with undirected stroke styling.
 """
 function digraph_skeleton(g::AbstractGraph)
     n = Graphs.nv(g)
@@ -470,4 +471,16 @@ function digraph_skeleton(g::AbstractGraph)
         Graphs.add_edge!(sk, i, j)
     end
     return sk
+end
+
+"""
+    dagplot_skeleton(g; kwargs...)
+
+Plot the undirected skeleton of `g` ([`digraph_skeleton`](@ref)).
+
+Arrowheads are suppressed and edges use [`UNDIRECTED_EDGE_COLOR`](@ref) unless
+overridden. Remaining keywords go to [`dagplot`](@ref).
+"""
+function dagplot_skeleton(g::Graphs.AbstractGraph; kwargs...)
+    return dagplot(digraph_skeleton(g); kwargs...)
 end

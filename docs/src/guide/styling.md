@@ -8,16 +8,21 @@ The `NodeType` enum defines common roles in causal diagrams:
 
 ```julia
 @enum NodeType begin
-    Observed    # Standard observed variable
-    Latent      # Unobserved/latent variable
-    Treatment   # Treatment/exposure variable
-    Outcome     # Outcome variable
-    Instrument  # Instrumental variable
-    Confounder  # Confounding variable
-    Mediator    # Mediating variable
-    Collider    # Collider variable
+    Observed      # Standard observed variable
+    Latent        # Unobserved/latent variable
+    Treatment     # Treatment/exposure (thick stroke)
+    Outcome       # Outcome (emphasised outline)
+    Instrument    # Instrumental variable
+    Confounder    # Confounding variable
+    Mediator      # Mediating variable
+    Collider      # Collider variable
+    EffectMeasure # IDAG causal-effect node
+    SwigFixed     # Fixed half of a SWIG split
 end
 ```
+
+For interaction / DiD conventions (IDAGs, modifier edges, SWIGs), see
+[Visual Grammar](visual_grammar.md).
 
 ## Using DAGSpec
 
@@ -43,18 +48,21 @@ fig
 
 ## Node Type Styling
 
-Each node type has default styling:
+Each node type has default styling (in-node white labels on dark fills, except
+`Latent` / `SwigFixed`):
 
-| Type | Default Colour | Use Case |
-|------|---------------|----------|
-| `Observed` | Light blue | Standard observed variables |
-| `Latent` | White | Unobserved variables |
-| `Treatment` | Light green | Exposure/intervention variables |
-| `Outcome` | Light yellow | Response variables |
-| `Instrument` | Light pink | Instrumental variables |
-| `Confounder` | Light salmon | Confounding variables |
-| `Mediator` | Light cyan | Mediating variables |
-| `Collider` | Plum | Collider variables |
+| Type | Default Colour | Marker / stroke | Use Case |
+|------|----------------|-----------------|----------|
+| `Observed` | Steel blue | circle | Standard observed variables |
+| `Latent` | Gray (hollow) | circle, stroke 2 | Unobserved variables |
+| `Treatment` | Steel blue | circle, stroke **2.5** | Exposure / intervention |
+| `Outcome` | Steel blue | circle, stroke **2.0** darkgray | Response variables |
+| `Instrument` | Goldenrod | diamond | Instrumental variables |
+| `Confounder` | Goldenrod | circle | Confounding variables |
+| `Mediator` | Seagreen | circle | Mediating variables |
+| `Collider` | Medium purple | circle | Collider variables |
+| `EffectMeasure` | Seagreen | **rect** | IDAG effect-measure node |
+| `SwigFixed` | White | **rect**, stroke 2 | SWIG fixed half ``a`` |
 
 ## Custom Styling Functions
 
@@ -62,13 +70,13 @@ Override default styling:
 
 ```julia
 # Get default colour for a type
-color = default_node_color(Treatment)  # :lightgreen
+color = default_node_color(Treatment)  # :steelblue
 
 # Get default marker
-marker = default_node_marker(Latent)   # :circle
+marker = default_node_marker(EffectMeasure)  # :rect
 
 # Get default stroke width
-stroke = default_node_strokewidth(Latent)  # 2.0 (prominent outline)
+stroke = default_node_strokewidth(Treatment)  # 2.5
 ```
 
 ## Apply Node Type Styling

@@ -178,7 +178,23 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     resolved_edge_color = something(edge_color, style_config.edge_color)
     resolved_edge_width = something(edge_width, style_config.edge_width)
     resolved_edge_linestyle = something(edge_linestyle, :solid)
-    resolved_arrow_size = something(arrow_size, style_config.arrow_size)
+    # Undirected graphs (e.g. CPDAG skeletons): hide arrowheads unless the caller
+    # overrides `arrow_show` / `arrow_size`. GraphMakie defaults `arrow_show` to
+    # `is_directed(g)`, but an explicit directed-style `arrow_size` from themes
+    # can still leave stubs; force a clean stroke here.
+    undirected = !Graphs.is_directed(g)
+    user_kwargs = Dict{Symbol, Any}(kwargs)
+    if undirected && arrow_size === nothing && !haskey(user_kwargs, :arrow_size)
+        resolved_arrow_size = 0
+    else
+        resolved_arrow_size = something(arrow_size, style_config.arrow_size)
+    end
+    if undirected && !haskey(user_kwargs, :arrow_show)
+        user_kwargs[:arrow_show] = false
+    end
+    if undirected && edge_color === nothing && !haskey(user_kwargs, :edge_color)
+        resolved_edge_color = UNDIRECTED_EDGE_COLOR
+    end
     resolved_arrow_shift = something(arrow_shift, style_config.arrow_shift)
     resolved_label_distance = something(nlabels_distance, style_config.label_distance)
     resolved_label_fontsize = something(nlabels_fontsize, style_config.label_fontsize)
@@ -250,7 +266,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         nlabels_distance = resolved_label_distance,
         nlabels_fontsize = resolved_label_fontsize,
         nlabels_color = resolved_label_color,
-        kwargs...
+        user_kwargs...
     )
 
     apply_dag_theme!(ax)
@@ -623,6 +639,7 @@ function _spec_defaults(spec::DAGSpec, kwargs)
     node_markers = [node.marker !== nothing ? node.marker : node_type_marker(node.type) for node in spec.nodes]
     node_strokewidths = [node_type_strokewidth(node_type) for node_type in node_types]
     node_strokecolours = [node_type_strokecolor(node_type) for node_type in node_types]
+    label_colours = [node_type_label_color(node_type) for node_type in node_types]
 
     edge_colours = fill(style_config.edge_color, Graphs.ne(spec.graph))
     edge_widths = fill(style_config.edge_width, Graphs.ne(spec.graph))
@@ -635,14 +652,20 @@ function _spec_defaults(spec::DAGSpec, kwargs)
         end
 
         index = edge_lookup[(edge.src, edge.dst)]
-        if edge.color !== nothing
-            edge_colours[index] = edge.color
-        end
-        if edge.width !== nothing
-            edge_widths[index] = edge.width
-        end
-        if edge.style !== nothing
-            edge_styles[index] = edge.style
+        if edge.type == Modifier
+            edge_colours[index] = something(edge.color, MODIFIER_EDGE_COLOR)
+            edge_widths[index] = something(edge.width, MODIFIER_EDGE_WIDTH)
+            edge_styles[index] = something(edge.style, MODIFIER_EDGE_STYLE)
+        else
+            if edge.color !== nothing
+                edge_colours[index] = edge.color
+            end
+            if edge.width !== nothing
+                edge_widths[index] = edge.width
+            end
+            if edge.style !== nothing
+                edge_styles[index] = edge.style
+            end
         end
     end
 
@@ -653,6 +676,7 @@ function _spec_defaults(spec::DAGSpec, kwargs)
         node_marker = node_markers,
         node_strokewidth = node_strokewidths,
         node_strokecolor = node_strokecolours,
+        nlabels_color = label_colours,
         edge_color = edge_colours,
         edge_width = edge_widths,
         edge_linestyle = edge_styles,

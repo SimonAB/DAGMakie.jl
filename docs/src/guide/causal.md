@@ -28,13 +28,15 @@ fig, ax, p = dagplot_adjustment(g, 2, 3; adjustment = Set([1]), nlabels = labels
 fig
 ```
 
-d-separation status for titles (pass `separated` from `dsep` / `d_separated`):
+d-separation status for titles (pass `separated` from `dsep` / `d_separated`).
+Use a **fork** ``X ← Z → Y`` (no direct ``X → Y``): conditioning on ``Z`` d-separates
+``X`` and ``Y``. A confounding triangle with ``X → Y`` keeps them d-connected.
 
 ```@example causal-dsep
 using Graphs, DAGMakie, CairoMakie
 
-g, labels = confounding_graph(["Z", "X", "Y"])
-# X ⊥ Y | Z in this confounding DAG
-fig, ax, p = dagplot_dsep(g, 2, 3, Set([1]); separated = true, nlabels = labels)
+g, labels = fork_graph(["X", "Z", "Y"])  # X ← Z → Y
+# X ⊥ Y | Z (Z blocks the only path)
+fig, ax, p = dagplot_dsep(g, 1, 3, Set([2]); separated = true, nlabels = labels)
 fig
 ```
