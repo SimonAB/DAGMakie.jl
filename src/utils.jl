@@ -122,6 +122,8 @@ Check if a directed graph is acyclic (a valid DAG).
 - `true` if the graph has no cycles, `false` otherwise
 """
 function is_dag(g::AbstractGraph)
+    # Undirected graphs have no directed cycles; treat as acyclic for layout.
+    Graphs.is_directed(g) || return true
     # Use topological sort - if it succeeds, graph is acyclic
     try
         Graphs.topological_sort_by_dfs(g)
@@ -447,4 +449,25 @@ function instrumental_graph(labels::Vector{String})
     Graphs.add_edge!(g, 4, 2)  # U → X (confounding)
     Graphs.add_edge!(g, 4, 3)  # U → Y (confounding)
     return (g, labels)
+end
+
+
+"""
+    digraph_skeleton(g::AbstractGraph) -> SimpleGraph
+
+Undirected skeleton of a directed graph: keep an undirected edge `{i,j}` whenever
+`g` has `i → j`, `j → i`, or both.
+
+Useful for CPDAG-style PC output that encodes an undirected edge as a pair of
+opposing directed edges. Prefer this over plotting both arrows.
+"""
+function digraph_skeleton(g::AbstractGraph)
+    n = Graphs.nv(g)
+    sk = Graphs.SimpleGraph(n)
+    for e in Graphs.edges(g)
+        i, j = Graphs.src(e), Graphs.dst(e)
+        i == j && continue
+        Graphs.add_edge!(sk, i, j)
+    end
+    return sk
 end

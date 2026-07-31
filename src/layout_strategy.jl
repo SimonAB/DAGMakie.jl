@@ -243,9 +243,13 @@ function _materialise_layout_positions(g::Graphs.AbstractGraph, layout)
 end
 
 function _graph_structure_metadata(g::Graphs.AbstractGraph)
-    if is_dag(g)
-        topo_order = Graphs.topological_sort_by_dfs(g)
-        node_layers = _longest_path_layers(g, topo_order)
+    if !Graphs.is_directed(g) || is_dag(g)
+        if Graphs.is_directed(g)
+            topo_order = Graphs.topological_sort_by_dfs(g)
+            node_layers = _longest_path_layers(g, topo_order)
+        else
+            node_layers = ones(Int, Graphs.nv(g))
+        end
         component_index = collect(1:Graphs.nv(g))
         components = [[node] for node in 1:Graphs.nv(g)]
         component_layers = copy(node_layers)

@@ -91,6 +91,7 @@ export align_to_direction
 # Layout utilities
 export estimate_label_extent, compute_label_bounds, compute_padded_limits
 export DAGLayoutResult, classify_graph_kind, compute_graph_layout, feedback_edge_mask, edge_waypoint_vector
+export time_indexed_layout, dagplot_time_indexed
 
 # Themes and styling
 export dag_theme
@@ -114,6 +115,7 @@ export typed_confounding_graph, typed_mediation_graph, typed_instrumental_graph,
 export get_node_positions, graph_extent, is_dag, edge_list
 export adjacency_to_graph, graph_from_edges
 export chain_graph, fork_graph, collider_graph, confounding_graph, mediation_graph, instrumental_graph
+export digraph_skeleton
 
 # Bidirected edges / Mixed graphs
 export MixedGraph, mixed_graph

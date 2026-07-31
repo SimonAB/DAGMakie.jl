@@ -279,3 +279,60 @@ function _pixel_to_data_scale(xs::Vector{Float64}, ys::Vector{Float64}; to_px, p
 
     return 1 / safe_scale_x, 1 / safe_scale_y
 end
+
+
+"""
+    time_indexed_layout(n_variables, n_times; dx=2.0, dy=1.5, origin=(0.0, 0.0))
+
+Grid layout for time-unrolled causal graphs.
+
+Node order must be outer loop over occasions `t = 1:n_times` and inner loop over
+variables `v = 1:n_variables` (the indexing used by CausalDynamics
+`unroll_temporal_dag`). Column `t` is at `x = origin[1] + (t - 1) * dx`; variable
+row `v` is at `y = origin[2] - (v - 1) * dy`.
+
+# Returns
+- `Vector{Point2f}` of length `n_variables * n_times`
+"""
+function time_indexed_layout(
+    n_variables::Integer,
+    n_times::Integer;
+    dx::Real = 2.0,
+    dy::Real = 1.5,
+    origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
+)
+    n_variables < 1 && throw(ArgumentError("n_variables must be ≥ 1, got $n_variables"))
+    n_times < 1 && throw(ArgumentError("n_times must be ≥ 1, got $n_times"))
+    pts = Point2f[]
+    x0, y0 = Float64(origin[1]), Float64(origin[2])
+    for t in 1:Int(n_times)
+        for v in 1:Int(n_variables)
+            push!(pts, Point2f(x0 + (t - 1) * Float64(dx), y0 - (v - 1) * Float64(dy)))
+        end
+    end
+    return pts
+end
+
+"""
+    dagplot_time_indexed(g, n_variables, n_times; kwargs...)
+
+`dagplot` with [`time_indexed_layout`](@ref) for graphs unrolled over time.
+
+Pass `nlabels` with one label per node in the same `(t, variable)` order as
+[`time_indexed_layout`](@ref). Remaining keywords go to [`dagplot`](@ref).
+"""
+function dagplot_time_indexed(
+    g::Graphs.AbstractGraph,
+    n_variables::Integer,
+    n_times::Integer;
+    dx::Real = 2.0,
+    dy::Real = 1.5,
+    origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
+    kwargs...,
+)
+    Graphs.nv(g) == Int(n_variables) * Int(n_times) || throw(ArgumentError(
+        "graph has $(Graphs.nv(g)) nodes, but n_variables×n_times = $(Int(n_variables) * Int(n_times))",
+    ))
+    layout = time_indexed_layout(n_variables, n_times; dx = dx, dy = dy, origin = origin)
+    return dagplot(g; layout = layout, kwargs...)
+end

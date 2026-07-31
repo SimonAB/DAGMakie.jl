@@ -28,6 +28,8 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 
 - **Dashed outlines** for latent states in state-space diagrams; solid for observed and exogenous noise (see book `.cursorrules`).
 - **Layered DAG layout** for acyclic graphs; **SCC-aware** routing for feedback.
+- **Time-indexed layout** (`time_indexed_layout` / `dagplot_time_indexed`) for unrolled temporal DAGs (column = occasion, row = variable).
+- **Undirected skeletons** (`digraph_skeleton`) for CPDAG-style PC displays; undirected `SimpleGraph` inputs skip directed SCC logic.
 - Node roles (treatment, outcome, latent) are **styling hints**, not identification claims.
 
 ### Lean and optional

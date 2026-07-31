@@ -1,5 +1,13 @@
 # API Reference
 
+## Layout utilities
+
+```@docs
+time_indexed_layout
+dagplot_time_indexed
+digraph_skeleton
+```
+
 ## Main Plotting Functions
 
 ```@docs

@@ -9,6 +9,7 @@ using CairoMakie
     include("test_types.jl")
     include("test_auto_align.jl")
     include("test_layout.jl")
+    include("test_temporal_layout.jl")
     include("test_utils.jl")
     include("test_bidirected.jl")
     include("test_node_styling.jl")
