@@ -133,6 +133,13 @@ const DEFAULT_LABEL_ALIGN = (:center, :center)
 """Default padding fraction."""
 const DEFAULT_PADDING = 0.35
 
+"""Default GraphMakie `selfedge_size` (data units) for self-loops.
+
+GraphMakie's automatic size is half the nearest-neighbour distance, which is
+oversized on typical DAG layouts; keep loops compact beside the marker.
+"""
+const DEFAULT_SELFEDGE_SIZE = 0.25
+
 # =============================================================================
 # Style Presets
 # =============================================================================
