@@ -7,6 +7,8 @@ time_indexed_layout
 dagplot_time_indexed
 digraph_skeleton
 dagplot_skeleton
+graph_from_structural_matrix
+ensure_structural_self_loops!
 structural_edge_labels
 edge_coefficient_labels
 ```

@@ -102,6 +102,9 @@ limits to prevent clipping of nodes and labels.
   with `latex=true`) for structural parameters or short mechanism TeX on edges
 - `elabels_fontsize`, `elabels_distance`, `elabels_rotation`, `elabels_side`, …
   : forwarded to GraphMakie (use `elabels_rotation = 0` to keep maths upright)
+- `selfedge_size`, `selfedge_direction`, `selfedge_width`: GraphMakie self-loop
+  geometry. When the graph has self-loops and `selfedge_size` is omitted,
+  DAGMakie defaults to [`DEFAULT_SELFEDGE_SIZE`](@ref) (compact beside the node)
 
 # Label Keyword Arguments
 - `nlabels = nothing`: Node labels (vector of strings / `LaTeXString`s, or `nothing`)
@@ -112,7 +115,10 @@ limits to prevent clipping of nodes and labels.
 - `auto_align_labels = false`: When true, place labels **outside** nodes in the
   largest angular gap (sets a positive distance and dark label colour unless you
   override them)
-- `nlabels_distance = 0`: Label distance from node in pixels (0 centres labels in nodes)
+- `nlabels_distance = 0`: Label distance from node in pixels along
+  `nlabels_align` (0 centres labels in nodes; with `(:center, :center)` the
+  offset is zero regardless of distance—use a non-centred align or
+  `auto_align_labels=true` for outside labels)
 - `nlabels_fontsize = 16`: Label font size
 - `nlabels_color = :white`: Label colour (white on dark node fills)
 
@@ -383,6 +389,13 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         resolved_nlabels_align = auto_settings.align
         resolved_label_distance = auto_settings.distance
         resolved_label_color = auto_settings.color
+    elseif nlabels !== nothing &&
+            resolved_label_distance > 0 &&
+            _is_centred_label_align(resolved_nlabels_align)
+        @warn "nlabels_distance=$(resolved_label_distance) has no effect with " *
+              "nlabels_align=(:center, :center): GraphMakie offsets along the " *
+              "align direction. Use a non-centred nlabels_align (e.g. " *
+              "(:center, :bottom)) or auto_align_labels=true for outside labels."
     end
 
     # Set axis limits *before* `graphplot!`. GraphMakie trims edges using the
@@ -396,6 +409,12 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         extra_bound_points;
         padding = resolved_padding,
     )
+
+    # Compact self-loops: GraphMakie automatic size is half the nearest-neighbour
+    # distance and balloons on typical DAG spacing.
+    if _has_self_loops(g) && !haskey(user_kwargs, :selfedge_size)
+        user_kwargs[:selfedge_size] = DEFAULT_SELFEDGE_SIZE
+    end
 
     p = graphplot!(ax, g;
         layout = layout_result.positions,
@@ -485,6 +504,31 @@ end
 function _resolve_style(style::Union{Nothing, DAGStyle})
     return style === nothing ? default_style() : style
 end
+
+"""
+    _has_self_loops(g) -> Bool
+
+Return true when `g` contains at least one edge `i → i`.
+"""
+function _has_self_loops(g::Graphs.AbstractGraph)
+    return any(e -> Graphs.src(e) == Graphs.dst(e), Graphs.edges(g))
+end
+
+"""
+    _is_centred_label_align(align) -> Bool
+
+Return true when every label uses the in-node Makie anchor `(:center, :center)`.
+With that anchor GraphMakie's `nlabels_distance` offset is the zero vector.
+"""
+function _is_centred_label_align(align::Tuple{Symbol, Symbol})
+    return align === DEFAULT_LABEL_ALIGN || align == DEFAULT_LABEL_ALIGN
+end
+
+function _is_centred_label_align(align::AbstractVector)
+    return !isempty(align) && all(_is_centred_label_align, align)
+end
+
+_is_centred_label_align(::Any) = false
 
 function _fill_attribute(value, count::Int)
     if value isa AbstractVector && !(value isa AbstractString)

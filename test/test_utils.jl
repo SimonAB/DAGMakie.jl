@@ -39,6 +39,22 @@ using Makie: Point2f
         @test has_edge(g, 2, 3)
         @test !has_edge(g, 1, 3)
     end
+
+    @testset "graph_from_structural_matrix" begin
+        B = [
+            0.0  0.0  0.0;
+            0.8  0.0  0.0;
+            0.5  1.2  3.0;
+        ]
+        g = graph_from_structural_matrix(B)
+        @test nv(g) == 3
+        @test ne(g) == 4
+        @test has_edge(g, 1, 2)  # B[2,1]
+        @test has_edge(g, 1, 3)  # B[3,1]
+        @test has_edge(g, 2, 3)  # B[3,2]
+        @test has_edge(g, 3, 3)  # B[3,3] self-loop
+        @test ne(graph_from_structural_matrix(B; atol = 2.5)) == 3  # drops diagonal
+    end
     
     @testset "graph_from_edges" begin
         g = graph_from_edges(4, [(1, 2), (2, 3), (3, 4)])
@@ -129,5 +145,39 @@ using Makie: Point2f
         @test edge_coefficient_labels(g, B; latex = false, digits = 1) == plain
         fig, ax, p = dagplot(g; nlabels = ["Z", "X", "Y"], elabels = el, elabels_rotation = 0)
         @test fig isa Figure
+
+        B_loop = [0.0 0.0 0.0; 0.8 0.0 0.0; 0.5 1.2 3.0]
+        g_loop = graph_from_structural_matrix(B_loop)
+        el_loop = structural_edge_labels(g_loop, B_loop; latex = false, digits = 1)
+        @test length(el_loop) == 4
+        @test "3.0" in el_loop
+        fig_loop, ax_loop, p_loop = dagplot(g_loop;
+            nlabels = ["Z", "X", "Y"],
+            elabels = el_loop,
+            elabels_rotation = 0,
+        )
+        @test fig_loop isa Figure
+        @test p_loop[:selfedge_size][] == DAGMakie.DEFAULT_SELFEDGE_SIZE
+        # Self-loop alone must not force cyclic layout (triangle preserved)
+        using DAGMakie: compute_graph_layout
+        lr = compute_graph_layout(g_loop)
+        @test lr.kind === :acyclic
+        @test length(unique(round.([pt[2] for pt in lr.positions]; digits = 3))) >= 2
+
+        # Non-zero diagonal auto-adds missing self-loops on the caller's graph
+        g_auto, _ = confounding_graph(["Z", "X", "Y"])
+        @test !has_edge(g_auto, 3, 3)
+        el_auto = structural_edge_labels(g_auto, B_loop; latex = false, digits = 1)
+        @test has_edge(g_auto, 3, 3)
+        @test length(el_auto) == 4
+        @test "3.0" in el_auto
+        g_off = SimpleDiGraph(3)
+        add_edge!(g_off, 1, 2)
+        logger = Test.TestLogger()
+        Logging.with_logger(logger) do
+            structural_edge_labels(g_off, B_loop; latex = false, digits = 1)
+        end
+        @test has_edge(g_off, 3, 3)  # diagonal still ensured
+        @test any(r -> occursin("no matching edge", string(r.message)), logger.logs)
     end
 end

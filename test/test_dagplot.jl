@@ -206,6 +206,37 @@
             @test aligns_manual == (:left, :bottom)
         end
     end
+
+    @testset "outside labels need non-centred align" begin
+        g = SimpleDiGraph(3)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+
+        fig, ax, p = dagplot(g;
+            nlabels = ["X", "Y", "Z"],
+            nlabels_color = :black,
+            nlabels_distance = 12,
+            nlabels_align = (:center, :bottom),
+        )
+        @test fig isa Makie.Figure
+        @test p[:nlabels_distance][] == 12
+        @test p[:nlabels_align][] == (:center, :bottom)
+        @test p[:nlabels_offset_processed][] == Point2f(0, 12)
+
+        # Centred align + positive distance is a GraphMakie no-op (and warns)
+        logger = Test.TestLogger()
+        Logging.with_logger(logger) do
+            fig2, ax2, p2 = dagplot(g;
+                nlabels = ["X", "Y", "Z"],
+                nlabels_distance = 12,
+            )
+            @test p2[:nlabels_offset_processed][] == Point2f(0, 0)
+            @test any(
+                r -> r.level == Logging.Warn && occursin("nlabels_distance", string(r.message)),
+                logger.logs,
+            )
+        end
+    end
     
     @testset "Themes" begin
         theme = dag_theme()
