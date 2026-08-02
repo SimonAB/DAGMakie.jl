@@ -70,11 +70,8 @@ fig
 
 ### Basic Labels
 
-In-node labels (default) want a contrasting colour on the fill. External labels
-need a positive `nlabels_distance` **and** a non-centred `nlabels_align`:
-GraphMakie offsets along the align direction, so `(:center, :center)` leaves the
-pixel offset at zero and the text stays inside the marker. Prefer black text off
-the fill:
+In-node labels (default) want a contrasting colour on the fill. For external
+labels, increase `nlabels_distance` and typically use black text:
 
 ```@example basic
 fig = Figure(size = (720, 280))
@@ -90,8 +87,6 @@ dagplot!(ax2, g;
     nlabels = labels,
     nlabels_color = :black,
     nlabels_distance = 12,
-    # (:center, :bottom) anchors the bottom of the text, so labels sit above
-    nlabels_align = (:center, :bottom),
 )
 fig
 ```
@@ -198,22 +193,17 @@ fig
 GraphMakie `elabels` pass through `dagplot` / `dagplot!`. Use
 [`structural_edge_labels`](@ref) to annotate edges with linear-SCM structural
 weights from a matrix $B$ (with $B_{ij}$ the parameter on $j\to i$), or with
-short TeX fragments of a mechanism, optionally as Makie `LaTeXString`s.
-A non-zero diagonal is treated as a self-loop: by default
-`structural_edge_labels` adds any missing `i → i` edges on `g` before labelling
-(layout still treats the loopless core as a DAG). Prefer a dedicated copy of
-the graph if later chunks must keep the original edge set:
+short TeX fragments of a mechanism, optionally as Makie `LaTeXString`s:
 
 ```@example basic
 B = [
     0.0  0.0  0.0;
     0.8  0.0  0.0;
-    0.5  1.2  3.0;
+    0.5  1.2  0.0;
 ]
-g_loop, labels_loop = confounding_graph(["Z", "X", "Y"])
-fig, ax, p = dagplot(g_loop;
-    nlabels = labels_loop,
-    elabels = structural_edge_labels(g_loop, B; digits = 1),  # adds Y → Y
+fig, ax, p = dagplot(g;
+    nlabels = labels,
+    elabels = structural_edge_labels(g, B; digits = 1),
     elabels_fontsize = 14,
     elabels_distance = 12,
     elabels_rotation = 0,   # keep maths upright

@@ -170,46 +170,6 @@ function adjacency_to_graph(adj::AbstractMatrix)
 end
 
 """
-    graph_from_structural_matrix(B; atol=0.0)
-
-Build a `SimpleDiGraph` from a structural parameter matrix `B` (linear SEM /
-linear SCM weights), including self-loops for non-zero diagonal entries.
-
-Convention matches [`structural_edge_labels`](@ref): `B[i, j]` is the weight of
-node `j` in the assignment for node `i`, so a non-zero entry yields the directed
-edge `j → i`. In particular, `B[i, i] ≠ 0` yields a self-loop at `i`, which
-GraphMakie draws as a self-pointing arc.
-
-Entries with absolute value at most `atol` are treated as absent.
-
-# Arguments
-- `B`: Square structural weight matrix
-- `atol`: Absolute tolerance for treating entries as zero
-
-# Returns
-- `SimpleDiGraph` with one edge per non-zero structural weight
-
-# Example
-```julia
-B = [0.0 0.0 0.0; 0.8 0.0 0.0; 0.5 1.2 3.0]
-g = graph_from_structural_matrix(B)  # edges 1→2, 1→3, 2→3, and self-loop 3→3
-```
-"""
-function graph_from_structural_matrix(B::AbstractMatrix{<:Real}; atol::Real = 0.0)
-    n = size(B, 1)
-    size(B, 2) == n || throw(ArgumentError("B must be square"))
-    g = Graphs.SimpleDiGraph(n)
-    for i in 1:n
-        for j in 1:n
-            if abs(B[i, j]) > atol
-                Graphs.add_edge!(g, j, i)  # B[i,j] on j → i
-            end
-        end
-    end
-    return g
-end
-
-"""
     graph_from_edges(n::Int, edge_pairs::Vector{Tuple{Int, Int}})
 
 Create a DiGraph from a list of edge pairs.
@@ -597,45 +557,14 @@ function digraph_skeleton(g::AbstractGraph)
 end
 
 """
-    ensure_structural_self_loops!(g, B; atol=0.0)
-
-Add missing self-loops `i → i` whenever `|B[i, i]| > atol`. Mutates `g` and
-returns it. Off-diagonal structure is left unchanged.
-
-Used by [`structural_edge_labels`](@ref) when `ensure_self_loops=true` (the
-default) so a non-zero diagonal is enough to draw self-pointing arcs.
-"""
-function ensure_structural_self_loops!(
-    g::AbstractGraph,
-    B::AbstractMatrix{<:Real};
-    atol::Real = 0.0,
-)
-    n = Graphs.nv(g)
-    size(B) == (n, n) || throw(ArgumentError("B must be $n×$n to match nv(g)"))
-    for i in 1:n
-        if abs(B[i, i]) > atol && !Graphs.has_edge(g, i, i)
-            Graphs.add_edge!(g, i, i)
-        end
-    end
-    return g
-end
-
-"""
-    structural_edge_labels(g, B; latex=true, digits=2, ensure_self_loops=true)
+    structural_edge_labels(g, B; latex=true, digits=2)
 
 Build GraphMakie `elabels` for `g` from a structural parameter matrix `B`
 (linear SEM / linear SCM weights).
 
 Convention: `B[i, j]` is the structural weight of node `j` in the assignment for
-node `i`, i.e. the parameter on the directed edge `j → i` (including self-loops
-when `i == j`). Labels are returned in `Graphs.edges(g)` order (the order
-GraphMakie expects for `elabels`).
-
-When `ensure_self_loops=true` (default), non-zero diagonal entries that are
-missing from `g` are added in place via [`ensure_structural_self_loops!`](@ref)
-before labels are built. Off-diagonal non-zeros without a matching edge still
-warn (and are omitted from labels). You can also build the full edge set with
-[`graph_from_structural_matrix`](@ref).
+node `i`, i.e. the parameter on the directed edge `j → i`. Labels are returned in
+`Graphs.edges(g)` order (the order GraphMakie expects for `elabels`).
 
 This is deliberately not named “effects”: in the Pearl ladder an *effect* is
 usually an interventional or counterfactual estimand, whereas these labels are
@@ -647,11 +576,12 @@ render as maths on the edge. Set `latex=false` for plain `String` labels.
 # Examples
 
 ```julia
-g, labels = confounding_graph(["Z", "X", "Y"])
-B = [0 0 0; 0.8 0 0; 0.5 1.2 3.0]  # diagonal 3.0 → self-loop on Y
+g = SimpleDiGraph(3)
+add_edge!(g, 1, 2); add_edge!(g, 2, 3); add_edge!(g, 1, 3)
+B = [0 0 0; 0.8 0 0; 0.5 1.2 0]
 fig, ax, p = dagplot(g;
-    nlabels = labels,
-    elabels = structural_edge_labels(g, B),  # adds Y → Y automatically
+    nlabels = ["Z", "X", "Y"],
+    elabels = structural_edge_labels(g, B),
     elabels_fontsize = 14,
     elabels_distance = 12,
     elabels_rotation = 0,
@@ -663,50 +593,14 @@ function structural_edge_labels(
     B::AbstractMatrix{<:Real};
     latex::Bool = true,
     digits::Integer = 2,
-    atol::Real = 0.0,
-    ensure_self_loops::Bool = true,
 )
     size(B, 1) == size(B, 2) || throw(ArgumentError("B must be square"))
     size(B, 1) == Graphs.nv(g) || throw(ArgumentError("size(B, 1) must equal nv(g)"))
-    if ensure_self_loops
-        ensure_structural_self_loops!(g, B; atol = atol)
-    end
-    _warn_structural_matrix_orphans(g, B; atol = atol)
     labels = map(Graphs.edges(g)) do e
         β = B[Graphs.dst(e), Graphs.src(e)]
         _format_edge_label(β; latex = latex, digits = digits)
     end
     return collect(labels)
-end
-
-"""
-Warn when non-zero `B` entries have no matching edge in `g`.
-"""
-function _warn_structural_matrix_orphans(
-    g::AbstractGraph,
-    B::AbstractMatrix{<:Real};
-    atol::Real,
-)
-    n = Graphs.nv(g)
-    orphans = Tuple{Int, Int, Float64}[]
-    for i in 1:n
-        for j in 1:n
-            β = Float64(B[i, j])
-            abs(β) > atol || continue
-            Graphs.has_edge(g, j, i) && continue
-            push!(orphans, (j, i, β))
-        end
-    end
-    isempty(orphans) && return nothing
-    examples = join(
-        ["$j → $i (B[$i,$j]=$β)" for (j, i, β) in orphans[1:min(3, end)]],
-        "; ",
-    )
-    extra = length(orphans) > 3 ? "…" : ""
-    @warn "structural_edge_labels: $(length(orphans)) non-zero B entr$(length(orphans) == 1 ? "y has" : "ies have") no matching edge in g (labels omitted). " *
-          "Examples: $examples$extra. " *
-          "Use graph_from_structural_matrix(B), or ensure_self_loops=true for diagonal self-loops."
-    return nothing
 end
 
 """

@@ -4,8 +4,6 @@ using Test
 using DAGMakie
 using Graphs
 using CairoMakie
-using Logging
-using Makie: Point2f
 
 @testset "DAGMakie.jl" begin
     include("test_types.jl")

@@ -141,8 +141,7 @@ export SMART_COLOR_IRRELEVANT
 
 # Utilities
 export get_node_positions, graph_extent, is_dag, edge_list
-export adjacency_to_graph, graph_from_edges, graph_from_structural_matrix
-export ensure_structural_self_loops!
+export adjacency_to_graph, graph_from_edges
 export chain_graph, fork_graph, collider_graph, confounding_graph, mediation_graph, instrumental_graph
 export digraph_skeleton, dagplot_skeleton
 export structural_edge_labels, edge_coefficient_labels
@@ -175,6 +174,6 @@ export query_to_string
 
 # Constants
 export DEFAULT_NODE_SIZE, DEFAULT_NODE_COLOR, DEFAULT_EDGE_COLOR
-export DEFAULT_LABEL_FONTSIZE, DEFAULT_LABEL_DISTANCE, DEFAULT_SELFEDGE_SIZE
+export DEFAULT_LABEL_FONTSIZE, DEFAULT_LABEL_DISTANCE
 
 end # module

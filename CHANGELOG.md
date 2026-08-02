@@ -5,32 +5,6 @@ All notable changes to DAGMakie.jl will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-
-- [`graph_from_structural_matrix`](@ref): build a `SimpleDiGraph` from a structural
-  weight matrix $B$ (same `B[i,j]` on $j\to i$ convention as
-  [`structural_edge_labels`](@ref)), including self-loops for non-zero diagonal
-  entries so GraphMakie can draw self-pointing arcs.
-- Compact default `selfedge_size` ([`DEFAULT_SELFEDGE_SIZE`](@ref) = 0.25) when
-  the graph has self-loops and the caller does not set `selfedge_size`.
-- [`ensure_structural_self_loops!`](@ref) and default
-  `structural_edge_labels(...; ensure_self_loops=true)`: a non-zero diagonal on
-  $B$ adds missing self-loops on `g` before labels are built.
-
-### Fixed
-
-- Layout classification ignores self-loops, so a diagonal structural weight no
-  longer forces cyclic / flat layout on an otherwise acyclic DAG.
-- Basic guide “Outside the node” example: GraphMakie only offsets labels along
-  `nlabels_align`, so a positive `nlabels_distance` with the default
-  `(:center, :center)` left black text inside the markers. The example now sets
-  `nlabels_align = (:center, :bottom)` and documents the requirement.
-- `dagplot` warns when `nlabels_distance > 0` but align remains centred.
-- `structural_edge_labels` warns when off-diagonal non-zero `B` entries have no
-  matching edge in `g` (diagonal self-loops are ensured automatically by default).
-
 ## [0.1.5] - 2026-07-31
 
 ### Added

@@ -33,35 +33,13 @@ end
     classify_graph_kind(g)
 
 Classify a graph by directed cyclicity and mixed-edge support.
-
-Self-loops are ignored for this classification: they are drawn by GraphMakie as
-local self-arcs and should not force the multi-node cyclic / feedback layout.
 """
 function classify_graph_kind(g::Graphs.AbstractGraph)
-    return is_dag(_graph_without_self_loops(g)) ? :acyclic : :cyclic
+    return is_dag(g) ? :acyclic : :cyclic
 end
 
 function classify_graph_kind(mg::MixedGraph)
-    return is_dag(_graph_without_self_loops(mg.directed)) ? :mixed_acyclic : :mixed_cyclic
-end
-
-"""
-    _graph_without_self_loops(g)
-
-Return `g` unchanged when it has no self-loops; otherwise a `SimpleDiGraph` copy
-with only the non-loop edges. Used so structural self-arcs do not change DAG
-layering or force cyclic feedback routing.
-"""
-function _graph_without_self_loops(g::Graphs.AbstractGraph)
-    has_loop = any(e -> Graphs.src(e) == Graphs.dst(e), Graphs.edges(g))
-    has_loop || return g
-    g_core = Graphs.SimpleDiGraph(Graphs.nv(g))
-    for e in Graphs.edges(g)
-        s, d = Graphs.src(e), Graphs.dst(e)
-        s == d && continue
-        Graphs.add_edge!(g_core, s, d)
-    end
-    return g_core
+    return is_dag(mg.directed) ? :mixed_acyclic : :mixed_cyclic
 end
 
 """
@@ -88,21 +66,18 @@ function compute_graph_layout(
     feedback_curvature::Real = 0.75,
 )
     mode = _resolve_layout_mode(layout_mode)
-    # Self-loops are visual annotations; lay out on the loopless core so a
-    # diagonal structural weight does not collapse a DAG into cyclic mode.
-    g_core = _graph_without_self_loops(g)
-    directed_kind = classify_graph_kind(g_core)
+    directed_kind = classify_graph_kind(g)
     actual_mode = _effective_layout_mode(mode, directed_kind)
 
     positions, node_layers, component_index, components, component_layers = if layout === nothing
         if actual_mode === :acyclic
-            triangle_pos = _pedagogical_triangle_positions(g_core)
+            triangle_pos = _pedagogical_triangle_positions(g)
             if triangle_pos !== nothing
                 pos = triangle_pos
-                layers = _triangle_node_layers(g_core, pos)
+                layers = _triangle_node_layers(g, pos)
             else
                 pos, layers = _compute_layered_positions(
-                    g_core;
+                    g;
                     orientation = orientation,
                     layer_gap = layer_gap,
                     node_gap = node_gap,
@@ -113,12 +88,12 @@ function compute_graph_layout(
             component_layers = copy(layers)
             (pos, layers, component_index, components, component_layers)
         elseif actual_mode === :spring
-            pos = _materialise_layout_positions(g_core, Spring())
-            layers, component_index, components, component_layers = _graph_structure_metadata(g_core)
+            pos = _materialise_layout_positions(g, Spring())
+            layers, component_index, components, component_layers = _graph_structure_metadata(g)
             (pos, layers, component_index, components, component_layers)
         else
             _compute_cyclic_positions(
-                g_core;
+                g;
                 orientation = orientation,
                 layer_gap = layer_gap,
                 node_gap = node_gap,
@@ -128,15 +103,13 @@ function compute_graph_layout(
         end
     else
         pos = _materialise_layout_positions(g, layout)
-        layers, component_index, components, component_layers = _graph_structure_metadata(g_core)
+        layers, component_index, components, component_layers = _graph_structure_metadata(g)
         (pos, layers, component_index, components, component_layers)
     end
 
-    # Feedback overlays are for multi-node cycles on the loopless core.
-    # Self-loops stay on the full graph and are drawn by GraphMakie.
     feedback_edges, edge_waypoints = if directed_kind === :cyclic
         _compute_feedback_routing(
-            g_core,
+            g,
             positions,
             component_index,
             components;
