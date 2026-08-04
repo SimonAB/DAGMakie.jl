@@ -7,8 +7,19 @@ conventions (observed, latent, treatment, outcome), with helpers for bidirected
 confounding, path highlighting, display-only `do(·)` surgery, and a [visual
 grammar](guide/visual_grammar.md) for interaction IDAGs and DiD SWIGs.
 
-Compared with ggdag, dagitty plots, and Python graph glue: see [Comparison](comparison.md)
-and [ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/DAGMakie.jl/blob/main/ECOSYSTEM_COMPARISON.md).
+## Compared with R and Python
+
+| Need | DAGMakie | Familiar elsewhere |
+|------|----------|--------------------|
+| Layered causal DAG + bidirected arcs | Yes | ggdag, dagitty |
+| Path / adjustment highlighting | Yes | ggdag + dagitty |
+| Time-indexed / SWIG / DiD visual grammar | **Unique** | Custom plots |
+| Same Makie stack as SciML figures | **Unique** | — |
+
+**Choose DAGMakie** for publication figures in the Julia/Makie stack.
+**Prefer ggdag / dagitty** for tidyverse pipelines or the dagitty GUI.
+Details: [Comparison](comparison.md) ·
+[ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/DAGMakie.jl/blob/main/ECOSYSTEM_COMPARISON.md).
 
 ## Capabilities
 

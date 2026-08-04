@@ -82,8 +82,20 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 | **DAGMakie** | DAG figures |
 | Application repos | Cohort data, registries, concordance (thin) |
 
-Julia vs R/Python feature matrices (integration as the product):
-[ECOSYSTEM_COMPARISON.md](ECOSYSTEM_COMPARISON.md) ·
+### Compared with R and Python
+
+| Need | This package | Familiar elsewhere |
+|------|--------------|--------------------|
+| Layered causal DAG + bidirected arcs | Yes | ggdag, dagitty |
+| Path / adjustment highlighting | Yes | ggdag + dagitty |
+| Time-indexed / SWIG / DiD visual grammar | **Unique** | Custom ggplot / matplotlib |
+| Same Makie stack as SciML figures | **Unique** | — |
+
+**Choose this** when causal figures should live next to SciML and Documenter in
+Julia. **Prefer ggdag / dagitty** for tidyverse-centric workflows or the dagitty
+web GUI.
+
+Full matrices: [ECOSYSTEM_COMPARISON.md](ECOSYSTEM_COMPARISON.md) ·
 [Documenter comparison](https://simonab.github.io/DAGMakie.jl/dev/comparison/).
 
 Identification algorithms live in CausalInference.jl or CausalDynamics.jl.
