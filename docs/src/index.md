@@ -7,6 +7,9 @@ conventions (observed, latent, treatment, outcome), with helpers for bidirected
 confounding, path highlighting, display-only `do(·)` surgery, and a [visual
 grammar](guide/visual_grammar.md) for interaction IDAGs and DiD SWIGs.
 
+Compared with ggdag, dagitty plots, and Python graph glue: see [Comparison](comparison.md)
+and [ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/DAGMakie.jl/blob/main/ECOSYSTEM_COMPARISON.md).
+
 ## Capabilities
 
 Layouts are deterministic for DAGs (layered) and SCC-aware for cyclic graphs.

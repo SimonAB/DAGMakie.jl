@@ -82,6 +82,10 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 | **DAGMakie** | DAG figures |
 | Application repos | Cohort data, registries, concordance (thin) |
 
+Julia vs R/Python feature matrices (integration as the product):
+[ECOSYSTEM_COMPARISON.md](ECOSYSTEM_COMPARISON.md) ·
+[Documenter comparison](https://simonab.github.io/DAGMakie.jl/dev/comparison/).
+
 Identification algorithms live in CausalInference.jl or CausalDynamics.jl.
 Pass adjustment sets / paths into `dagplot_*`, or `using CausalInference` so the
 optional extension can compute a minimal backdoor set. Prefer plotting from
