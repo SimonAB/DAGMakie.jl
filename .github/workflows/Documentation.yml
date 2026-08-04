@@ -28,8 +28,6 @@ jobs:
           julia --project=docs -e '
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
-            # Same fork override as CI.yml (tuple marker sizes for DiD SWIG).
-            Pkg.add(url="https://github.com/SimonAB/GraphMakie.jl.git", rev="master")
             Pkg.instantiate()'
       - name: Build and deploy documentation
         env:

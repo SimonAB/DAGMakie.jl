@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-08-04
+
+### Changed
+
+- DiD SWIG default node sizes are scalars (not width/height tuples) so package
+  tests pass against registry GraphMakie before the non-scalar `node_size` fix
+  ([MakieOrg/GraphMakie#259](https://github.com/MakieOrg/GraphMakie.jl/pull/259))
+  is released. CI/docs no longer pin a GraphMakie fork for AutoMerge.
+
+### Fixed
+
+- `graph_from_structural_matrix` atol test asserted the wrong edge count
+  (atol drops *small* entries, not the large diagonal).
+
 ### Added
 
 - [`graph_from_structural_matrix`](@ref): build a `SimpleDiGraph` from a structural

@@ -53,7 +53,11 @@ using Makie: Point2f
         @test has_edge(g, 1, 3)  # B[3,1]
         @test has_edge(g, 2, 3)  # B[3,2]
         @test has_edge(g, 3, 3)  # B[3,3] self-loop
-        @test ne(graph_from_structural_matrix(B; atol = 2.5)) == 3  # drops diagonal
+        # abs(B) > atol: only the diagonal 3.0 survives when atol = 2.5
+        g_tol = graph_from_structural_matrix(B; atol = 2.5)
+        @test ne(g_tol) == 1
+        @test has_edge(g_tol, 3, 3)
+        @test !has_edge(g_tol, 1, 2)
     end
     
     @testset "graph_from_edges" begin

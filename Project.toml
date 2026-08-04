@@ -1,8 +1,8 @@
 name = "DAGMakie"
 uuid = "4e3bd891-6b6d-4d36-a31e-f0404dd10c7d"
 license = "MIT"
+version = "0.1.6"
 authors = ["Simon A. Babayan <simon.babayan@glasgow.ac.uk>"]
-version = "0.1.5"
 repo = "https://github.com/SimonAB/DAGMakie.jl.git"
 
 [deps]
@@ -33,17 +33,15 @@ julia = "1.10"
 
 [[author_details]]
 name = "Simon A. Babayan"
-orcid = "0000-0002-4949-1117"
 email = "simon.babayan@glasgow.ac.uk"
+orcid = "0000-0002-4949-1117"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 CausalInference = "8e462317-f959-576b-b3c1-403f26cec956"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-# CausalInference is an optional weakdep; do not add it to the default test
-# target — registry CausalInference caps GraphMakie at 0.5 and would downgrade
-# Makie below 0.24. Exercise the extension manually or in the CDCS monorepo.
-test = ["Test", "CairoMakie", "Aqua"]
+test = ["Test", "CairoMakie", "Aqua", "Logging"]

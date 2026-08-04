@@ -43,8 +43,8 @@
         @test factual.nodes[5].type == Treatment
         @test swig.nodes[6].type == SwigFixed
         @test swig.nodes[4].marker == :rect
-        @test swig.nodes[4].size == (132, 84)
-        @test swig.nodes[6].size == (105, 80)
+        @test swig.nodes[4].size == 96
+        @test swig.nodes[6].size == 80
         @test has_edge(factual.graph, 5, 4)   # A₁ → Y₁
         @test has_edge(swig.graph, 6, 4)      # a=0 → Y₁(0)
         @test !has_edge(swig.graph, 5, 4)     # no outflow from random half
