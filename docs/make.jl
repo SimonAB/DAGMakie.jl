@@ -35,7 +35,7 @@ makedocs(
         "API Reference" => "api.md",
     ],
     checkdocs = :exports,
-    warnonly = [:missing_docs],
+    warnonly = false,
 )
 
 if get(ENV, "CI", nothing) == "true"

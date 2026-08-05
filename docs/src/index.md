@@ -1,5 +1,13 @@
 # DAGMakie.jl
 
+```@meta
+CurrentModule = DAGMakie
+```
+
+```@docs
+DAGMakie
+```
+
 DAGMakie plots directed acyclic, directed cyclic, and mixed causal graphs with
 Makie, building on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl).
 Defaults omit axes and grids; node types follow common causal-diagram

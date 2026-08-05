@@ -151,6 +151,14 @@ smart_style_for_graph
 dagplot_smart
 ancestor_sets
 ancestors_via_graphs
+smart_node_color
+smart_label_color
+SMART_COLOR_EXPOSURE
+SMART_COLOR_OUTCOME
+SMART_COLOR_ANC_EXPOSURE
+SMART_COLOR_ANC_OUTCOME
+SMART_COLOR_ANC_BOTH
+SMART_COLOR_IRRELEVANT
 ```
 
 ## Label Alignment
@@ -169,6 +177,13 @@ compute_label_bounds
 compute_padded_limits
 get_node_positions
 graph_extent
+compute_graph_layout
+DAGLayoutResult
+classify_graph_kind
+feedback_edge_mask
+edge_waypoint_vector
+node
+edge
 ```
 
 ## Themes and Styling
@@ -184,6 +199,21 @@ presentation_style
 UNDIRECTED_EDGE_COLOR
 AUTO_ALIGN_LABEL_DISTANCE
 AUTO_ALIGN_LABEL_COLOR
+DEFAULT_NODE_COLOR
+DEFAULT_NODE_SIZE
+DEFAULT_EDGE_COLOR
+DEFAULT_LABEL_FONTSIZE
+DEFAULT_LABEL_DISTANCE
+DEFAULT_SELFEDGE_SIZE
+MODIFIER_EDGE_COLOR
+MODIFIER_EDGE_STYLE
+MODIFIER_EDGE_WIDTH
+NODE_COLOR_CONFOUNDER
+NODE_COLOR_MEDIATOR
+NODE_COLOR_EFFECT
+NODE_COLOR_SWIG_FIXED
+TREATMENT_STROKEWIDTH
+OUTCOME_STROKEWIDTH
 ```
 
 ## Node Type Styling
@@ -192,10 +222,13 @@ AUTO_ALIGN_LABEL_COLOR
 default_node_color
 default_node_marker
 default_node_strokewidth
+default_node_strokecolor
+default_node_label_color
 node_type_marker
 node_type_color
 node_type_strokewidth
 node_type_strokecolor
+node_type_label_color
 apply_node_type_styling
 typed_confounding_graph
 typed_mediation_graph
