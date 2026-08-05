@@ -33,6 +33,11 @@ From the CDCS monorepo:
 Pkg.develop(path="packages/DAGMakie.jl")
 ```
 
+With CausalDynamics in the same project, use registry GraphMakie **0.5.x**.
+Tip GraphMakie **≥0.6** (CDCS) is dual-env only until CausalInference widens
+GraphMakie compat — see
+[REGISTRATION.md](REGISTRATION.md#graphmakie--causaldynamics-resolve-matrix).
+
 ## Quick start
 
 ```julia
