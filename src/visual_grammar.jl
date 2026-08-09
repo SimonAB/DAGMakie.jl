@@ -207,13 +207,12 @@ function did_2x2_swig_spec(;
         NodeSpec(labels[1]; type = Confounder),
         NodeSpec(labels[2]; type = Latent),
         NodeSpec(labels[3]; type = Outcome),
-        # Scalar sizes: registry GraphMakie before the non-scalar `node_size` fix
-        # (#259) errors on tuples in `distance_between_markers`. Prefer large
-        # scalars so wide labels (Y₁(0)) remain readable; restore tuples once
-        # General ships a GraphMakie release that includes #259.
-        NodeSpec(labels[4]; type = Outcome, marker = :rect, size = 96),
+        # Non-square rects: wide labels need width; height set for clear vertical pad.
+        # (GraphMakie circle markers render ≈ 0.7× markersize, so circles clip Y₁(0).)
+        # Requires GraphMakie ≥ 0.6.6 (`distance_between_markers` accepts tuples).
+        NodeSpec(labels[4]; type = Outcome, marker = :rect, size = (132, 84)),
         NodeSpec(labels[5]; type = Treatment),
-        NodeSpec(labels[6]; type = SwigFixed, size = 80),
+        NodeSpec(labels[6]; type = SwigFixed, size = (105, 80)),
     ]
     return DAGSpec(g, nodes, EdgeSpec[], "2×2 DiD SWIG (a=0)")
 end

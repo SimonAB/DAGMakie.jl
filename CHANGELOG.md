@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-08-09
+
+### Changed
+
+- DiD SWIG defaults restore non-scalar `node_size` tuples (`Y₁(0)` `(132, 84)`,
+  `a=0` `(105, 80)`) now that GraphMakie **0.6.6** includes
+  [MakieOrg/GraphMakie#259](https://github.com/MakieOrg/GraphMakie.jl/pull/259).
+- `[compat] GraphMakie` is `"0.6.6"` (registry 0.6.5 still errors on tuple sizes).
+
 ## [0.1.6] - 2026-08-04
 
 ### Changed

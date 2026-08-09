@@ -1,7 +1,7 @@
 name = "DAGMakie"
 uuid = "4e3bd891-6b6d-4d36-a31e-f0404dd10c7d"
 license = "MIT"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["Simon A. Babayan <simon.babayan@glasgow.ac.uk>"]
 repo = "https://github.com/SimonAB/DAGMakie.jl.git"
 
@@ -22,7 +22,7 @@ DAGMakieCausalInferenceExt = "CausalInference"
 
 [compat]
 CausalInference = "0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19"
-GraphMakie = "0.6"
+GraphMakie = "0.6.6"
 Graphs = "1"
 LinearAlgebra = "1"
 Makie = "0.24"
