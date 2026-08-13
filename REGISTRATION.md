@@ -17,24 +17,16 @@ features (auto-label alignment).
 
 ## GraphMakie / CausalDynamics resolve matrix
 
-Registry DAGMakie co-installs with CausalDynamics when GraphMakie stays on
-**0.5.x**. The CDCS tip path (GraphMakie **≥0.6** + newer DAGMakie) currently
-cannot share a Julia project with CausalDynamics, because registry
-CausalInference pins its optional GraphMakie weakdep to 0.5.
+CausalInference **≥0.19.4** (General) allows GraphMakie `"0.5, 0.6"`, so a single
+environment can resolve CausalDynamics + DAGMakie + GraphMakie **≥0.6.6**.
 
 | Combo | Result |
 |-------|--------|
-| CausalDynamics 0.3.x alone | OK |
-| + registry GraphMakie **0.5.x** | OK |
-| + registry DAGMakie **0.1.x** + GraphMakie **0.5.x** | OK (supported single-env) |
-| CDCS tip GraphMakie **≥0.6** + tip DAGMakie + CausalDynamics | Mutually exclusive |
+| CausalDynamics + DAGMakie + GraphMakie **≥0.6.6** | OK (supported single-env) |
+| + CDCS GraphMakie fork (auto-label alignment) | OK via path develop |
 
-**Supported pattern for tip GraphMakie 0.6:** dual environment.
-
-1. Identification-only env: CausalDynamics from General (no GraphMakie 0.6).
-2. Fig0 / plot env: develop CDCS GraphMakie + DAGMakie; drop CausalDynamics for that resolve.
-
-Companion docs: [CausalDynamics REGISTRATION.md](https://github.com/SimonAB/CausalDynamics.jl/blob/main/REGISTRATION.md).
+Dual-env was required only while CausalInference’s GraphMakie weakdep was capped
+at 0.5 ([#179](https://github.com/mschauer/CausalInference.jl/pull/179), merged
+in 0.19.4). Companion docs:
+[CausalDynamics REGISTRATION.md](https://github.com/SimonAB/CausalDynamics.jl/blob/main/REGISTRATION.md).
 Tracking issue: [#3](https://github.com/SimonAB/DAGMakie.jl/issues/3).
-Upstream unblocker: [mschauer/CausalInference.jl#179](https://github.com/mschauer/CausalInference.jl/pull/179).
-After that merges and registers, re-test tip GraphMakie + CausalDynamics + DAGMakie in one env before changing dual-env guidance.

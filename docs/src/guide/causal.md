@@ -1,10 +1,11 @@
 # Causal highlighting
 
 DAGMakie highlights paths and adjustment sets that you already computed.
-**Identification algorithms** live in [CausalInference.jl](https://github.com/SimonAB/CausalInference.jl)
+**Identification algorithms** live in [CausalInference.jl](https://github.com/mschauer/CausalInference.jl)
 (or [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) façades).
 Pass the resulting sets into the plot helpers — the core package does not pull
-CausalInference (registry CausalInference is incompatible with GraphMakie 0.6).
+CausalInference; load it when you want registry identification helpers alongside
+GraphMakie **≥0.6** (supported since CausalInference **0.19.4**).
 
 ```@example causal
 using Graphs, DAGMakie, CairoMakie

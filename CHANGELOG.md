@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Resolve docs: CausalInference ≥0.19.4 allows GraphMakie 0.6 in one environment
+  with CausalDynamics; dual-env guidance retired.
+
 ## [0.1.7] - 2026-08-09
 
 ### Changed
