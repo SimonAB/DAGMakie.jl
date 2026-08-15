@@ -3,88 +3,92 @@
 
 # Classic confounding triangle: Z → X → Y, Z → Y
 g, labels = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])</code></pre><h2 id="The-dagplot-Function"><a class="docs-heading-anchor" href="#The-dagplot-Function">The <code>dagplot</code> Function</a><a id="The-dagplot-Function-1"></a><a class="docs-heading-anchor-permalink" href="#The-dagplot-Function" title="Permalink"></a></h2><p>The main entry point is <code>dagplot</code>, which creates a new figure:</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g; kwargs...)</code></pre><p>For plotting into an existing axis, use <code>dagplot!</code>:</p><pre><code class="language-julia hljs">p = dagplot!(ax, g; kwargs...)</code></pre><h2 id="Node-Customisation"><a class="docs-heading-anchor" href="#Node-Customisation">Node Customisation</a><a id="Node-Customisation-1"></a><a class="docs-heading-anchor-permalink" href="#Node-Customisation" title="Permalink"></a></h2><h3 id="Size-and-Colour"><a class="docs-heading-anchor" href="#Size-and-Colour">Size and Colour</a><a id="Size-and-Colour-1"></a><a class="docs-heading-anchor-permalink" href="#Size-and-Colour" title="Permalink"></a></h3><p>Default plots use steel-blue fills with <strong>white in-node labels</strong>. When you choose light fills, set <code>nlabels_color</code> accordingly (and keep nodes large enough for the label):</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
-    nlabels = labels,
+    labels = labels,
     node_size = 34,
     node_color = [:goldenrod, :seagreen, :steelblue],
     nlabels_color = :white,
 )
 fig</code></pre><img src="a36c1374.png" alt="Example block output"/><h3 id="Outline-Styling"><a class="docs-heading-anchor" href="#Outline-Styling">Outline Styling</a><a id="Outline-Styling-1"></a><a class="docs-heading-anchor-permalink" href="#Outline-Styling" title="Permalink"></a></h3><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
-    nlabels = labels,
+    labels = labels,
     node_strokewidth = 2.0,
     node_strokecolor = :black,
 )
-fig</code></pre><img src="6e39c5ba.png" alt="Example block output"/><h2 id="Edge-Customisation"><a class="docs-heading-anchor" href="#Edge-Customisation">Edge Customisation</a><a id="Edge-Customisation-1"></a><a class="docs-heading-anchor-permalink" href="#Edge-Customisation" title="Permalink"></a></h2><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
-    nlabels = labels,
+fig</code></pre><img src="4996ce8d.png" alt="Example block output"/><h2 id="Edge-Customisation"><a class="docs-heading-anchor" href="#Edge-Customisation">Edge Customisation</a><a id="Edge-Customisation-1"></a><a class="docs-heading-anchor-permalink" href="#Edge-Customisation" title="Permalink"></a></h2><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
+    labels = labels,
     edge_color = :gray,
     edge_width = 1.5,
     arrow_size = 12,
     arrow_shift = :end,
 )
-fig</code></pre><img src="56148085.png" alt="Example block output"/><h2 id="Label-Customisation"><a class="docs-heading-anchor" href="#Label-Customisation">Label Customisation</a><a id="Label-Customisation-1"></a><a class="docs-heading-anchor-permalink" href="#Label-Customisation" title="Permalink"></a></h2><h3 id="Basic-Labels"><a class="docs-heading-anchor" href="#Basic-Labels">Basic Labels</a><a id="Basic-Labels-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Labels" title="Permalink"></a></h3><p>In-node labels (default) want a contrasting colour on the fill. External labels need a positive <code>nlabels_distance</code> <strong>and</strong> a non-centred <code>nlabels_align</code>: GraphMakie offsets along the align direction, so <code>(:center, :center)</code> leaves the pixel offset at zero and the text stays inside the marker. Prefer black text off the fill:</p><pre><code class="language-julia hljs">fig = Figure(size = (720, 280))
+fig</code></pre><img src="a73632f5.png" alt="Example block output"/><h2 id="Label-Customisation"><a class="docs-heading-anchor" href="#Label-Customisation">Label Customisation</a><a id="Label-Customisation-1"></a><a class="docs-heading-anchor-permalink" href="#Label-Customisation" title="Permalink"></a></h2><h3 id="Basic-Labels"><a class="docs-heading-anchor" href="#Basic-Labels">Basic Labels</a><a id="Basic-Labels-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Labels" title="Permalink"></a></h3><p>In-node labels (default) want a contrasting colour on the fill. External labels need a positive <code>nlabels_distance</code> <strong>and</strong> a non-centred <code>nlabels_align</code>: GraphMakie offsets along the align direction, so <code>(:center, :center)</code> leaves the pixel offset at zero and the text stays inside the marker. Prefer black text off the fill:</p><pre><code class="language-julia hljs">fig = Figure(size = (720, 280))
 ax1 = Axis(fig[1, 1], title = &quot;In-node (default)&quot;)
 ax2 = Axis(fig[1, 2], title = &quot;Outside the node&quot;)
 dagplot!(ax1, g;
-    nlabels = labels,
+    labels = labels,
     nlabels_fontsize = 16,
     nlabels_color = :white,
     nlabels_distance = 0,
 )
 dagplot!(ax2, g;
-    nlabels = labels,
+    labels = labels,
     nlabels_color = :black,
     nlabels_distance = 12,
     # (:center, :bottom) anchors the bottom of the text, so labels sit above
     nlabels_align = (:center, :bottom),
 )
-fig</code></pre><img src="d31aaf04.png" alt="Example block output"/><h3 id="Label-Alignment"><a class="docs-heading-anchor" href="#Label-Alignment">Label Alignment</a><a id="Label-Alignment-1"></a><a class="docs-heading-anchor-permalink" href="#Label-Alignment" title="Permalink"></a></h3><p><code>nlabels_align</code> is the Makie <strong>text-box anchor</strong> (passed through GraphMakie), not “put the label on this side of the node”. The named side is which edge of the <strong>label</strong> sits on the anchor point, so the node ends up on that side of the label:</p><table><tr><th style="text-align: right"><code>nlabels_align</code></th><th style="text-align: right">Anchor meaning</th><th style="text-align: right">Label ends up…</th></tr><tr><td style="text-align: right"><code>(:left, :center)</code></td><td style="text-align: right">left edge of text on point</td><td style="text-align: right"><strong>right</strong> of the node</td></tr><tr><td style="text-align: right"><code>(:right, :center)</code></td><td style="text-align: right">right edge of text on point</td><td style="text-align: right"><strong>left</strong> of the node</td></tr><tr><td style="text-align: right"><code>(:center, :bottom)</code></td><td style="text-align: right">bottom of text on point</td><td style="text-align: right"><strong>above</strong> the node</td></tr><tr><td style="text-align: right"><code>(:center, :top)</code></td><td style="text-align: right">top of text on point</td><td style="text-align: right"><strong>below</strong> the node</td></tr></table><p>With a positive <code>nlabels_distance</code>, GraphMakie also shifts the anchor along the same direction (so <code>(:left, :center)</code> both left-anchors and nudges east).</p><p>By default labels sit <strong>inside</strong> the node (<code>nlabels_distance = 0</code>, centred). Pass <code>auto_align_labels = true</code> to place labels <strong>outside</strong> in the largest angular gap between incident edges (dagitty-style external labels). That mode automatically uses a positive distance and dark text unless you override them:</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
-    nlabels = labels,
-    auto_align_labels = true,
+fig</code></pre><img src="7360da8f.png" alt="Example block output"/><h3 id="Label-Alignment"><a class="docs-heading-anchor" href="#Label-Alignment">Label Alignment</a><a id="Label-Alignment-1"></a><a class="docs-heading-anchor-permalink" href="#Label-Alignment" title="Permalink"></a></h3><p><code>nlabels_align</code> is the Makie <strong>text-box anchor</strong> (passed through GraphMakie), not “put the label on this side of the node”. The named side is which edge of the <strong>label</strong> sits on the anchor point, so the node ends up on that side of the label:</p><table><tr><th style="text-align: right"><code>nlabels_align</code></th><th style="text-align: right">Anchor meaning</th><th style="text-align: right">Label ends up…</th></tr><tr><td style="text-align: right"><code>(:left, :center)</code></td><td style="text-align: right">left edge of text on point</td><td style="text-align: right"><strong>right</strong> of the node</td></tr><tr><td style="text-align: right"><code>(:right, :center)</code></td><td style="text-align: right">right edge of text on point</td><td style="text-align: right"><strong>left</strong> of the node</td></tr><tr><td style="text-align: right"><code>(:center, :bottom)</code></td><td style="text-align: right">bottom of text on point</td><td style="text-align: right"><strong>above</strong> the node</td></tr><tr><td style="text-align: right"><code>(:center, :top)</code></td><td style="text-align: right">top of text on point</td><td style="text-align: right"><strong>below</strong> the node</td></tr></table><p>With a positive <code>nlabels_distance</code>, GraphMakie also shifts the anchor along the same direction (so <code>(:left, :center)</code> both left-anchors and nudges east).</p><p>By default labels sit <strong>inside</strong> the node (<code>label_position = :inner</code>), and marker size follows each label (<code>fit_node_size_to_labels = true</code>): short labels keep round circles; wider ones become ovals (<code>Makie.Circle</code> scaled anisotropically). Pass <code>fit_node_size_to_labels = false</code> for a uniform theme size, or set <code>node_size</code> explicitly.</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+
+g2, labels2 = confounding_graph([&quot;nutrition&quot;, &quot;X&quot;, &quot;Y&quot;])
+fig, ax, p = dagplot(g2; labels = labels2)
+fig</code></pre><img src="aa4c4872.png" alt="Example block output"/><p>Pass <code>label_position = :outer</code> to place labels <strong>outside</strong> in the largest angular gap between incident edges (dagitty-style external labels). That mode uses a positive distance, dark text, and a compact node size (<a href="../../api/#DAGMakie.OUTER_LABEL_NODE_SIZE"><code>OUTER_LABEL_NODE_SIZE</code></a>) unless you override them (label fitting is skipped while labels are outside):</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
+    labels = labels,
+    label_position = :outer,
 )
-fig</code></pre><img src="c652a671.png" alt="Example block output"/><p>Manual anchors (still typically with a positive <code>nlabels_distance</code> when labels sit outside the fill). Panel titles show where the <strong>label</strong> appears relative to the node:</p><pre><code class="language-julia hljs">fig = Figure(size = (720, 280))
+fig</code></pre><img src="dd84354b.png" alt="Example block output"/><p>Manual anchors (still typically with a positive <code>nlabels_distance</code> when labels sit outside the fill). Panel titles show where the <strong>label</strong> appears relative to the node:</p><pre><code class="language-julia hljs">fig = Figure(size = (720, 280))
 ax1 = Axis(fig[1, 1], title = &quot;(:right, :bottom) → label NW of node&quot;)
 ax2 = Axis(fig[1, 2], title = &quot;Per-node anchors&quot;)
 dagplot!(ax1, g;
-    nlabels = labels,
-    auto_align_labels = false,
+    labels = labels,
+    label_position = :inner,
     nlabels_distance = 12,
     nlabels_color = :black,
     nlabels_align = (:right, :bottom),
 )
 dagplot!(ax2, g;
-    nlabels = labels,
-    auto_align_labels = false,
+    labels = labels,
+    label_position = :inner,
     nlabels_distance = 12,
     nlabels_color = :black,
     # Z right-anchored → label west; X top-anchored → label south; Y left-anchored → label east
     nlabels_align = [(:right, :center), (:center, :top), (:left, :center)],
 )
-fig</code></pre><img src="752bbb6f.png" alt="Example block output"/><h2 id="Layout"><a class="docs-heading-anchor" href="#Layout">Layout</a><a id="Layout-1"></a><a class="docs-heading-anchor-permalink" href="#Layout" title="Permalink"></a></h2><p>DAGMakie now defaults to an automatic layout strategy:</p><ul><li><code>layout_mode = :auto</code> chooses a deterministic layered layout for acyclic graphs</li><li><code>layout_mode = :cyclic</code> uses an SCC-aware layout with curved feedback edges</li><li><code>layout_mode = :spring</code> falls back to a force-directed layout</li><li><code>layout = ...</code> still accepts explicit node positions or a <code>NetworkLayout.jl</code> layout object</li></ul><p>For CPDAG skeletons and occasion×variable grids, see <a href="../skeletons_and_time/">Skeletons &amp; Time</a> (<code>dagplot_skeleton</code>, <code>dagplot_time_indexed</code>).</p><p>You can still use <code>NetworkLayout.jl</code> directly when you want a force-directed layout:</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g, nlabels = labels, layout_mode = :spring)
-fig</code></pre><img src="2dba0cee.png" alt="Example block output"/><pre><code class="language-julia hljs">using NetworkLayout
+fig</code></pre><img src="752bbb6f.png" alt="Example block output"/><h2 id="Layout"><a class="docs-heading-anchor" href="#Layout">Layout</a><a id="Layout-1"></a><a class="docs-heading-anchor-permalink" href="#Layout" title="Permalink"></a></h2><p>DAGMakie now defaults to an automatic layout strategy:</p><ul><li><code>layout_mode = :auto</code> chooses a deterministic layered layout for acyclic graphs</li><li><code>layout_mode = :cyclic</code> uses an SCC-aware layout with curved feedback edges</li><li><code>layout_mode = :spring</code> falls back to a force-directed layout</li><li><code>layout = ...</code> still accepts explicit node positions or a <code>NetworkLayout.jl</code> layout object</li><li>Within-layer <code>node_gap</code> defaults to <code>2.6</code> for <code>label_position=:inner</code> and <code>1.8</code> for <code>:outer</code> (override with <code>node_gap=…</code>)</li></ul><p>For CPDAG skeletons and occasion×variable grids, see <a href="../skeletons_and_time/">Skeletons &amp; Time</a> (<code>dagplot_skeleton</code>, <code>dagplot_time_indexed</code>).</p><p>You can still use <code>NetworkLayout.jl</code> directly when you want a force-directed layout:</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g, labels = labels, layout_mode = :spring)
+fig</code></pre><img src="1aea0b3b.png" alt="Example block output"/><pre><code class="language-julia hljs">using NetworkLayout
 
 fig = Figure(size = (720, 280))
 ax1 = Axis(fig[1, 1], title = &quot;Spring()&quot;)
 ax2 = Axis(fig[1, 2], title = &quot;Stress()&quot;)
-dagplot!(ax1, g; nlabels = labels, layout = Spring())
-dagplot!(ax2, g; nlabels = labels, layout = Stress())
-fig</code></pre><img src="2a95c410.png" alt="Example block output"/><h2 id="Figure-Size"><a class="docs-heading-anchor" href="#Figure-Size">Figure Size</a><a id="Figure-Size-1"></a><a class="docs-heading-anchor-permalink" href="#Figure-Size" title="Permalink"></a></h2><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
-    nlabels = labels,
+dagplot!(ax1, g; labels = labels, layout = Spring())
+dagplot!(ax2, g; labels = labels, layout = Stress())
+fig</code></pre><img src="3465788a.png" alt="Example block output"/><h2 id="Figure-Size"><a class="docs-heading-anchor" href="#Figure-Size">Figure Size</a><a id="Figure-Size-1"></a><a class="docs-heading-anchor-permalink" href="#Figure-Size" title="Permalink"></a></h2><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
+    labels = labels,
     figure_size = (480, 320),    # Width × Height in pixels
 )
-fig</code></pre><img src="006d2ea2.png" alt="Example block output"/><h2 id="Structural-edge-labels-(LaTeX)"><a class="docs-heading-anchor" href="#Structural-edge-labels-(LaTeX)">Structural edge labels (LaTeX)</a><a id="Structural-edge-labels-(LaTeX)-1"></a><a class="docs-heading-anchor-permalink" href="#Structural-edge-labels-(LaTeX)" title="Permalink"></a></h2><p>GraphMakie <code>elabels</code> pass through <code>dagplot</code> / <code>dagplot!</code>. Use <a href="../../api/#DAGMakie.structural_edge_labels"><code>structural_edge_labels</code></a> to annotate edges with linear-SCM structural weights from a matrix <span>$B$</span> (with <span>$B_{ij}$</span> the parameter on <span>$j\to i$</span>), or with short TeX fragments of a mechanism, optionally as Makie <code>LaTeXString</code>s. A non-zero diagonal is treated as a self-loop: by default <code>structural_edge_labels</code> adds any missing <code>i → i</code> edges on <code>g</code> before labelling (layout still treats the loopless core as a DAG). Prefer a dedicated copy of the graph if later chunks must keep the original edge set:</p><pre><code class="language-julia hljs">B = [
+fig</code></pre><img src="b30d7226.png" alt="Example block output"/><h2 id="Structural-edge-labels-(LaTeX)"><a class="docs-heading-anchor" href="#Structural-edge-labels-(LaTeX)">Structural edge labels (LaTeX)</a><a id="Structural-edge-labels-(LaTeX)-1"></a><a class="docs-heading-anchor-permalink" href="#Structural-edge-labels-(LaTeX)" title="Permalink"></a></h2><p>GraphMakie <code>elabels</code> pass through <code>dagplot</code> / <code>dagplot!</code>. Use <a href="../../api/#DAGMakie.structural_edge_labels"><code>structural_edge_labels</code></a> to annotate edges with linear-SCM structural weights from a matrix <span>$B$</span> (with <span>$B_{ij}$</span> the parameter on <span>$j\to i$</span>), or with short TeX fragments of a mechanism, optionally as Makie <code>LaTeXString</code>s. A non-zero diagonal is treated as a self-loop: by default <code>structural_edge_labels</code> adds any missing <code>i → i</code> edges on <code>g</code> before labelling (layout still treats the loopless core as a DAG). Prefer a dedicated copy of the graph if later chunks must keep the original edge set:</p><pre><code class="language-julia hljs">B = [
     0.0  0.0  0.0;
     0.8  0.0  0.0;
     0.5  1.2  3.0;
 ]
 g_loop, labels_loop = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])
 fig, ax, p = dagplot(g_loop;
-    nlabels = labels_loop,
+    labels = labels_loop,
     elabels = structural_edge_labels(g_loop, B; digits = 1),  # adds Y → Y
     elabels_fontsize = 14,
     elabels_distance = 12,
     elabels_rotation = 0,   # keep maths upright
 )
-fig</code></pre><img src="b20bb282.png" alt="Example block output"/><p>Custom TeX on edges (still one label per <code>Graphs.edges(g)</code> entry):</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g;
-    nlabels = labels,
+fig</code></pre><img src="79c800fb.png" alt="Example block output"/><p>Custom TeX on edges (still one label per <code>Graphs.edges(g)</code> entry):</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g;
+    labels = labels,
     elabels = structural_edge_labels(
         g,
         [&quot;\\beta_{ZX}&quot;, &quot;\\beta_{ZY}&quot;, &quot;\\beta_{XY}&quot;];
@@ -95,8 +99,8 @@ fig</code></pre><img src="b20bb282.png" alt="Example block output"/><p>Custom Te
     elabels_rotation = 0,
     padding = 0.45,
 )
-fig</code></pre><img src="fd196040.png" alt="Example block output"/><h2 id="Padding"><a class="docs-heading-anchor" href="#Padding">Padding</a><a id="Padding-1"></a><a class="docs-heading-anchor-permalink" href="#Padding" title="Permalink"></a></h2><p>Control spacing around the graph:</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
-    nlabels = labels,
+fig</code></pre><img src="9f8c7261.png" alt="Example block output"/><h2 id="Padding"><a class="docs-heading-anchor" href="#Padding">Padding</a><a id="Padding-1"></a><a class="docs-heading-anchor-permalink" href="#Padding" title="Permalink"></a></h2><p>Control spacing around the graph:</p><pre><code class="language-julia hljs">fig, ax, p = dagplot(g,
+    labels = labels,
     padding = 0.15,              # 15% padding (fraction of range)
 )
-fig</code></pre><img src="2560f227.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../comparison/">« Comparison</a><a class="docs-footer-nextpage" href="../styling/">Node Types &amp; Styling »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 15 August 2026 07:40">Saturday 15 August 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><img src="6558ed99.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../comparison/">« Comparison</a><a class="docs-footer-nextpage" href="../styling/">Node Types &amp; Styling »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 15 August 2026 10:32">Saturday 15 August 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

@@ -6,24 +6,24 @@ g, labels = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])
 # From CausalInference.find_min_backdoor_adjustment(g, 2, 3) — or hard-code Z
 adjustment = Set([1])
 
-fig, ax, p = dagplot_backdoor(g, 2, 3; adjustment = adjustment, nlabels = labels)
+fig, ax, p = dagplot_backdoor(g, 2, 3; adjustment = adjustment, labels = labels)
 fig</code></pre><img src="667b299e.png" alt="Example block output"/><p><code>dagplot_adjustment</code> accepts an explicit set the same way:</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 g, labels = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])
-fig, ax, p = dagplot_adjustment(g, 2, 3; adjustment = Set([1]), nlabels = labels)
-fig</code></pre><img src="667b299e-001.png" alt="Example block output"/><h2 id="Smart-/-dagitty-style-colours"><a class="docs-heading-anchor" href="#Smart-/-dagitty-style-colours">Smart / dagitty-style colours</a><a id="Smart-/-dagitty-style-colours-1"></a><a class="docs-heading-anchor-permalink" href="#Smart-/-dagitty-style-colours" title="Permalink"></a></h2><p>Pass <code>smart=true</code> (or <code>:ancestors</code>) with <code>treatment</code> and <code>outcome</code> to colour nodes like <a href="https://www.dagitty.net/">dagitty</a> “highlight ancestors”. Variables outside the ancestral closure of exposure ∪ outcome are grayed out; shared ancestors (often on backdoors) are marked in red.</p><table><tr><th style="text-align: right">Colour</th><th style="text-align: right">Role</th></tr><tr><td style="text-align: right">Seagreen</td><td style="text-align: right">Exposure</td></tr><tr><td style="text-align: right">Royal blue</td><td style="text-align: right">Outcome</td></tr><tr><td style="text-align: right">Medium seagreen</td><td style="text-align: right">Ancestor of exposure only</td></tr><tr><td style="text-align: right">Steel blue</td><td style="text-align: right">Ancestor of outcome only</td></tr><tr><td style="text-align: right">Indian red</td><td style="text-align: right">Ancestor of both</td></tr><tr><td style="text-align: right">Light gray</td><td style="text-align: right">Outside the ancestral closure</td></tr></table><p>Ancestor sets use CausalInference.jl when it is loaded; otherwise Graphs reverse-BFS. <code>smart=:adjustment</code> also thickens a backdoor adjustment set (needs CausalInference, or pass <code>adjustment=</code>).</p><h3 id="Default-vs-smart-(confounding-triangle)"><a class="docs-heading-anchor" href="#Default-vs-smart-(confounding-triangle)">Default vs smart (confounding triangle)</a><a id="Default-vs-smart-(confounding-triangle)-1"></a><a class="docs-heading-anchor-permalink" href="#Default-vs-smart-(confounding-triangle)" title="Permalink"></a></h3><p>Same graph, plain steel-blue nodes versus dagitty-style roles. Here <span>$Z$</span> is an ancestor of both exposure <span>$X$</span> and outcome <span>$Y$</span> (indian red).</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+fig, ax, p = dagplot_adjustment(g, 2, 3; adjustment = Set([1]), labels = labels)
+fig</code></pre><img src="667b299e-001.png" alt="Example block output"/><h2 id="Smart-/-dagitty-style-colours"><a class="docs-heading-anchor" href="#Smart-/-dagitty-style-colours">Smart / dagitty-style colours</a><a id="Smart-/-dagitty-style-colours-1"></a><a class="docs-heading-anchor-permalink" href="#Smart-/-dagitty-style-colours" title="Permalink"></a></h2><p>Pass <code>color_by=:ancestors</code> with <code>exposure</code> and <code>outcome</code> to colour nodes like <a href="https://www.dagitty.net/">dagitty</a> “highlight ancestors”. Variables outside the ancestral closure of exposure ∪ outcome are grayed out; shared ancestors (often on backdoors) are marked in red.</p><table><tr><th style="text-align: right">Colour</th><th style="text-align: right">Role</th></tr><tr><td style="text-align: right">Seagreen</td><td style="text-align: right">Exposure</td></tr><tr><td style="text-align: right">Royal blue</td><td style="text-align: right">Outcome</td></tr><tr><td style="text-align: right">Medium seagreen</td><td style="text-align: right">Ancestor of exposure only</td></tr><tr><td style="text-align: right">Steel blue</td><td style="text-align: right">Ancestor of outcome only</td></tr><tr><td style="text-align: right">Indian red</td><td style="text-align: right">Ancestor of both</td></tr><tr><td style="text-align: right">Light gray</td><td style="text-align: right">Outside the ancestral closure</td></tr></table><p>Ancestor sets use CausalInference.jl when it is loaded; otherwise Graphs reverse-BFS. <code>color_by=:adjustment</code> also thickens a backdoor adjustment set (needs CausalInference, or pass <code>adjustment=</code>).</p><h3 id="Default-vs-color_by-(confounding-triangle)"><a class="docs-heading-anchor" href="#Default-vs-color_by-(confounding-triangle)">Default vs <code>color_by</code> (confounding triangle)</a><a id="Default-vs-color_by-(confounding-triangle)-1"></a><a class="docs-heading-anchor-permalink" href="#Default-vs-color_by-(confounding-triangle)" title="Permalink"></a></h3><p>Same graph, plain steel-blue nodes versus dagitty-style roles. Here <span>$Z$</span> is an ancestor of both exposure <span>$X$</span> and outcome <span>$Y$</span> (indian red).</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 g, labels = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])
 
 fig = with_theme(dag_theme()) do
     fig = Figure(size = (900, 360))
     ax1 = Axis(fig[1, 1], title = &quot;Default&quot;)
-    ax2 = Axis(fig[1, 2], title = &quot;smart = true&quot;)
-    dagplot!(ax1, g; nlabels = labels)
-    dagplot!(ax2, g; smart = true, treatment = 2, outcome = 3, nlabels = labels)
+    ax2 = Axis(fig[1, 2], title = &quot;color_by = :ancestors&quot;)
+    dagplot!(ax1, g; labels = labels)
+    dagplot!(ax2, g; color_by = :ancestors, exposure = 2, outcome = 3, labels = labels)
     fig
 end
-fig</code></pre><img src="e281c4c9.png" alt="Example block output"/><h3 id="Full-role-palette"><a class="docs-heading-anchor" href="#Full-role-palette">Full role palette</a><a id="Full-role-palette-1"></a><a class="docs-heading-anchor-permalink" href="#Full-role-palette" title="Permalink"></a></h3><p>A slightly richer DAG shows every smart role at once: <span>$A$</span> affects only the exposure, <span>$B$</span> only the outcome, <span>$Z$</span> both, and <span>$W$</span> is irrelevant.</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+fig</code></pre><img src="1c8fd278.png" alt="Example block output"/><h3 id="Full-role-palette"><a class="docs-heading-anchor" href="#Full-role-palette">Full role palette</a><a id="Full-role-palette-1"></a><a class="docs-heading-anchor-permalink" href="#Full-role-palette" title="Permalink"></a></h3><p>A slightly richer DAG shows every ancestor role at once: <span>$A$</span> affects only the exposure, <span>$B$</span> only the outcome, <span>$Z$</span> both, and <span>$W$</span> is irrelevant.</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 # A → X ← Z → Y ← B, X → Y; W isolated
 g = SimpleDiGraph(6)
@@ -48,60 +48,60 @@ fig = with_theme(dag_theme()) do
         (0.0, 2.7),   # W
     ]
     fig, ax, p = dagplot_smart(g, 4, 5;
-        nlabels = labels,
+        labels = labels,
         layout = layout,
         figure_size = (700, 420),
     )
     ax.title = &quot;A: anc. exposure · B: anc. outcome · Z: both · W: irrelevant&quot;
     fig
 end
-fig</code></pre><img src="4e32b048.png" alt="Example block output"/><h3 id="Emphasise-an-adjustment-set"><a class="docs-heading-anchor" href="#Emphasise-an-adjustment-set">Emphasise an adjustment set</a><a id="Emphasise-an-adjustment-set-1"></a><a class="docs-heading-anchor-permalink" href="#Emphasise-an-adjustment-set" title="Permalink"></a></h3><p><code>smart=:adjustment</code> keeps the ancestor colours and draws a thicker dark-red outline on adjustment nodes. Pass <code>adjustment=</code> explicitly when CausalInference is not loaded (as in this documentation build).</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+fig</code></pre><img src="c9bd3b3a.png" alt="Example block output"/><h3 id="Emphasise-an-adjustment-set"><a class="docs-heading-anchor" href="#Emphasise-an-adjustment-set">Emphasise an adjustment set</a><a id="Emphasise-an-adjustment-set-1"></a><a class="docs-heading-anchor-permalink" href="#Emphasise-an-adjustment-set" title="Permalink"></a></h3><p><code>color_by=:adjustment</code> keeps the ancestor colours and draws a thicker dark-red outline on adjustment nodes. Pass <code>adjustment=</code> explicitly when CausalInference is not loaded (as in this documentation build).</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 g, labels = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])
 
 fig = with_theme(dag_theme()) do
     fig, ax, p = dagplot(g;
-        smart = :adjustment,
-        treatment = 2,
+        color_by = :adjustment,
+        exposure = 2,
         outcome = 3,
         adjustment = Set([1]),  # Z
-        nlabels = labels,
+        labels = labels,
     )
-    ax.title = &quot;smart = :adjustment (Z emphasised)&quot;
+    ax.title = &quot;color_by = :adjustment (Z emphasised)&quot;
     fig
 end
-fig</code></pre><img src="71b37416.png" alt="Example block output"/><p>With CausalInference available in your environment you can omit <code>adjustment</code> and let the extension compute a minimal backdoor set:</p><pre><code class="language-julia hljs">using CausalInference  # activates DAGMakieCausalInferenceExt
-fig, ax, p = dagplot(g; smart = :adjustment, treatment = 2, outcome = 3, nlabels = labels)</code></pre><p>That call draws the same emphasis as below (for this DAG the extension returns <span>${Z}$</span>). The documentation environment does not load CausalInference (registry builds pin GraphMakie incompatible with 0.6), so the figure uses the equivalent explicit set:</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+fig</code></pre><img src="00807fc8.png" alt="Example block output"/><p>With CausalInference available in your environment you can omit <code>adjustment</code> and let the extension compute a minimal backdoor set:</p><pre><code class="language-julia hljs">using CausalInference  # activates DAGMakieCausalInferenceExt
+fig, ax, p = dagplot(g; color_by = :adjustment, exposure = 2, outcome = 3, labels = labels)</code></pre><p>That call draws the same emphasis as below (for this DAG the extension returns <span>${Z}$</span>). The documentation environment does not load CausalInference (registry builds pin GraphMakie incompatible with 0.6), so the figure uses the equivalent explicit set:</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 g, labels = confounding_graph([&quot;Z&quot;, &quot;X&quot;, &quot;Y&quot;])
 
 fig = with_theme(dag_theme()) do
     fig, ax, p = dagplot(g;
-        smart = :adjustment,
-        treatment = 2,
+        color_by = :adjustment,
+        exposure = 2,
         outcome = 3,
         adjustment = Set([1]),  # same as find_min_backdoor_adjustment(g, 2, 3)
-        nlabels = labels,
+        labels = labels,
     )
-    ax.title = &quot;smart = :adjustment (Z from backdoor set)&quot;
+    ax.title = &quot;color_by = :adjustment (Z from backdoor set)&quot;
     fig
 end
-fig</code></pre><img src="a026e415.png" alt="Example block output"/><h2 id="d-Separation-titles"><a class="docs-heading-anchor" href="#d-Separation-titles">d-Separation titles</a><a id="d-Separation-titles-1"></a><a class="docs-heading-anchor-permalink" href="#d-Separation-titles" title="Permalink"></a></h2><p>Pass <code>separated</code> from <code>dsep</code> / <code>d_separated</code> for axis titles. Use a <strong>fork</strong> <span>$X ← Z → Y$</span> (no direct <span>$X → Y$</span>): conditioning on <span>$Z$</span> d-separates <span>$X$</span> and <span>$Y$</span>. A confounding triangle with <span>$X → Y$</span> keeps them d-connected.</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+fig</code></pre><img src="9e53305c.png" alt="Example block output"/><h2 id="d-Separation-titles"><a class="docs-heading-anchor" href="#d-Separation-titles">d-Separation titles</a><a id="d-Separation-titles-1"></a><a class="docs-heading-anchor-permalink" href="#d-Separation-titles" title="Permalink"></a></h2><p>Pass <code>separated</code> from <code>dsep</code> / <code>d_separated</code> for axis titles. Use a <strong>fork</strong> <span>$X ← Z → Y$</span> (no direct <span>$X → Y$</span>): conditioning on <span>$Z$</span> d-separates <span>$X$</span> and <span>$Y$</span>. A confounding triangle with <span>$X → Y$</span> keeps them d-connected.</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 g, labels = fork_graph([&quot;X&quot;, &quot;Z&quot;, &quot;Y&quot;])  # X ← Z → Y
 # X ⊥ Y | Z (Z blocks the only path)
-fig, ax, p = dagplot_dsep(g, 1, 3, Set([2]); separated = true, nlabels = labels)
-fig</code></pre><img src="23dad688.png" alt="Example block output"/><p>Combine smart colours with a d-separation title when teaching forks:</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
+fig, ax, p = dagplot_dsep(g, 1, 3, Set([2]); separated = true, labels = labels)
+fig</code></pre><img src="c26289fa.png" alt="Example block output"/><p>Combine <code>color_by</code> colours with a d-separation title when teaching forks:</p><pre><code class="language-julia hljs">using Graphs, DAGMakie, CairoMakie
 
 g, labels = fork_graph([&quot;X&quot;, &quot;Z&quot;, &quot;Y&quot;])
 fig = with_theme(dag_theme()) do
     fig, ax, p = dagplot(g;
-        smart = true,
-        treatment = 1,
+        color_by = :ancestors,
+        exposure = 1,
         outcome = 3,
-        nlabels = labels,
+        labels = labels,
     )
-    ax.title = &quot;X ⊥ Y | Z (d-separated) · smart ancestors&quot;
+    ax.title = &quot;X ⊥ Y | Z (d-separated) · color_by ancestors&quot;
     fig
 end
-fig</code></pre><img src="c8e7e33f.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../bidirected/">« Bidirected Edges</a><a class="docs-footer-nextpage" href="../interventions/">Interventions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 15 August 2026 07:40">Saturday 15 August 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><img src="b41a57f3.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../bidirected/">« Bidirected Edges</a><a class="docs-footer-nextpage" href="../interventions/">Interventions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 15 August 2026 10:32">Saturday 15 August 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
