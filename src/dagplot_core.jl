@@ -3,7 +3,7 @@
 """Internal `dagplot!` body and `DAGSpec` dispatch."""
 
 """
-Internal plotting body for [`dagplot!`](@ref) after smart-kwargs merging.
+Internal plotting body for [`dagplot!`](@ref) after colouring-kwargs merging.
 """
 function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     layout = nothing,
@@ -35,6 +35,9 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
     auto_align_labels = false,
+    label_obstacle_graph = nothing,
+    auto_align_graph = nothing,
+    fit_node_size_to_labels = true,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
@@ -43,7 +46,13 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     style_config = _resolve_style(style)
 
     resolved_padding = something(padding, style_config.padding)
-    resolved_node_size = something(node_size, style_config.node_size)
+    # Outer labels do not need in-node marker room; use a compact default unless
+    # the caller set `node_size` explicitly (theme / style sizes stay for in-node).
+    resolved_node_size = if auto_align_labels && node_size === nothing
+        OUTER_LABEL_NODE_SIZE
+    else
+        something(node_size, style_config.node_size)
+    end
     resolved_node_color = something(node_color, style_config.node_color)
     resolved_node_strokewidth = something(node_strokewidth, style_config.node_strokewidth)
     resolved_node_strokecolor = something(node_strokecolor, style_config.node_strokecolor)
@@ -80,6 +89,22 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     node_strokewidths = _fill_attribute(resolved_node_strokewidth, node_count)
     node_strokecolours = _fill_attribute(resolved_node_strokecolor, node_count)
     node_markers = _fill_attribute(resolved_node_marker, node_count)
+
+    if fit_node_size_to_labels &&
+            !auto_align_labels &&
+            nlabels !== nothing &&
+            _is_in_node_label_mode(resolved_label_distance, nlabels_align) &&
+            node_size === nothing
+        fitted_sizes, fitted_markers = fit_node_sizes_to_labels(
+            nlabels;
+            fontsize = resolved_label_fontsize,
+            markers = node_marker === nothing ? nothing : node_markers,
+        )
+        node_sizes = fitted_sizes
+        if node_marker === nothing
+            node_markers = fitted_markers
+        end
+    end
     edge_colours = _fill_attribute(resolved_edge_color, edge_count)
     edge_widths = _fill_attribute(resolved_edge_width, edge_count)
     edge_linestyles = _fill_attribute(resolved_edge_linestyle, edge_count)
@@ -124,8 +149,17 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     # (distance 0, white text) non-centred aligns only clip text inside markers.
     resolved_nlabels_align = nlabels_align
     if auto_align_labels && nlabels !== nothing
-        auto_settings = resolve_auto_align_label_settings(
+        # `label_obstacle_graph` lets callers (e.g. intervention overlays) include
+        # edges that are drawn but not present on `g` (grey removed parents).
+        align_graph = something(
+            resolve_label_obstacle_graph(;
+                label_obstacle_graph = label_obstacle_graph,
+                auto_align_graph = auto_align_graph,
+            ),
             g,
+        )
+        auto_settings = resolve_auto_align_label_settings(
+            align_graph,
             layout_result.positions;
             align = nlabels_align,
             distance = resolved_label_distance,
@@ -142,7 +176,7 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         @warn "nlabels_distance=$(resolved_label_distance) has no effect with " *
               "nlabels_align=(:center, :center): GraphMakie offsets along the " *
               "align direction. Use a non-centred nlabels_align (e.g. " *
-              "(:center, :bottom)) or auto_align_labels=true for outside labels."
+              "(:center, :bottom)) or label_position=:outer for outside labels."
     end
 
     # Set axis limits *before* `graphplot!`. GraphMakie trims edges using the
@@ -225,7 +259,8 @@ Plot a DAG from a DAGSpec specification.
 - `spec::DAGSpec`: A DAG specification with graph, nodes, and edges
 
 # Keyword Arguments
-- Same as `dagplot(g; kwargs...)`
+- Same preferred kwargs as [`dagplot`](@ref) / [`dagplot!`](@ref)
+  (`labels`, `label_position`, `color_by`, …)
 
 # Returns
 - Tuple `(fig, ax, p)`
@@ -234,7 +269,7 @@ function dagplot(spec::DAGSpec;
     figure_size::Tuple{Int, Int} = (600, 400),
     kwargs...
 )
-    merged_kwargs = _merge_default_kwargs(kwargs, _spec_defaults(spec, kwargs))
+    merged_kwargs = _merge_spec_plot_kwargs(spec, kwargs)
     return dagplot(spec.graph; figure_size = figure_size, merged_kwargs...)
 end
 
@@ -242,9 +277,21 @@ end
     dagplot!(ax, spec::DAGSpec; kwargs...)
 
 Plot a DAG from a DAGSpec specification into an existing axis.
+
+Kwargs match [`dagplot!`](@ref) on `AbstractGraph`.
 """
 function dagplot!(ax, spec::DAGSpec; kwargs...)
-    merged_kwargs = _merge_default_kwargs(kwargs, _spec_defaults(spec, kwargs))
+    merged_kwargs = _merge_spec_plot_kwargs(spec, kwargs)
     return dagplot!(ax, spec.graph; merged_kwargs...)
+end
+
+"""Merge DAGSpec defaults with caller kwargs; fitting is applied in defaults."""
+function _merge_spec_plot_kwargs(spec::DAGSpec, kwargs)
+    merged = _merge_default_kwargs(kwargs, _spec_defaults(spec, kwargs))
+    # Sizes already fitted in `_spec_defaults` when requested; avoid a second pass.
+    if get(kwargs, :fit_node_size_to_labels, true) !== false
+        merged = (; merged..., fit_node_size_to_labels = false)
+    end
+    return merged
 end
 

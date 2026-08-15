@@ -185,7 +185,7 @@ Create a DAG plot with highlighted elements.
 g = confounding_graph(["Z", "X", "Y"])[1]
 path = CausalPath([1, 2, 3]; directions = [:forward, :forward])
 highlight = highlight_from_path(path, color=:red)
-fig, ax, p = dagplot_highlighted(g, highlight, nlabels=["Z", "X", "Y"])
+fig, ax, p = dagplot_highlighted(g, highlight, labels=["Z", "X", "Y"])
 ```
 """
 function dagplot_highlighted(
@@ -204,6 +204,9 @@ end
     dagplot_highlighted!(ax, g::AbstractGraph, highlight::HighlightSpec; kwargs...)
 
 Plot a highlighted DAG into an existing axis.
+
+Prefer `labels=` and `label_position=` (see [`dagplot!`](@ref)). Alias
+`nlabels=` / `auto_align_labels=` still work.
 """
 function dagplot_highlighted!(
     ax, 
@@ -226,12 +229,16 @@ function dagplot_highlighted!(
     highlight_node_size = nothing,
     highlight_edge_width = 2.5,
     # Labels
+    labels = nothing,
     nlabels = nothing,
     nlabels_fontsize = nothing,
-    auto_align_labels = false,
+    label_position::Symbol = :inner,
+    auto_align_labels = nothing,
     kwargs...
 )
     style_config = _resolve_style(style)
+    nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
+    outer_labels = resolve_outer_labels(label_position; auto_align_labels = auto_align_labels)
     resolved_node_size = something(node_size, style_config.node_size)
     resolved_node_color = something(node_color, style_config.node_color)
     resolved_node_strokewidth = something(node_strokewidth, style_config.node_strokewidth)
@@ -272,7 +279,7 @@ function dagplot_highlighted!(
         arrow_shift = resolved_arrow_shift,
         nlabels = nlabels,
         nlabels_fontsize = resolved_label_fontsize,
-        auto_align_labels = auto_align_labels,
+        label_position = outer_labels ? :outer : :inner,
         kwargs...
     )
     

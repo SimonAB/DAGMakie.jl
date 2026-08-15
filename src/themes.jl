@@ -26,7 +26,7 @@ set_theme!(dag_theme())
 
 # Or use with_theme for a single plot
 with_theme(dag_theme()) do
-    dagplot(g, nlabels=["X", "Y", "Z"])
+    dagplot(g, labels=["X", "Y", "Z"])
 end
 ```
 """
@@ -121,11 +121,28 @@ const DEFAULT_LABEL_COLOR = :white
 """Default label distance from node (pixels); 0 centres labels in nodes."""
 const DEFAULT_LABEL_DISTANCE = 0
 
-"""Pixel offset used when `auto_align_labels=true` places labels outside nodes."""
-const AUTO_ALIGN_LABEL_DISTANCE = 14
+"""Pixel offset used when `label_position=:outer` places labels outside nodes."""
+const OUTER_LABEL_DISTANCE = 14
 
-"""Label colour for outside-node auto-aligned labels."""
-const AUTO_ALIGN_LABEL_COLOR = :black
+"""Label colour for outside-node labels (`label_position=:outer`)."""
+const OUTER_LABEL_COLOR = :black
+
+"""Default node size when `label_position=:outer` (compact markers; labels sit outside)."""
+const OUTER_LABEL_NODE_SIZE = 19
+
+# Deprecated aliases (prefer `OUTER_LABEL_*`)
+const AUTO_ALIGN_LABEL_DISTANCE = OUTER_LABEL_DISTANCE
+const AUTO_ALIGN_LABEL_COLOR = OUTER_LABEL_COLOR
+const AUTO_ALIGN_NODE_SIZE = OUTER_LABEL_NODE_SIZE
+
+"""Total padding (px) around text when fitting in-node markers to labels."""
+const FIT_NODE_LABEL_PADDING = 12.0
+
+"""Minimum marker size (px) when fitting in-node markers to labels."""
+const FIT_NODE_MIN_SIZE = 28.0
+
+"""Width/height ratio above which fitted in-node markers become ovals (not disks)."""
+const FIT_NODE_RECT_ASPECT = 1.4
 
 """Default label alignment (centred in the node)."""
 const DEFAULT_LABEL_ALIGN = (:center, :center)

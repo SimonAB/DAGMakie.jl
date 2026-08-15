@@ -34,7 +34,7 @@ the label):
 
 ```@example basic
 fig, ax, p = dagplot(g,
-    nlabels = labels,
+    labels = labels,
     node_size = 34,
     node_color = [:goldenrod, :seagreen, :steelblue],
     nlabels_color = :white,
@@ -46,7 +46,7 @@ fig
 
 ```@example basic
 fig, ax, p = dagplot(g,
-    nlabels = labels,
+    labels = labels,
     node_strokewidth = 2.0,
     node_strokecolor = :black,
 )
@@ -57,7 +57,7 @@ fig
 
 ```@example basic
 fig, ax, p = dagplot(g,
-    nlabels = labels,
+    labels = labels,
     edge_color = :gray,
     edge_width = 1.5,
     arrow_size = 12,
@@ -81,13 +81,13 @@ fig = Figure(size = (720, 280))
 ax1 = Axis(fig[1, 1], title = "In-node (default)")
 ax2 = Axis(fig[1, 2], title = "Outside the node")
 dagplot!(ax1, g;
-    nlabels = labels,
+    labels = labels,
     nlabels_fontsize = 16,
     nlabels_color = :white,
     nlabels_distance = 0,
 )
 dagplot!(ax2, g;
-    nlabels = labels,
+    labels = labels,
     nlabels_color = :black,
     nlabels_distance = 12,
     # (:center, :bottom) anchors the bottom of the text, so labels sit above
@@ -113,15 +113,28 @@ label:
 With a positive `nlabels_distance`, GraphMakie also shifts the anchor along the
 same direction (so `(:left, :center)` both left-anchors and nudges east).
 
-By default labels sit **inside** the node (`nlabels_distance = 0`, centred).
-Pass `auto_align_labels = true` to place labels **outside** in the largest
+By default labels sit **inside** the node (`label_position = :inner`), and
+marker size follows each label (`fit_node_size_to_labels = true`): short labels
+keep round circles; wider ones become ovals (`Makie.Circle` scaled
+anisotropically). Pass `fit_node_size_to_labels = false` for a uniform theme
+size, or set `node_size` explicitly.
+
+```@example basic-fit
+g2, labels2 = confounding_graph(["nutrition", "X", "Y"])
+fig, ax, p = dagplot(g2; labels = labels2)
+fig
+```
+
+Pass `label_position = :outer` to place labels **outside** in the largest
 angular gap between incident edges (dagitty-style external labels). That mode
-automatically uses a positive distance and dark text unless you override them:
+uses a positive distance, dark text, and a compact node size
+([`OUTER_LABEL_NODE_SIZE`](@ref)) unless you override them (label fitting is
+skipped while labels are outside):
 
 ```@example basic
 fig, ax, p = dagplot(g,
-    nlabels = labels,
-    auto_align_labels = true,
+    labels = labels,
+    label_position = :outer,
 )
 fig
 ```
@@ -135,15 +148,15 @@ fig = Figure(size = (720, 280))
 ax1 = Axis(fig[1, 1], title = "(:right, :bottom) → label NW of node")
 ax2 = Axis(fig[1, 2], title = "Per-node anchors")
 dagplot!(ax1, g;
-    nlabels = labels,
-    auto_align_labels = false,
+    labels = labels,
+    label_position = :inner,
     nlabels_distance = 12,
     nlabels_color = :black,
     nlabels_align = (:right, :bottom),
 )
 dagplot!(ax2, g;
-    nlabels = labels,
-    auto_align_labels = false,
+    labels = labels,
+    label_position = :inner,
     nlabels_distance = 12,
     nlabels_color = :black,
     # Z right-anchored → label west; X top-anchored → label south; Y left-anchored → label east
@@ -168,7 +181,7 @@ For CPDAG skeletons and occasion×variable grids, see
 You can still use `NetworkLayout.jl` directly when you want a force-directed layout:
 
 ```@example basic
-fig, ax, p = dagplot(g, nlabels = labels, layout_mode = :spring)
+fig, ax, p = dagplot(g, labels = labels, layout_mode = :spring)
 fig
 ```
 
@@ -178,8 +191,8 @@ using NetworkLayout
 fig = Figure(size = (720, 280))
 ax1 = Axis(fig[1, 1], title = "Spring()")
 ax2 = Axis(fig[1, 2], title = "Stress()")
-dagplot!(ax1, g; nlabels = labels, layout = Spring())
-dagplot!(ax2, g; nlabels = labels, layout = Stress())
+dagplot!(ax1, g; labels = labels, layout = Spring())
+dagplot!(ax2, g; labels = labels, layout = Stress())
 fig
 ```
 
@@ -187,7 +200,7 @@ fig
 
 ```@example basic
 fig, ax, p = dagplot(g,
-    nlabels = labels,
+    labels = labels,
     figure_size = (480, 320),    # Width × Height in pixels
 )
 fig
@@ -212,7 +225,7 @@ B = [
 ]
 g_loop, labels_loop = confounding_graph(["Z", "X", "Y"])
 fig, ax, p = dagplot(g_loop;
-    nlabels = labels_loop,
+    labels = labels_loop,
     elabels = structural_edge_labels(g_loop, B; digits = 1),  # adds Y → Y
     elabels_fontsize = 14,
     elabels_distance = 12,
@@ -225,7 +238,7 @@ Custom TeX on edges (still one label per `Graphs.edges(g)` entry):
 
 ```@example basic
 fig, ax, p = dagplot(g;
-    nlabels = labels,
+    labels = labels,
     elabels = structural_edge_labels(
         g,
         ["\\beta_{ZX}", "\\beta_{ZY}", "\\beta_{XY}"];
@@ -245,7 +258,7 @@ Control spacing around the graph:
 
 ```@example basic
 fig, ax, p = dagplot(g,
-    nlabels = labels,
+    labels = labels,
     padding = 0.15,              # 15% padding (fraction of range)
 )
 fig

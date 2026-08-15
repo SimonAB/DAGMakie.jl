@@ -92,7 +92,7 @@ types = [Confounder, Treatment, Outcome]
 colors, markers, strokewidths = apply_node_type_styling(types)
 
 fig, ax, p = dagplot(g,
-    nlabels = ["Z", "X", "Y"],
+    labels = ["Z", "X", "Y"],
     node_color = colors,
     node_marker = markers,
     node_strokewidth = strokewidths,
@@ -132,9 +132,9 @@ ax1 = Axis(fig[1, 1], title = "default_style")
 ax2 = Axis(fig[1, 2], title = "minimal_style")
 ax3 = Axis(fig[1, 3], title = "bold_style")
 ax4 = Axis(fig[1, 4], title = "presentation_style")
-dagplot!(ax1, g; nlabels = labels, style = default_style())
-dagplot!(ax2, g; nlabels = labels, style = minimal_style())
-dagplot!(ax3, g; nlabels = labels, style = bold_style())
-dagplot!(ax4, g; nlabels = labels, style = presentation_style())
+dagplot!(ax1, g; labels = labels, style = default_style())
+dagplot!(ax2, g; labels = labels, style = minimal_style())
+dagplot!(ax3, g; labels = labels, style = bold_style())
+dagplot!(ax4, g; labels = labels, style = presentation_style())
 fig
 ```

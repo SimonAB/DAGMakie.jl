@@ -21,7 +21,7 @@ add_edge!(g, 1, 2)
 add_edge!(g, 2, 3)
 
 # Plot with labels
-fig, ax, p = dagplot(g, nlabels=["A", "B", "C"])
+fig, ax, p = dagplot(g, labels =["A", "B", "C"])
 fig
 ```
 
@@ -46,7 +46,7 @@ B = [
     0.5  1.2  0.0;
 ]
 fig, ax, p = dagplot(g_w;
-    nlabels = labels_w,
+    labels = labels_w,
     elabels = structural_edge_labels(g_w, B; digits = 1),
     elabels_fontsize = 14,
     elabels_distance = 12,
@@ -60,7 +60,7 @@ Symbolic TeX on the same topology:
 
 ```@example getting_started
 fig, ax, p = dagplot(g_w;
-    nlabels = labels_w,
+    labels = labels_w,
     elabels = structural_edge_labels(
         g_w,
         ["\\beta_{ZX}", "\\beta_{ZY}", "\\beta_{XY}"];
@@ -101,11 +101,11 @@ g_fork, _ = fork_graph(["X", "Y", "Z"])
 g_collider, _ = collider_graph(["X", "Y", "Z"])
 g_conf, _ = confounding_graph(["Z", "X", "Y"])
 
-dagplot!(ax1, g_chain, nlabels = ["X", "Y", "Z"])
-dagplot!(ax2, g_fork, nlabels = ["X", "Y", "Z"])
-dagplot!(ax3, g_collider, nlabels = ["X", "Y", "Z"])
+dagplot!(ax1, g_chain, labels = ["X", "Y", "Z"])
+dagplot!(ax2, g_fork, labels = ["X", "Y", "Z"])
+dagplot!(ax3, g_collider, labels = ["X", "Y", "Z"])
 # Triangle layout is applied automatically for the Z→X→Y, Z→Y pattern
-dagplot!(ax4, g_conf, nlabels = ["Z", "X", "Y"])
+dagplot!(ax4, g_conf, labels = ["Z", "X", "Y"])
 fig
 ```
 
@@ -125,11 +125,11 @@ g_fork, _ = fork_graph(["X", "Y", "Z"])
 g_collider, _ = collider_graph(["X", "Y", "Z"])
 g_conf, _ = confounding_graph(["Z", "X", "Y"])
 g_med, _ = mediation_graph(["X", "M", "Y"])
-dagplot!(ax1, g_chain; nlabels = ["X", "Y", "Z"])
-dagplot!(ax2, g_fork; nlabels = ["X", "Y", "Z"])
-dagplot!(ax3, g_collider; nlabels = ["X", "Y", "Z"])
-dagplot!(ax4, g_conf; nlabels = ["Z", "X", "Y"])
-dagplot!(ax5, g_med; nlabels = ["X", "M", "Y"])
+dagplot!(ax1, g_chain; labels = ["X", "Y", "Z"])
+dagplot!(ax2, g_fork; labels = ["X", "Y", "Z"])
+dagplot!(ax3, g_collider; labels = ["X", "Y", "Z"])
+dagplot!(ax4, g_conf; labels = ["Z", "X", "Y"])
+dagplot!(ax5, g_med; labels = ["X", "M", "Y"])
 fig
 ```
 
@@ -160,9 +160,9 @@ g_chain, _ = chain_graph(["A", "B", "C"])
 g_fork, _ = fork_graph(["A", "B", "C"])
 g_collider, _ = collider_graph(["A", "B", "C"])
 
-dagplot!(ax1, g_chain, nlabels = ["A", "B", "C"])
-dagplot!(ax2, g_fork, nlabels = ["A", "B", "C"])
-dagplot!(ax3, g_collider, nlabels = ["A", "B", "C"])
+dagplot!(ax1, g_chain, labels = ["A", "B", "C"])
+dagplot!(ax2, g_fork, labels = ["A", "B", "C"])
+dagplot!(ax3, g_collider, labels = ["A", "B", "C"])
 fig
 ```
 
@@ -173,4 +173,4 @@ fig
 - [Visual Grammar](guide/visual_grammar.md) — IDAGs, SWIGs, modifier edges
 - [Skeletons & Time](guide/skeletons_and_time.md) — CPDAG skeletons and time grids
 - [Causal Analysis](guide/causal.md) — d-separation, adjustment sets, and
-  dagitty-style `smart` colouring
+  dagitty-style `color_by` colouring

@@ -8,9 +8,10 @@ ancestors”: green for ancestors of the exposure, blue for ancestors of the
 outcome, red for ancestors of both, gray for variables outside that ancestral
 closure. Exposure and outcome themselves use distinct fills.
 
-Topology can be computed with Graphs alone (`smart = :ancestors`). When
+Topology can be computed with Graphs alone (`color_by = :ancestors`). When
 CausalInference.jl is loaded, the extension prefers its `ancestors` (and can
-also mark a minimal backdoor adjustment set under `smart = :adjustment`).
+also mark a minimal backdoor adjustment set under `color_by = :adjustment`).
+Deprecated alias: `smart=`.
 """
 
 using Graphs: AbstractGraph, nv, inneighbors
@@ -76,7 +77,10 @@ end
 """
     smart_label_color(role::SmartNodeRole)
 
-Return in-node label colour for a smart role (black on light gray).
+Return in-node label colour for a smart role (white on role fills; black on
+light gray irrelevant nodes). With `label_position=:outer` (or legacy
+`auto_align_labels=true`), [`apply_smart_kwargs`](@ref) replaces these with
+[`OUTER_LABEL_COLOR`](@ref).
 """
 function smart_label_color(role::SmartNodeRole)
     return role == SmartIrrelevant ? :black : :white
@@ -116,9 +120,9 @@ function ancestors_via_graphs(g::AbstractGraph, seeds)
 end
 
 """
-    ancestor_sets(g, treatment, outcome) -> (anc_treatment, anc_outcome)
+    ancestor_sets(g, exposure, outcome) -> (anc_exposure, anc_outcome)
 
-Return ancestor sets of treatment and outcome. Uses CausalInference.jl when the
+Return ancestor sets of exposure and outcome. Uses CausalInference.jl when the
 extension is loaded; otherwise Graphs reverse-BFS.
 """
 function ancestor_sets(g::AbstractGraph, treatment::Int, outcome::Int)
@@ -137,10 +141,11 @@ end
 # =============================================================================
 
 """
-    classify_smart_roles(g, treatment, outcome; anc_treatment=nothing, anc_outcome=nothing)
+    classify_smart_roles(g, exposure, outcome; anc_treatment=nothing, anc_outcome=nothing)
 
-Classify each vertex into a [`SmartNodeRole`](@ref) given exposure `treatment`
-and `outcome` (1-based indices).
+Classify each vertex into a [`SmartNodeRole`](@ref) given exposure and
+outcome (1-based indices). Argument names `treatment` / `anc_treatment` remain
+for compatibility with older call sites.
 """
 function classify_smart_roles(
     g::AbstractGraph,
@@ -149,10 +154,10 @@ function classify_smart_roles(
     anc_treatment = nothing,
     anc_outcome = nothing,
 )
-    treatment == outcome && throw(ArgumentError("treatment and outcome must differ"))
+    treatment == outcome && throw(ArgumentError("exposure and outcome must differ"))
     n = nv(g)
     (1 <= treatment <= n && 1 <= outcome <= n) || throw(ArgumentError(
-        "treatment=$treatment and outcome=$outcome must be in 1:$n",
+        "exposure=$treatment and outcome=$outcome must be in 1:$n",
     ))
 
     ax, ay = if anc_treatment === nothing || anc_outcome === nothing
@@ -183,9 +188,10 @@ function classify_smart_roles(
 end
 
 """
-    smart_style_for_graph(g, treatment, outcome; mode=:ancestors, adjustment=nothing)
+    smart_style_for_graph(g, exposure, outcome; mode=:ancestors, adjustment=nothing)
 
-Return a named tuple of per-node styling for dagitty-like smart colouring.
+Return a named tuple of per-node styling for dagitty-like colouring
+(`color_by` modes).
 
 # Modes
 - `:ancestors` — exposure / outcome / ancestor-of-X / ancestor-of-Y / both / gray
@@ -200,7 +206,7 @@ function smart_style_for_graph(
     adjustment::Union{Nothing, Set{Int}} = nothing,
 )
     mode in (:ancestors, :adjustment) || throw(ArgumentError(
-        "smart mode must be :ancestors or :adjustment, got $(repr(mode))",
+        "color_by mode must be :ancestors or :adjustment, got $(repr(mode))",
     ))
 
     roles = classify_smart_roles(g, treatment, outcome)
@@ -214,7 +220,7 @@ function smart_style_for_graph(
         if adj === nothing
             ext = Base.get_extension(@__MODULE__, :DAGMakieCausalInferenceExt)
             ext === nothing && throw(ArgumentError(
-                "smart=:adjustment requires CausalInference.jl " *
+                "color_by=:adjustment requires CausalInference.jl " *
                 "(`using CausalInference`) or an explicit adjustment::Set{Int}",
             ))
             adj = ext.min_backdoor_adjustment(g, treatment, outcome)
@@ -240,49 +246,45 @@ end
 """
     resolve_smart_mode(smart) -> Union{Nothing, Symbol}
 
-Normalise a `smart` keyword to `nothing` (off) or a mode symbol.
+Deprecated: use [`resolve_color_by`](@ref). Normalise a colouring keyword to
+`nothing` (off) or a mode symbol.
 """
 function resolve_smart_mode(smart)
-    if smart === false || smart === nothing
-        return nothing
-    elseif smart === true || smart === :ancestors
-        return :ancestors
-    elseif smart === :adjustment
-        return :adjustment
-    else
-        throw(ArgumentError(
-            "smart must be false, true, :ancestors, or :adjustment; got $(repr(smart))",
-        ))
-    end
+    return resolve_color_by(; smart = smart)
 end
 
 """
-    apply_smart_kwargs(g; smart, treatment, outcome, adjustment, kwargs...)
+    apply_smart_kwargs(g; color_by, exposure, outcome, adjustment, kwargs...)
 
-If `smart` is enabled, merge dagitty-style colours into keyword args for
+If `color_by` is enabled, merge dagitty-style colours into keyword args for
 [`dagplot!`](@ref). Explicit `node_color` from the caller wins.
+
+Deprecated aliases: `smart=` for `color_by=`, `treatment=` for `exposure=`.
 """
 function apply_smart_kwargs(
     g::AbstractGraph;
-    smart = false,
+    color_by = nothing,
+    smart = nothing,
+    exposure = nothing,
     treatment = nothing,
     outcome = nothing,
     adjustment = nothing,
     kwargs...,
 )
-    mode = resolve_smart_mode(smart)
+    mode = resolve_color_by(; color_by = color_by, smart = smart)
     mode === nothing && return (; kwargs...)
 
-    treatment === nothing && throw(ArgumentError(
-        "smart colouring requires treatment= (exposure node index)",
+    resolved_exposure = resolve_exposure(; exposure = exposure, treatment = treatment)
+    resolved_exposure === nothing && throw(ArgumentError(
+        "color_by colouring requires exposure= (or treatment=) node index",
     ))
     outcome === nothing && throw(ArgumentError(
-        "smart colouring requires outcome= (outcome node index)",
+        "color_by colouring requires outcome= (outcome node index)",
     ))
 
     style = smart_style_for_graph(
         g,
-        Int(treatment),
+        Int(resolved_exposure),
         Int(outcome);
         mode = mode,
         adjustment = adjustment,
@@ -299,26 +301,41 @@ function apply_smart_kwargs(
             merged[key] = value
         end
     end
+    # Role label colours are for in-node text (white on role fills). Outer
+    # labels sit on the figure background and need dark text unless the caller
+    # set `nlabels_color` explicitly.
+    if resolve_outer_labels(
+            get(merged, :label_position, :inner);
+            auto_align_labels = get(merged, :auto_align_labels, nothing),
+        )
+        user_label_color = get(kwargs, :nlabels_color, nothing)
+        if user_label_color === nothing
+            merged[:nlabels_color] = OUTER_LABEL_COLOR
+        end
+    end
     return (; merged...)
 end
 
 """
-    dagplot_smart(g, treatment, outcome; smart=:ancestors, kwargs...)
+    dagplot_smart(g, treatment, outcome; color_by=:ancestors, kwargs...)
 
-Convenience wrapper: [`dagplot`](@ref) with dagitty-style smart node colours.
+Convenience wrapper: [`dagplot`](@ref) with dagitty-style ancestor colours.
+Prefer `color_by=`; `smart=` remains an alias.
 """
 function dagplot_smart(
     g::AbstractGraph,
     treatment::Int,
     outcome::Int;
-    smart::Union{Bool, Symbol} = :ancestors,
+    color_by::Union{Bool, Symbol, Nothing} = :ancestors,
+    smart = nothing,
     adjustment = nothing,
     kwargs...,
 )
     return dagplot(
         g;
+        color_by = color_by,
         smart = smart,
-        treatment = treatment,
+        exposure = treatment,
         outcome = outcome,
         adjustment = adjustment,
         kwargs...,

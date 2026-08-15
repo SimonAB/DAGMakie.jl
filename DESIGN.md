@@ -36,7 +36,7 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 - **Visual grammar** (interactions / DiD): IDAG effect-measure nodes, dash-dot
   modifier annotations, and SWIG fixed halves are display-only; see
   `docs/src/guide/visual_grammar.md`.
-- **Smart / dagitty colouring** (`smart=`, `treatment=`, `outcome=`): ancestor
+- **Dagitty-style colouring** (`color_by=`, `exposure=` / `treatment=`, `outcome=`): ancestor
   roles may use Graphs alone; adjustment emphasis prefers CausalInference via
   the optional extension.
 

@@ -15,7 +15,7 @@ g, labels = confounding_graph(["Z", "X", "Y"])
 # From CausalInference.find_min_backdoor_adjustment(g, 2, 3) — or hard-code Z
 adjustment = Set([1])
 
-fig, ax, p = dagplot_backdoor(g, 2, 3; adjustment = adjustment, nlabels = labels)
+fig, ax, p = dagplot_backdoor(g, 2, 3; adjustment = adjustment, labels = labels)
 fig
 ```
 
@@ -25,13 +25,13 @@ fig
 using Graphs, DAGMakie, CairoMakie
 
 g, labels = confounding_graph(["Z", "X", "Y"])
-fig, ax, p = dagplot_adjustment(g, 2, 3; adjustment = Set([1]), nlabels = labels)
+fig, ax, p = dagplot_adjustment(g, 2, 3; adjustment = Set([1]), labels = labels)
 fig
 ```
 
 ## Smart / dagitty-style colours
 
-Pass `smart=true` (or `:ancestors`) with `treatment` and `outcome` to colour nodes
+Pass `color_by=:ancestors` with `exposure` and `outcome` to colour nodes
 like [dagitty](https://www.dagitty.net/) “highlight ancestors”. Variables outside the
 ancestral closure of exposure ∪ outcome are grayed out; shared ancestors (often
 on backdoors) are marked in red.
@@ -46,10 +46,10 @@ on backdoors) are marked in red.
 | Light gray | Outside the ancestral closure |
 
 Ancestor sets use CausalInference.jl when it is loaded; otherwise Graphs reverse-BFS.
-`smart=:adjustment` also thickens a backdoor adjustment set (needs CausalInference,
+`color_by=:adjustment` also thickens a backdoor adjustment set (needs CausalInference,
 or pass `adjustment=`).
 
-### Default vs smart (confounding triangle)
+### Default vs `color_by` (confounding triangle)
 
 Same graph, plain steel-blue nodes versus dagitty-style roles. Here ``Z`` is an
 ancestor of both exposure ``X`` and outcome ``Y`` (indian red).
@@ -62,9 +62,9 @@ g, labels = confounding_graph(["Z", "X", "Y"])
 fig = with_theme(dag_theme()) do
     fig = Figure(size = (900, 360))
     ax1 = Axis(fig[1, 1], title = "Default")
-    ax2 = Axis(fig[1, 2], title = "smart = true")
-    dagplot!(ax1, g; nlabels = labels)
-    dagplot!(ax2, g; smart = true, treatment = 2, outcome = 3, nlabels = labels)
+    ax2 = Axis(fig[1, 2], title = "color_by = :ancestors")
+    dagplot!(ax1, g; labels = labels)
+    dagplot!(ax2, g; color_by = :ancestors, exposure = 2, outcome = 3, labels = labels)
     fig
 end
 fig
@@ -72,7 +72,7 @@ fig
 
 ### Full role palette
 
-A slightly richer DAG shows every smart role at once: ``A`` affects only the
+A slightly richer DAG shows every ancestor role at once: ``A`` affects only the
 exposure, ``B`` only the outcome, ``Z`` both, and ``W`` is irrelevant.
 
 ```@example causal-smart-roles
@@ -101,7 +101,7 @@ fig = with_theme(dag_theme()) do
         (0.0, 2.7),   # W
     ]
     fig, ax, p = dagplot_smart(g, 4, 5;
-        nlabels = labels,
+        labels = labels,
         layout = layout,
         figure_size = (700, 420),
     )
@@ -113,7 +113,7 @@ fig
 
 ### Emphasise an adjustment set
 
-`smart=:adjustment` keeps the ancestor colours and draws a thicker dark-red
+`color_by=:adjustment` keeps the ancestor colours and draws a thicker dark-red
 outline on adjustment nodes. Pass `adjustment=` explicitly when CausalInference
 is not loaded (as in this documentation build).
 
@@ -124,13 +124,13 @@ g, labels = confounding_graph(["Z", "X", "Y"])
 
 fig = with_theme(dag_theme()) do
     fig, ax, p = dagplot(g;
-        smart = :adjustment,
-        treatment = 2,
+        color_by = :adjustment,
+        exposure = 2,
         outcome = 3,
         adjustment = Set([1]),  # Z
-        nlabels = labels,
+        labels = labels,
     )
-    ax.title = "smart = :adjustment (Z emphasised)"
+    ax.title = "color_by = :adjustment (Z emphasised)"
     fig
 end
 fig
@@ -141,7 +141,7 @@ and let the extension compute a minimal backdoor set:
 
 ```julia
 using CausalInference  # activates DAGMakieCausalInferenceExt
-fig, ax, p = dagplot(g; smart = :adjustment, treatment = 2, outcome = 3, nlabels = labels)
+fig, ax, p = dagplot(g; color_by = :adjustment, exposure = 2, outcome = 3, labels = labels)
 ```
 
 That call draws the same emphasis as below (for this DAG the extension returns
@@ -156,13 +156,13 @@ g, labels = confounding_graph(["Z", "X", "Y"])
 
 fig = with_theme(dag_theme()) do
     fig, ax, p = dagplot(g;
-        smart = :adjustment,
-        treatment = 2,
+        color_by = :adjustment,
+        exposure = 2,
         outcome = 3,
         adjustment = Set([1]),  # same as find_min_backdoor_adjustment(g, 2, 3)
-        nlabels = labels,
+        labels = labels,
     )
-    ax.title = "smart = :adjustment (Z from backdoor set)"
+    ax.title = "color_by = :adjustment (Z from backdoor set)"
     fig
 end
 fig
@@ -179,11 +179,11 @@ using Graphs, DAGMakie, CairoMakie
 
 g, labels = fork_graph(["X", "Z", "Y"])  # X ← Z → Y
 # X ⊥ Y | Z (Z blocks the only path)
-fig, ax, p = dagplot_dsep(g, 1, 3, Set([2]); separated = true, nlabels = labels)
+fig, ax, p = dagplot_dsep(g, 1, 3, Set([2]); separated = true, labels = labels)
 fig
 ```
 
-Combine smart colours with a d-separation title when teaching forks:
+Combine `color_by` colours with a d-separation title when teaching forks:
 
 ```@example causal-dsep-smart
 using Graphs, DAGMakie, CairoMakie
@@ -191,12 +191,12 @@ using Graphs, DAGMakie, CairoMakie
 g, labels = fork_graph(["X", "Z", "Y"])
 fig = with_theme(dag_theme()) do
     fig, ax, p = dagplot(g;
-        smart = true,
-        treatment = 1,
+        color_by = :ancestors,
+        exposure = 1,
         outcome = 3,
-        nlabels = labels,
+        labels = labels,
     )
-    ax.title = "X ⊥ Y | Z (d-separated) · smart ancestors"
+    ax.title = "X ⊥ Y | Z (d-separated) · color_by ancestors"
     fig
 end
 fig

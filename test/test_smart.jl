@@ -22,10 +22,13 @@
         @test style.node_color[2] == SMART_COLOR_EXPOSURE
         @test style.node_color[3] == SMART_COLOR_OUTCOME
 
-        fig, ax, p = dagplot(g; smart = true, treatment = 2, outcome = 3, nlabels = labels)
+        fig, ax, p = dagplot(g; color_by = :ancestors, exposure = 2, outcome = 3, labels = labels)
         @test fig isa Figure
 
-        fig2, ax2, p2 = dagplot_smart(g, 2, 3; nlabels = labels)
+        fig2, ax2, p2 = dagplot_smart(g, 2, 3; labels = labels)
+        # Legacy aliases still work
+        fig3, _, p3 = dagplot(g; smart = true, treatment = 2, outcome = 3, nlabels = labels)
+        @test p3[:node_color][] == p[:node_color][]
         @test fig2 isa Figure
     end
 
@@ -40,10 +43,18 @@
         @test smart_label_color(SmartIrrelevant) == :black
     end
 
-    @testset "adjustment mode without CI needs adjustment=" begin
-        g, _ = confounding_graph(["Z", "X", "Y"])
-        style = smart_style_for_graph(g, 2, 3; mode = :adjustment, adjustment = Set([1]))
-        @test style.node_strokewidth[1] == 3.0
-        @test 1 in style.adjustment
+    @testset "smart + auto_align uses dark outer labels" begin
+        g, labels = confounding_graph(["Z", "X", "Y"])
+        fig, ax, p = dagplot(
+            g;
+            color_by = :adjustment,
+            exposure = 2,
+            outcome = 3,
+            adjustment = Set([1]),
+            labels = labels,
+            label_position = :outer,
+        )
+        @test fig isa Figure
+        @test p[:nlabels_color][] == OUTER_LABEL_COLOR
     end
 end

@@ -43,7 +43,7 @@ add_edge!(g, 1, 2)
 add_edge!(g, 2, 3)
 
 scm = GraphSCM(g, Dict{Int,Function}(), Set{Int}())
-fig, ax, p = dagplot(scm, nlabels=["X", "Y", "Z"])
+fig, ax, p = dagplot(scm, labels=["X", "Y", "Z"])
 ```
 """
 function DAGMakie.dagplot(scm::CausalDynamics.AbstractSCM; kwargs...)
@@ -250,6 +250,7 @@ end
 Visualise an intervention on an SCM.
 
 Shows the original SCM graph with the intervention applied (incoming edges removed).
+Prefer `labels=` / `label_position=` as in [`DAGMakie.dagplot_intervention`](@ref).
 """
 function dagplot_intervention_cd(
     scm::CausalDynamics.AbstractSCM,
@@ -264,15 +265,19 @@ end
     dagplot_scm_comparison(scm::CausalDynamics.AbstractSCM, intervention_node::Int; kwargs...)
 
 Side-by-side comparison of SCM before and after intervention.
+
+Prefer `labels=` (alias `nlabels=`). See [`DAGMakie.dagplot_comparison`](@ref).
 """
 function dagplot_scm_comparison(
     scm::CausalDynamics.AbstractSCM,
     intervention_node::Int;
+    labels = nothing,
     nlabels = nothing,
     kwargs...
 )
+    nlabels = DAGMakie.resolve_nlabels(; labels = labels, nlabels = nlabels)
     int = DAGMakie.Intervention(intervention_node)
-    return DAGMakie.dagplot_comparison(scm.graph, int; nlabels = nlabels, kwargs...)
+    return DAGMakie.dagplot_comparison(scm.graph, int; labels = nlabels, kwargs...)
 end
 
 # =============================================================================
@@ -280,9 +285,10 @@ end
 # =============================================================================
 
 """
-    causal_analysis(g, treatment, outcome; nlabels=nothing)
+    causal_analysis(g, treatment, outcome; labels=nothing)
 
 Perform comprehensive causal analysis and return a summary.
+(`labels` / `nlabels` are accepted for API symmetry; unused in the return value.)
 
 # Returns
 - Named tuple with:
@@ -295,8 +301,10 @@ function causal_analysis(
     g::AbstractGraph,
     treatment::Int,
     outcome::Int;
-    nlabels = nothing
+    labels = nothing,
+    nlabels = nothing,
 )
+    nlabels = DAGMakie.resolve_nlabels(; labels = labels, nlabels = nlabels)
     # Use CausalDynamics functions
     backdoor_paths = CausalDynamics.find_backdoor_paths(g, treatment, outcome)
     adj_set = CausalDynamics.backdoor_adjustment_set(g, treatment, outcome)
@@ -312,17 +320,21 @@ function causal_analysis(
 end
 
 """
-    print_causal_analysis(g, treatment, outcome; nlabels=nothing)
+    print_causal_analysis(g, treatment, outcome; labels=nothing)
 
 Print a formatted causal analysis report.
+
+Prefer `labels=` (alias `nlabels=`) for node names in the printed report.
 """
 function print_causal_analysis(
     g::AbstractGraph,
     treatment::Int,
     outcome::Int;
-    nlabels = nothing
+    labels = nothing,
+    nlabels = nothing,
 )
-    analysis = causal_analysis(g, treatment, outcome; nlabels = nlabels)
+    nlabels = DAGMakie.resolve_nlabels(; labels = labels, nlabels = nlabels)
+    analysis = causal_analysis(g, treatment, outcome; labels = nlabels)
     
     t_name = nlabels !== nothing && treatment <= length(nlabels) ? nlabels[treatment] : "X$treatment"
     o_name = nlabels !== nothing && outcome <= length(nlabels) ? nlabels[outcome] : "Y$outcome"

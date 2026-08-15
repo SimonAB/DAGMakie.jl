@@ -15,11 +15,36 @@ function _spec_defaults(spec::DAGSpec, kwargs)
     style_config = _resolve_style(style)
     node_types = [node.type for node in spec.nodes]
     node_count = length(spec.nodes)
+    fit_labels = get(kwargs, :fit_node_size_to_labels, true) !== false
+    outer_labels = resolve_outer_labels(
+        get(kwargs, :label_position, :inner);
+        auto_align_labels = get(kwargs, :auto_align_labels, nothing),
+    )
+    fontsize = haskey(kwargs, :nlabels_fontsize) && kwargs[:nlabels_fontsize] !== nothing ?
+        kwargs[:nlabels_fontsize] : style_config.label_fontsize
 
     labels = [node.label for node in spec.nodes]
     node_colours = [node.color !== nothing ? node.color : node_type_color(node.type) for node in spec.nodes]
-    node_sizes = [node.size !== nothing ? node.size : style_config.node_size for node in spec.nodes]
-    node_markers = [node.marker !== nothing ? node.marker : node_type_marker(node.type) for node in spec.nodes]
+    node_sizes = Vector{Any}(undef, node_count)
+    node_markers = Vector{Any}(undef, node_count)
+    for (i, node) in enumerate(spec.nodes)
+        default_marker = node.marker !== nothing ? node.marker : node_type_marker(node.type)
+        if node.size !== nothing
+            node_sizes[i] = node.size
+            node_markers[i] = default_marker
+        elseif fit_labels && !outer_labels
+            size_i, marker_i = node_size_for_inner_label(
+                node.label;
+                fontsize = fontsize,
+                marker = node.marker === nothing ? :auto : node.marker,
+            )
+            node_sizes[i] = size_i
+            node_markers[i] = node.marker === nothing ? marker_i : default_marker
+        else
+            node_sizes[i] = style_config.node_size
+            node_markers[i] = default_marker
+        end
+    end
     node_strokewidths = [node_type_strokewidth(node_type) for node_type in node_types]
     node_strokecolours = [node_type_strokecolor(node_type) for node_type in node_types]
     label_colours = [node_type_label_color(node_type) for node_type in node_types]
@@ -110,7 +135,7 @@ Plot a simple chain DAG: X₁ → X₂ → ... → Xₙ
 """
 function dagplot_chain(labels::Vector{String}; kwargs...)
     g, _ = chain_graph(labels)
-    return dagplot(g; nlabels = labels, kwargs...)
+    return dagplot(g; labels = labels, kwargs...)
 end
 
 """
@@ -124,7 +149,7 @@ Plot a fork DAG: X₁ ← X₂ → X₃
 """
 function dagplot_fork(labels::Vector{String}; kwargs...)
     g, _ = fork_graph(labels)
-    return dagplot(g; nlabels = labels, kwargs...)
+    return dagplot(g; labels = labels, kwargs...)
 end
 
 """
@@ -138,7 +163,7 @@ Plot a collider DAG: X₁ → X₂ ← X₃
 """
 function dagplot_collider(labels::Vector{String}; kwargs...)
     g, _ = collider_graph(labels)
-    return dagplot(g; nlabels = labels, kwargs...)
+    return dagplot(g; labels = labels, kwargs...)
 end
 
 """
@@ -160,7 +185,7 @@ function dagplot_confounding(
     kwargs...,
 )
     g, _ = confounding_graph(labels)
-    return dagplot(g; nlabels = labels, layout = layout, kwargs...)
+    return dagplot(g; labels = labels, layout = layout, kwargs...)
 end
 
 """
@@ -182,7 +207,7 @@ function dagplot_mediation(
     kwargs...,
 )
     g, _ = mediation_graph(labels)
-    return dagplot(g; nlabels = labels, layout = layout, kwargs...)
+    return dagplot(g; labels = labels, layout = layout, kwargs...)
 end
 
 # =============================================================================
@@ -210,11 +235,11 @@ using DAGMakie, CairoMakie
 
 # Confounded treatment-outcome
 mg = mixed_graph(2, [(1, 2)], [(1, 2)])  # X → Y with X ↔ Y
-fig, ax, p = dagplot(mg, nlabels=["X", "Y"])
+fig, ax, p = dagplot(mg, labels=["X", "Y"])
 
 # Instrumental variable with confounding
 mg = mixed_graph(3, [(1, 2), (2, 3)], [(2, 3)])  # Z → X → Y, X ↔ Y
-fig, ax, p = dagplot(mg, nlabels=["Z", "X", "Y"])
+fig, ax, p = dagplot(mg, labels=["Z", "X", "Y"])
 ```
 """
 function dagplot(mg::MixedGraph;
@@ -231,6 +256,10 @@ end
     dagplot!(ax, mg::MixedGraph; kwargs...)
 
 Plot a MixedGraph (with bidirected edges) into an existing axis.
+
+Accepts the same preferred label kwargs as [`dagplot!`](@ref) on
+`AbstractGraph` (`labels`, `label_position`, …), plus bidirected-edge styling
+(`bidirected_color`, `bidirected_width`, …).
 """
 function dagplot!(ax, mg::MixedGraph;
     # Layout
@@ -268,15 +297,19 @@ function dagplot!(ax, mg::MixedGraph;
     bidirected_curvature = 0.3,
     bidirected_arrow_size = 8,
     # Labels
+    labels = nothing,
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
-    auto_align_labels = false,
+    label_position::Symbol = :inner,
+    auto_align_labels = nothing,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
     # Pass-through
     kwargs...
 )
+    nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
+    outer_labels = resolve_outer_labels(label_position; auto_align_labels = auto_align_labels)
     p = dagplot!(ax, mg.directed;
         layout = layout,
         layout_mode = layout_mode,
@@ -305,7 +338,7 @@ function dagplot!(ax, mg::MixedGraph;
         waypoints = waypoints,
         nlabels = nlabels,
         nlabels_align = nlabels_align,
-        auto_align_labels = auto_align_labels,
+        label_position = outer_labels ? :outer : :inner,
         nlabels_distance = nlabels_distance,
         nlabels_fontsize = nlabels_fontsize,
         nlabels_color = nlabels_color,
@@ -407,7 +440,7 @@ function dagplot_confounded(
     kwargs...,
 )
     mg, _ = confounded_graph(labels)
-    return dagplot(mg; nlabels = labels, layout = layout, kwargs...)
+    return dagplot(mg; labels = labels, layout = layout, kwargs...)
 end
 
 """
@@ -428,7 +461,7 @@ function dagplot_frontdoor(
     kwargs...,
 )
     mg, _ = frontdoor_graph(labels)
-    return dagplot(mg; nlabels = labels, layout = layout, kwargs...)
+    return dagplot(mg; labels = labels, layout = layout, kwargs...)
 end
 
 """
@@ -449,7 +482,7 @@ function dagplot_iv_confounded(
     kwargs...,
 )
     mg, _ = iv_confounded_graph(labels)
-    return dagplot(mg; nlabels = labels, layout = layout, kwargs...)
+    return dagplot(mg; labels = labels, layout = layout, kwargs...)
 end
 
 """

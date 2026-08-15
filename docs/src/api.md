@@ -161,18 +161,48 @@ SMART_COLOR_ANC_BOTH
 SMART_COLOR_IRRELEVANT
 ```
 
+## Preferred keyword names
+
+Public plotting prefers discoverable names; legacy aliases still work:
+
+| Prefer | Alias |
+|--------|-------|
+| `labels` | `nlabels` |
+| `label_position` | `auto_align_labels=true` → `:outer` |
+| `label_obstacle_graph` | `auto_align_graph` |
+| `color_by` | `smart` |
+| `exposure` | `treatment` (for colouring kwargs) |
+| `show_removed_edges` | `show_original` |
+| `do_node_labels` | `relabel_nodes` |
+| `OUTER_LABEL_*` | `AUTO_ALIGN_*` |
+
+GraphMakie pass-throughs keep the `nlabels_*` / `elabels_*` prefixes.
+
+```@docs
+resolve_nlabels
+resolve_label_obstacle_graph
+resolve_color_by
+resolve_exposure
+resolve_show_removed_edges
+resolve_do_node_labels
+```
+
 ## Label Alignment
 
 ```@docs
 compute_auto_label_aligns
 align_to_direction
 resolve_auto_align_label_settings
+resolve_outer_labels
 ```
 
 ## Layout Utilities
 
 ```@docs
 estimate_label_extent
+estimate_label_pixel_size
+node_size_for_inner_label
+fit_node_sizes_to_labels
 compute_label_bounds
 compute_padded_limits
 get_node_positions
@@ -197,8 +227,16 @@ minimal_style
 bold_style
 presentation_style
 UNDIRECTED_EDGE_COLOR
+OUTER_LABEL_DISTANCE
+OUTER_LABEL_COLOR
+OUTER_LABEL_NODE_SIZE
 AUTO_ALIGN_LABEL_DISTANCE
 AUTO_ALIGN_LABEL_COLOR
+AUTO_ALIGN_NODE_SIZE
+FIT_NODE_LABEL_PADDING
+FIT_NODE_MIN_SIZE
+FIT_NODE_RECT_ASPECT
+FIT_NODE_MARKER
 DEFAULT_NODE_COLOR
 DEFAULT_NODE_SIZE
 DEFAULT_EDGE_COLOR

@@ -27,15 +27,15 @@ layout = Point2f[Point2f(-1, 0), Point2f(1, 0), Point2f(-1, 1.2)]
 fig = Figure(size = (720, 280))
 ax1 = Axis(fig[1, 1], title = "Directed (misleading)")
 ax2 = Axis(fig[1, 2], title = "Skeleton")
-dagplot!(ax1, g; nlabels = labels, layout = layout)
-dagplot!(ax2, digraph_skeleton(g); nlabels = labels, layout = layout)
+dagplot!(ax1, g; labels = labels, layout = layout)
+dagplot!(ax2, digraph_skeleton(g); labels = labels, layout = layout)
 fig
 ```
 
 One-liner when you only need the skeleton figure:
 
 ```@example skeleton
-fig, ax, p = dagplot_skeleton(g; nlabels = labels, layout = layout)
+fig, ax, p = dagplot_skeleton(g; labels = labels, layout = layout)
 fig
 ```
 
@@ -67,7 +67,7 @@ colors, markers, strokewidths = apply_node_type_styling(types)
 
 fig, ax, p = dagplot_time_indexed(
     g, 2, 3;
-    nlabels = ["A₁", "B₁", "A₂", "B₂", "A₃", "B₃"],
+    labels = ["A₁", "B₁", "A₂", "B₂", "A₃", "B₃"],
     node_color = colors,
     node_marker = markers,
     node_strokewidth = strokewidths,

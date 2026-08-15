@@ -50,7 +50,7 @@ fig, ax, p = dagplot_confounding(["Z", "X", "Y"])
 g, labels = confounding_graph(["Z", "X", "Y"])
 B = [0.0 0.0 0.0; 0.8 0.0 0.0; 0.5 1.2 0.0]
 fig, ax, p = dagplot(g;
-    nlabels = labels,
+    labels = labels,
     elabels = structural_edge_labels(g, B; digits = 1),
     elabels_rotation = 0,
 )
@@ -69,14 +69,18 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 
 ## Capabilities
 
-- In-node white labels on steel-blue nodes by default (short variable names)
+- In-node white labels on steel-blue nodes by default (`label_position = :inner`);
+  pass `label_position = :outer` for dagitty-style external labels
+- Marker size follows label width by default (`fit_node_size_to_labels = true`)
+- Prefer `labels=` for node text (`nlabels=` remains a GraphMakie-compatible alias)
 - Edge labels via GraphMakie `elabels` and [`structural_edge_labels`](https://simonab.github.io/DAGMakie.jl/dev/) (numeric \(B\) or LaTeX path coefficients)
 - Deterministic layered DAG layout for acyclic graphs (not a generic spring layout)
 - SCC-aware cyclic layout with explicit curved feedback edges
 - Themes without axes or grids (`default`, `minimal`, `bold`, `presentation`)
 - Causal diagram conventions: observed, latent, treatment, outcome, bidirected confounding
-- Path highlighting: backdoor / d-separation / adjustment plots (pass sets, or load CausalInference)
-- Interventions: display-only `do(·)` surgery and comparison figures
+- Path highlighting and `color_by = :ancestors` / `:adjustment` (dagitty-style roles;
+  `smart=` is a deprecated alias; prefer `exposure=` over `treatment=`)
+- Interventions: display-only `do(·)` surgery with `show_removed_edges` overlays
 
 ## Ecosystem
 
@@ -118,11 +122,11 @@ g, labels = confounding_graph(["Z", "X", "Y"])
 
 fig, ax, p = dagplot_backdoor(g, 2, 3;
     adjustment = Set([1]),
-    nlabels = labels,
+    labels = labels,
 )
 
 # Display-only graph surgery (not an identification API)
-fig, ax, p = dagplot_do(g, 2; nlabels = labels)
+fig, ax, p = dagplot_do(g, 2; labels = labels)
 ```
 
 ## Related packages

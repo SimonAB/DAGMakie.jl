@@ -119,8 +119,8 @@ using Makie: Point2f
             color_explicit = false,
         )
         @test length(settings.align) == 3
-        @test settings.distance == AUTO_ALIGN_LABEL_DISTANCE
-        @test settings.color == AUTO_ALIGN_LABEL_COLOR
+        @test settings.distance == OUTER_LABEL_DISTANCE
+        @test settings.color == OUTER_LABEL_COLOR
 
         # Explicit in-node distance is preserved (even if unusual with auto-align)
         kept = resolve_auto_align_label_settings(
@@ -134,11 +134,39 @@ using Makie: Point2f
         @test kept.color == :white
     end
 
+    @testset "OUTER_LABEL aliases" begin
+        @test AUTO_ALIGN_NODE_SIZE == OUTER_LABEL_NODE_SIZE
+        @test AUTO_ALIGN_LABEL_COLOR == OUTER_LABEL_COLOR
+        @test AUTO_ALIGN_LABEL_DISTANCE == OUTER_LABEL_DISTANCE
+    end
+
+    @testset "resolve_outer_labels" begin
+        @test resolve_outer_labels(:inner) === false
+        @test resolve_outer_labels(:outer) === true
+        @test resolve_outer_labels(:inner; auto_align_labels = true) === true
+        @test resolve_outer_labels(:outer; auto_align_labels = true) === true
+        @test resolve_outer_labels(:inner; auto_align_labels = false) === false
+        @test_throws ArgumentError resolve_outer_labels(:side)
+        @test_throws ArgumentError resolve_outer_labels(:outer; auto_align_labels = false)
+    end
+
     @testset "dagplot auto_align uses outside labels" begin
         g, labels = confounding_graph(["Z", "X", "Y"])
-        fig, ax, p = dagplot(g; nlabels = labels, auto_align_labels = true)
+        fig, ax, p = dagplot(g; labels = labels, label_position = :outer)
         @test fig isa Figure
-        @test p[:nlabels_distance][] == AUTO_ALIGN_LABEL_DISTANCE
-        @test p[:nlabels_color][] == AUTO_ALIGN_LABEL_COLOR
+        @test p[:nlabels_distance][] == OUTER_LABEL_DISTANCE
+        @test p[:nlabels_color][] == OUTER_LABEL_COLOR
+        @test all(==(OUTER_LABEL_NODE_SIZE), p[:node_size][])
+
+        fig_legacy, _, p_legacy = dagplot(g; labels = labels, auto_align_labels = true)
+        @test p_legacy[:nlabels_distance][] == OUTER_LABEL_DISTANCE
+
+        fig2, ax2, p2 = dagplot(
+            g;
+            labels = labels,
+            label_position = :outer,
+            node_size = 30,
+        )
+        @test all(==(30), p2[:node_size][])
     end
 end

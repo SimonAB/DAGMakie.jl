@@ -244,15 +244,51 @@ function align_to_direction(align::Tuple{Symbol, Symbol})
 end
 
 """
+    resolve_outer_labels(label_position; auto_align_labels=nothing) -> Bool
+
+Whether labels should sit **outside** the nodes.
+
+Preferred API: `label_position = :inner` (default) or `:outer`. The older
+`auto_align_labels=true` flag is accepted as a synonym for `:outer` when
+`label_position` is left at `:inner`. Conflicting combinations throw.
+"""
+function resolve_outer_labels(
+    label_position::Symbol = :inner;
+    auto_align_labels::Union{Bool, Nothing} = nothing,
+)
+    label_position in (:inner, :outer) || throw(ArgumentError(
+        "label_position must be :inner or :outer, got $(repr(label_position))",
+    ))
+    if auto_align_labels === nothing
+        return label_position === :outer
+    elseif auto_align_labels === true
+        if label_position === :outer
+            return true
+        end
+        # Legacy: `auto_align_labels=true` with default `:inner` → outer
+        return true
+    else  # false
+        label_position === :outer && throw(ArgumentError(
+            "label_position=:outer conflicts with auto_align_labels=false; " *
+            "omit auto_align_labels (preferred: label_position=:outer alone)",
+        ))
+        return false
+    end
+end
+
+"""
     resolve_auto_align_label_settings(g, positions; align, distance, color,
         distance_explicit, color_explicit)
 
-Resolve label align / distance / colour when `auto_align_labels=true`.
+Resolve label align / distance / colour when outer labels are enabled
+(`label_position=:outer` or legacy `auto_align_labels=true`).
 
-Auto-align places labels in the largest angular gap **outside** the node. If the
-caller left the in-node defaults (`distance == 0`, white text), switch to
-[`AUTO_ALIGN_LABEL_DISTANCE`](@ref) and [`AUTO_ALIGN_LABEL_COLOR`](@ref).
+Outer placement puts labels in the largest angular gap **outside** the node. If
+the caller left the in-node defaults (`distance == 0`, white text), switch to
+[`OUTER_LABEL_DISTANCE`](@ref) and [`OUTER_LABEL_COLOR`](@ref).
 Explicit `nlabels_distance` / `nlabels_color` from the caller are preserved.
+(Node size for outer labels is resolved separately in [`dagplot!`](@ref) via
+[`OUTER_LABEL_NODE_SIZE`](@ref).)
 """
 function resolve_auto_align_label_settings(
     g::AbstractGraph,
@@ -265,13 +301,13 @@ function resolve_auto_align_label_settings(
 )
     resolved_align = compute_auto_label_aligns(g, positions)
     resolved_distance = if !distance_explicit && (distance == 0 || distance === 0.0)
-        AUTO_ALIGN_LABEL_DISTANCE
+        OUTER_LABEL_DISTANCE
     else
         distance
     end
     resolved_color = if !color_explicit && resolved_distance > 0 &&
             (color === DEFAULT_LABEL_COLOR || color === :white)
-        AUTO_ALIGN_LABEL_COLOR
+        OUTER_LABEL_COLOR
     else
         color
     end
@@ -280,4 +316,133 @@ function resolve_auto_align_label_settings(
         distance = resolved_distance,
         color = resolved_color,
     )
+end
+
+# =============================================================================
+# Discoverable keyword aliases
+# =============================================================================
+
+"""
+    resolve_nlabels(; labels=nothing, nlabels=nothing)
+
+Prefer `labels=` (DAGMakie); `nlabels=` remains the GraphMakie-compatible alias.
+"""
+function resolve_nlabels(; labels = nothing, nlabels = nothing)
+    if labels !== nothing && nlabels !== nothing && labels != nlabels
+        throw(ArgumentError(
+            "conflicting labels= and nlabels=; prefer labels= alone",
+        ))
+    end
+    return labels !== nothing ? labels : nlabels
+end
+
+"""
+    resolve_label_obstacle_graph(; label_obstacle_graph=nothing, auto_align_graph=nothing)
+
+Graph used only for outer-label angular gaps. Prefer `label_obstacle_graph=`;
+`auto_align_graph=` is a deprecated alias.
+"""
+function resolve_label_obstacle_graph(;
+    label_obstacle_graph = nothing,
+    auto_align_graph = nothing,
+)
+    if label_obstacle_graph !== nothing && auto_align_graph !== nothing &&
+            label_obstacle_graph !== auto_align_graph
+        throw(ArgumentError(
+            "conflicting label_obstacle_graph= and auto_align_graph=; " *
+            "prefer label_obstacle_graph= alone",
+        ))
+    end
+    return label_obstacle_graph !== nothing ? label_obstacle_graph : auto_align_graph
+end
+
+"""
+    resolve_color_by(; color_by=nothing, smart=nothing)
+
+Normalise dagitty-style colouring to `nothing` (off) or `:ancestors` / `:adjustment`.
+Prefer `color_by=`; `smart=` is a deprecated alias (`true` → `:ancestors`).
+"""
+function resolve_color_by(; color_by = nothing, smart = nothing)
+    mode_from(x) = if x === false || x === nothing
+        nothing
+    elseif x === true || x === :ancestors
+        :ancestors
+    elseif x === :adjustment
+        :adjustment
+    else
+        throw(ArgumentError(
+            "color_by/smart must be false, true, :ancestors, or :adjustment; got $(repr(x))",
+        ))
+    end
+    cb = mode_from(color_by)
+    sm = mode_from(smart)
+    if color_by !== nothing && smart !== nothing && cb !== sm
+        throw(ArgumentError(
+            "conflicting color_by=$(repr(color_by)) and smart=$(repr(smart)); " *
+            "prefer color_by= alone",
+        ))
+    end
+    return cb !== nothing ? cb : sm
+end
+
+"""
+    resolve_exposure(; exposure=nothing, treatment=nothing)
+
+Exposure / treatment node index. Prefer `exposure=`; `treatment=` remains an alias.
+"""
+function resolve_exposure(; exposure = nothing, treatment = nothing)
+    if exposure !== nothing && treatment !== nothing && exposure != treatment
+        throw(ArgumentError(
+            "conflicting exposure= and treatment=; prefer exposure= alone",
+        ))
+    end
+    return exposure !== nothing ? exposure : treatment
+end
+
+"""
+    resolve_show_removed_edges(; show_removed_edges=nothing, show_original=nothing)
+
+Whether to overlay severed parent edges after `do(·)`. Prefer
+`show_removed_edges=`; `show_original=` is a deprecated alias. Default `true`.
+"""
+function resolve_show_removed_edges(;
+    show_removed_edges = nothing,
+    show_original = nothing,
+)
+    if show_removed_edges !== nothing && show_original !== nothing &&
+            show_removed_edges != show_original
+        throw(ArgumentError(
+            "conflicting show_removed_edges= and show_original=; " *
+            "prefer show_removed_edges= alone",
+        ))
+    end
+    if show_removed_edges !== nothing
+        return show_removed_edges
+    elseif show_original !== nothing
+        return show_original
+    else
+        return true
+    end
+end
+
+"""
+    resolve_do_node_labels(; do_node_labels=nothing, relabel_nodes=nothing)
+
+Whether to rewrite node labels to `do(·)` text. Prefer `do_node_labels=`;
+`relabel_nodes=` is a deprecated alias. Default `false`.
+"""
+function resolve_do_node_labels(; do_node_labels = nothing, relabel_nodes = nothing)
+    if do_node_labels !== nothing && relabel_nodes !== nothing &&
+            do_node_labels != relabel_nodes
+        throw(ArgumentError(
+            "conflicting do_node_labels= and relabel_nodes=; prefer do_node_labels= alone",
+        ))
+    end
+    if do_node_labels !== nothing
+        return do_node_labels
+    elseif relabel_nodes !== nothing
+        return relabel_nodes
+    else
+        return false
+    end
 end

@@ -19,7 +19,7 @@ add_directed_edge!(mg, 2, 3)  # Y → Z
 # Add bidirected edge (unmeasured confounding)
 add_bidirected_edge!(mg, 1, 3)  # X ↔ Z
 
-fig, ax, p = dagplot(mg, nlabels = ["X", "Y", "Z"])
+fig, ax, p = dagplot(mg, labels = ["X", "Y", "Z"])
 fig
 ```
 
@@ -33,7 +33,7 @@ using Graphs, DAGMakie, CairoMakie
 mg = MixedGraph(2)
 add_directed_edge!(mg, 1, 2)
 add_bidirected_edge!(mg, 1, 2)
-fig, ax, p = dagplot(mg; nlabels = ["X", "Y"])
+fig, ax, p = dagplot(mg; labels = ["X", "Y"])
 fig
 ```
 
@@ -46,7 +46,7 @@ mg = mixed_graph(3,
     [(1, 2), (2, 3)],    # Directed edges
     [(1, 3)]              # Bidirected edges
 )
-fig, ax, p = dagplot(mg; nlabels = ["X", "Y", "Z"])
+fig, ax, p = dagplot(mg; labels = ["X", "Y", "Z"])
 fig
 ```
 
@@ -60,7 +60,7 @@ add_edge!(g, 1, 2)
 add_edge!(g, 2, 3)
 
 mg = MixedGraph(g, [(1, 3)])  # Add bidirected X ↔ Z
-fig, ax, p = dagplot(mg; nlabels = ["X", "Y", "Z"])
+fig, ax, p = dagplot(mg; labels = ["X", "Y", "Z"])
 fig
 ```
 
@@ -68,7 +68,7 @@ fig
 
 ```@example bidirected
 fig, ax, p = dagplot(mg,
-    nlabels = ["X", "Y", "Z"],
+    labels = ["X", "Y", "Z"],
     bidirected_color = :red,
     bidirected_width = 1.5,
     bidirected_style = :dash,

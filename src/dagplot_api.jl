@@ -27,7 +27,11 @@ delegates to `dagplot!`. All keyword arguments are passed through.
 
 # Keyword Arguments
 - `figure_size::Tuple{Int, Int} = (600, 400)`: Figure dimensions
-- See `dagplot!` for all other keyword arguments
+- Preferred plot kwargs (full list on [`dagplot!`](@ref)): `labels`,
+  `label_position` (`:inner` / `:outer`), `color_by`, `exposure`, `outcome`,
+  `label_obstacle_graph`, plus GraphMakie pass-throughs (`nlabels_*`,
+  `elabels_*`, …). Legacy aliases (`nlabels`, `smart`, `treatment`,
+  `auto_align_labels`, …) still work
 
 # Returns
 - Tuple `(fig, ax, p)` where:
@@ -44,8 +48,11 @@ g = SimpleDiGraph(3)
 add_edge!(g, 1, 2)
 add_edge!(g, 2, 3)
 
-fig, ax, p = dagplot(g, nlabels=["X", "Y", "Z"])
+fig, ax, p = dagplot(g; labels=["X", "Y", "Z"])
 save("dag.png", fig)
+
+# Outer labels
+fig, ax, p = dagplot(g; labels=["X", "Y", "Z"], label_position=:outer)
 
 # Access node positions
 positions = p[:node_pos][]
@@ -53,7 +60,9 @@ positions = p[:node_pos][]
 """
 function dagplot(g::Graphs.AbstractGraph;
     figure_size::Tuple{Int, Int} = (600, 400),
-    smart = false,
+    color_by = nothing,
+    smart = nothing,
+    exposure = nothing,
     treatment = nothing,
     outcome = nothing,
     adjustment = nothing,
@@ -64,7 +73,9 @@ function dagplot(g::Graphs.AbstractGraph;
     p = dagplot!(
         ax,
         g;
+        color_by = color_by,
         smart = smart,
+        exposure = exposure,
         treatment = treatment,
         outcome = outcome,
         adjustment = adjustment,
@@ -90,7 +101,8 @@ limits to prevent clipping of nodes and labels.
 - `padding::Float64 = 0.1`: Padding around graph as fraction of range
 
 # Node Keyword Arguments
-- `node_size = 12`: Node marker size in pixels
+- `node_size = DEFAULT_NODE_SIZE`: Node marker size in pixels (theme default 34;
+  outer labels use [`OUTER_LABEL_NODE_SIZE`](@ref) unless set explicitly)
 - `node_color = DEFAULT_NODE_COLOR`: Node fill colour (single value or vector; steel-blue by default)
 - `node_strokewidth = 1.0`: Node outline width
 - `node_strokecolor = :black`: Node outline colour
@@ -111,27 +123,42 @@ limits to prevent clipping of nodes and labels.
   DAGMakie defaults to [`DEFAULT_SELFEDGE_SIZE`](@ref) (compact beside the node)
 
 # Label Keyword Arguments
-- `nlabels = nothing`: Node labels (vector of strings / `LaTeXString`s, or `nothing`)
+- `labels = nothing`: Node labels (preferred DAGMakie name). `nlabels=` is the
+  GraphMakie-compatible alias
 - `nlabels_align = (:center, :center)`: Makie **text-box anchor** (or vector of
   anchors). Named sides are edges of the *label*, not “label goes this side of
   the node”: `(:left, :center)` left-anchors the text so it sits to the **right**
   of the node. See the Label Alignment guide.
-- `auto_align_labels = false`: When true, place labels **outside** nodes in the
-  largest angular gap (sets a positive distance and dark label colour unless you
-  override them)
+- `label_position = :inner`: `:inner` centres labels in the node fill; `:outer`
+  places them outside in the largest angular gap (positive distance, dark text,
+  and [`OUTER_LABEL_NODE_SIZE`](@ref) unless `node_size` is set)
+- `auto_align_labels = nothing`: Deprecated synonym for outer labels. Prefer
+  `label_position = :outer`. `true` still enables outer placement when
+  `label_position` is left at `:inner`
+- `label_obstacle_graph = nothing`: Optional graph used only for outer-label
+  angle gaps (defaults to the plotted graph). Intervention plots pass the
+  factual DAG so grey removed parent edges still count as obstacles.
+  Deprecated alias: `auto_align_graph`
+- `fit_node_size_to_labels = true`: When true (default) and `node_size` is unset,
+  size in-node markers from each label: short labels stay round circles; wider
+  labels become ovals (`Makie.Circle` with a `(width, height)` size). Applies only
+  with in-node labels (`label_position = :inner`) and is skipped for outer labels
+  or an explicit `node_size`. Pass `false` for a uniform theme node size.
 - `nlabels_distance = 0`: Label distance from node in pixels along
   `nlabels_align` (0 centres labels in nodes; with `(:center, :center)` the
   offset is zero regardless of distance—use a non-centred align or
-  `auto_align_labels=true` for outside labels)
+  `label_position = :outer` for outside labels)
 - `nlabels_fontsize = 16`: Label font size
-- `nlabels_color = :white`: Label colour (white on dark node fills)
+- `nlabels_color = :white`: Label colour (white on dark node fills; dark via
+  [`OUTER_LABEL_COLOR`](@ref) when `label_position = :outer`)
 
-# Smart / dagitty colouring
-- `smart = false`: Set `true` / `:ancestors` for dagitty-style ancestor colours, or
-  `:adjustment` to also emphasise a backdoor adjustment set (needs CausalInference
-  or `adjustment=`)
-- `treatment`, `outcome`: Exposure and outcome node indices (required when `smart` is on)
-- `adjustment`: Optional `Set{Int}` for `smart=:adjustment`
+# Colouring / dagitty roles
+- `color_by = nothing`: Set `:ancestors` (or `true`) for dagitty-style ancestor
+  colours, or `:adjustment` to also emphasise a backdoor adjustment set (needs
+  CausalInference or `adjustment=`). Deprecated alias: `smart`
+- `exposure`, `outcome`: Exposure and outcome node indices (required when
+  `color_by` is on). `treatment=` is an alias for `exposure=`
+- `adjustment`: Optional `Set{Int}` for `color_by=:adjustment`
 
 # Additional Arguments
 - Additional keyword arguments are passed to `GraphMakie.graphplot!`
@@ -151,20 +178,20 @@ add_edge!(g, 2, 3)
 # Simple usage
 fig = Figure()
 ax = Axis(fig[1, 1])
-dagplot!(ax, g, nlabels=["Z", "X", "Y"])
+dagplot!(ax, g, labels=["Z", "X", "Y"])
 
 # With node colours indicating roles
 dagplot!(ax, g, 
-    nlabels=["Confounder", "Treatment", "Outcome"],
+    labels=["Confounder", "Treatment", "Outcome"],
     node_color=[NODE_COLOR_CONFOUNDER, DEFAULT_NODE_COLOR, DEFAULT_NODE_COLOR]
 )
 
 # Multiple DAGs in one figure
 fig = Figure(size=(1200, 400))
 ax1, ax2, ax3 = Axis(fig[1, 1]), Axis(fig[1, 2]), Axis(fig[1, 3])
-dagplot!(ax1, g1, nlabels=["A", "B", "C"])
-dagplot!(ax2, g2, nlabels=["X", "Y", "Z"])
-dagplot!(ax3, g3, nlabels=["P", "Q", "R"])
+dagplot!(ax1, g1, labels=["A", "B", "C"])
+dagplot!(ax2, g2, labels=["X", "Y", "Z"])
+dagplot!(ax3, g3, labels=["P", "Q", "R"])
 ```
 """
 function dagplot!(ax, g::Graphs.AbstractGraph;
@@ -181,8 +208,10 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     padding = nothing,
     style::Union{Nothing, DAGStyle} = nothing,
     title = nothing,
-    # Smart / dagitty colouring
-    smart = false,
+    # Colouring / dagitty roles
+    color_by = nothing,
+    smart = nothing,
+    exposure = nothing,
     treatment = nothing,
     outcome = nothing,
     adjustment = nothing,
@@ -203,19 +232,32 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     arrow_shift = nothing,
     waypoints = nothing,
     # Labels
+    labels = nothing,
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
-    auto_align_labels = false,
+    label_position::Symbol = :inner,
+    auto_align_labels = nothing,
+    label_obstacle_graph = nothing,
+    auto_align_graph = nothing,
+    fit_node_size_to_labels = true,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
     # Pass-through
     kwargs...
 )
+    resolved_nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
+    outer_labels = resolve_outer_labels(label_position; auto_align_labels = auto_align_labels)
+    resolved_obstacle = resolve_label_obstacle_graph(;
+        label_obstacle_graph = label_obstacle_graph,
+        auto_align_graph = auto_align_graph,
+    )
+    resolved_color_by = resolve_color_by(; color_by = color_by, smart = smart)
+    resolved_exposure = resolve_exposure(; exposure = exposure, treatment = treatment)
     smart_kwargs = apply_smart_kwargs(
         g;
-        smart = smart,
-        treatment = treatment,
+        color_by = resolved_color_by,
+        exposure = resolved_exposure,
         outcome = outcome,
         adjustment = adjustment,
         node_size = node_size,
@@ -232,9 +274,12 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         arrow_size = arrow_size,
         arrow_shift = arrow_shift,
         waypoints = waypoints,
-        nlabels = nlabels,
+        nlabels = resolved_nlabels,
         nlabels_align = nlabels_align,
-        auto_align_labels = auto_align_labels,
+        label_position = label_position,
+        auto_align_labels = outer_labels,
+        label_obstacle_graph = resolved_obstacle,
+        fit_node_size_to_labels = fit_node_size_to_labels,
         nlabels_distance = nlabels_distance,
         nlabels_fontsize = nlabels_fontsize,
         nlabels_color = nlabels_color,

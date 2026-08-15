@@ -7,7 +7,16 @@ Functions for computing label bounds, padding, and automatic axis limits
 to ensure all elements are visible without clipping.
 """
 
-using Makie: Point2f
+using Makie: Point2f, Circle
+
+"""Marker used when fitting node size to in-node labels.
+
+Prefer geometry `Makie.Circle` over the `:circle` BezierPath: Makie draws
+`:circle` at roughly 70% of `markersize`, so label-based sizes look too small
+and text overflows. `Circle` matches `markersize` one-to-one (including ovals
+via `(width, height)`).
+"""
+const FIT_NODE_MARKER = Circle
 
 """
     estimate_label_extent(label, align, fontsize, distance)
@@ -70,6 +79,98 @@ function estimate_label_extent(
     end
     
     return (dx_min = dx_min, dx_max = dx_max, dy_min = dy_min, dy_max = dy_max)
+end
+
+"""
+    estimate_label_pixel_size(label, fontsize) -> (width, height)
+
+Approximate pixel width and height of `label` at `fontsize` (multiline aware).
+Uses the same 0.6 × fontsize character-width heuristic as
+[`estimate_label_extent`](@ref).
+"""
+function estimate_label_pixel_size(label::AbstractString, fontsize::Real)
+    text = String(label)
+    lines = isempty(text) ? AbstractString[""] : split(text, '\n')
+    char_width = 0.6 * Float64(fontsize)
+    max_line = maximum(length, lines)
+    return (max_line * char_width, length(lines) * Float64(fontsize))
+end
+
+"""
+    node_size_for_inner_label(label; fontsize, padding, min_size, marker=:auto)
+
+Choose a GraphMakie `node_size` (and marker) that encloses an in-node label.
+
+Short labels keep a circle whose diameter covers the text; wider labels keep
+[`FIT_NODE_MARKER`](@ref) (`Makie.Circle`) with a `(width, height)` size (an
+oval / ellipse). Pass `marker = :circle` or `Circle` to force a round disk;
+pass `marker = :rect` to force a rectangular box.
+
+# Returns
+- `(size, marker)` where `size` is a `Real` or `(width, height)` tuple
+"""
+function node_size_for_inner_label(
+    label::AbstractString;
+    fontsize::Real = DEFAULT_LABEL_FONTSIZE,
+    padding::Real = FIT_NODE_LABEL_PADDING,
+    min_size::Real = FIT_NODE_MIN_SIZE,
+    marker = :auto,
+)
+    tw, th = estimate_label_pixel_size(label, fontsize)
+    w = max(tw + Float64(padding), Float64(min_size))
+    h = max(th + Float64(padding) * 0.85, Float64(min_size) * 0.75)
+    aspect = w / max(h, 1e-6)
+
+    if marker === :auto
+        if aspect > FIT_NODE_RECT_ASPECT
+            return ((w, h), FIT_NODE_MARKER)  # oval via anisotropic Circle scale
+        else
+            return (max(w, h), FIT_NODE_MARKER)
+        end
+    elseif marker === :circle || marker === Circle || marker === FIT_NODE_MARKER
+        # Force a round disk (ignore aspect), sized to cover the text.
+        return (max(w, h), FIT_NODE_MARKER)
+    else
+        return ((w, h), marker)
+    end
+end
+
+"""
+    fit_node_sizes_to_labels(nlabels; fontsize, padding, min_size, markers=nothing)
+
+Fit a size (and marker) for each in-node label.
+
+When `markers === nothing`, markers are [`FIT_NODE_MARKER`](@ref) (round or
+oval). When `markers` is a vector, sizes respect those shapes (`:circle` is
+normalised to [`FIT_NODE_MARKER`](@ref) so sizing matches the drawn glyph).
+"""
+function fit_node_sizes_to_labels(
+    nlabels::AbstractVector{<:AbstractString};
+    fontsize = DEFAULT_LABEL_FONTSIZE,
+    padding::Real = FIT_NODE_LABEL_PADDING,
+    min_size::Real = FIT_NODE_MIN_SIZE,
+    markers = nothing,
+)
+    n = length(nlabels)
+    sizes = Vector{Any}(undef, n)
+    out_markers = Vector{Any}(undef, n)
+    for i in 1:n
+        fs = _get_scalar_or_indexed(fontsize, i)
+        marker_kw = markers === nothing ? :auto : markers[i]
+        sizes[i], out_markers[i] = node_size_for_inner_label(
+            nlabels[i];
+            fontsize = fs,
+            padding = padding,
+            min_size = min_size,
+            marker = marker_kw,
+        )
+    end
+    return sizes, out_markers
+end
+
+function _is_in_node_label_mode(label_distance, nlabels_align)
+    distance_ok = label_distance == 0 || label_distance === 0.0
+    return distance_ok && _is_centred_label_align(nlabels_align)
 end
 
 """

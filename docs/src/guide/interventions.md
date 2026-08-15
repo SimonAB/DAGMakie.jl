@@ -15,7 +15,7 @@ g_do = do_surgery(g, 2)
 @assert !has_edge(g_do, 1, 2)
 @assert has_edge(g_do, 2, 3)
 
-fig, ax, p = dagplot_intervention(g, Intervention(2); nlabels = labels)
+fig, ax, p = dagplot_intervention(g, Intervention(2); labels = labels)
 fig
 ```
 
@@ -25,6 +25,10 @@ Compare factual and intervened graphs:
 using Graphs, DAGMakie, CairoMakie
 
 g, labels = confounding_graph(["Z", "X", "Y"])
-fig = dagplot_do_comparison(g, 2; nlabels = labels)
+fig = dagplot_do_comparison(g, 2; labels = labels)
 fig
 ```
+
+With `label_position=:outer`, the right-hand panel aligns labels against the
+**factual** graph when `show_removed_edges=true` (default), so grey removed parent
+edges still count as obstacles—matching the left panel.

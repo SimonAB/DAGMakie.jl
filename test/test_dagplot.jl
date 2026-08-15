@@ -12,7 +12,7 @@
         @test ax isa Makie.Axis
         
         # With labels
-        fig, ax, p = dagplot(g, nlabels=["X", "Y", "Z"])
+        fig, ax, p = dagplot(g, labels =["X", "Y", "Z"])
         @test fig isa Makie.Figure
         
         # Check node positions are accessible
@@ -27,7 +27,7 @@
         
         # Custom styling
         fig, ax, p = dagplot(g,
-            nlabels = ["A", "B", "C"],
+            labels = ["A", "B", "C"],
             node_color = :lightgreen,
             node_size = 20,
             edge_color = :darkgray,
@@ -37,7 +37,7 @@
         
         # Per-node colours
         fig, ax, p = dagplot(g,
-            nlabels = ["A", "B", "C"],
+            labels = ["A", "B", "C"],
             node_color = [:red, :green, :blue]
         )
         @test fig isa Makie.Figure
@@ -51,7 +51,7 @@
         fig = Figure()
         ax = Axis(fig[1, 1])
         
-        p = dagplot!(ax, g, nlabels=["X", "Y", "Z"])
+        p = dagplot!(ax, g, labels =["X", "Y", "Z"])
         
         # Axis should have DAG theme applied
         @test ax.aspect[] isa Makie.DataAspect
@@ -176,15 +176,14 @@
         @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
     end
     
-    @testset "auto_align_labels option" begin
+    @testset "label_position option" begin
         g = SimpleDiGraph(3)
         add_edge!(g, 1, 2)
         add_edge!(g, 2, 3)
 
-        # With package-local auto-align (works without GraphMakie fork)
         fig1, ax1, p1 = dagplot(g,
-            nlabels = ["X", "Y", "Z"],
-            auto_align_labels = true
+            labels = ["X", "Y", "Z"],
+            label_position = :outer,
         )
         @test fig1 isa Makie.Figure
         aligns_auto = p1[:nlabels_align][]
@@ -192,10 +191,10 @@
         @test length(aligns_auto) == 3
         @test aligns_auto != fill((:center, :center), 3)
 
-        # Without auto-align: explicit alignment is preserved
+        # Inner labels: explicit alignment is preserved
         fig2, ax2, p2 = dagplot(g,
-            nlabels = ["X", "Y", "Z"],
-            auto_align_labels = false,
+            labels = ["X", "Y", "Z"],
+            label_position = :inner,
             nlabels_align = (:left, :bottom)
         )
         @test fig2 isa Makie.Figure
@@ -213,7 +212,7 @@
         add_edge!(g, 2, 3)
 
         fig, ax, p = dagplot(g;
-            nlabels = ["X", "Y", "Z"],
+            labels = ["X", "Y", "Z"],
             nlabels_color = :black,
             nlabels_distance = 12,
             nlabels_align = (:center, :bottom),
@@ -227,7 +226,7 @@
         logger = Test.TestLogger()
         Logging.with_logger(logger) do
             fig2, ax2, p2 = dagplot(g;
-                nlabels = ["X", "Y", "Z"],
+                labels = ["X", "Y", "Z"],
                 nlabels_distance = 12,
             )
             @test p2[:nlabels_offset_processed][] == Point2f(0, 0)
@@ -262,8 +261,8 @@
         ax1 = Axis(fig[1, 1], title = "Chain")
         ax2 = Axis(fig[1, 2], title = "Fork")
         
-        dagplot!(ax1, g1, nlabels = ["A", "B", "C"])
-        dagplot!(ax2, g2, nlabels = ["X", "Y", "Z"])
+        dagplot!(ax1, g1, labels = ["A", "B", "C"])
+        dagplot!(ax2, g2, labels = ["X", "Y", "Z"])
         
         @test fig isa Makie.Figure
     end

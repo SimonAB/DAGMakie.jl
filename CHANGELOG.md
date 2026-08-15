@@ -9,6 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Documentation and examples prefer the discoverable names below.
+- Discoverable keyword aliases (legacy names kept):
+  - `color_by` (was `smart`); `exposure` (alias of `treatment`)
+  - `labels` (alias of `nlabels`); `label_obstacle_graph` (was `auto_align_graph`)
+  - `show_removed_edges` (was `show_original`); `do_node_labels` (was `relabel_nodes`)
+  - `OUTER_LABEL_*` constants (aliases of `AUTO_ALIGN_*`)
+
+### Added
+
+- `label_position = :inner | :outer`: discoverable placement for node labels
+  (`:outer` = outside in the largest angular gap). Legacy `auto_align_labels=true`
+  remains a synonym for `:outer`.
+- `fit_node_size_to_labels=true` **by default** for in-node labels: size markers
+  from each label (short → round circle; wide → oval via [`FIT_NODE_MARKER`](@ref)
+  + `(width, height)`), via [`estimate_label_pixel_size`](@ref) /
+  [`node_size_for_inner_label`](@ref) / [`fit_node_sizes_to_labels`](@ref). Pass
+  `false` (or set `node_size`) to keep a uniform size. Skipped for
+  `label_position=:outer`.
+
+### Fixed
+
+- `fit_node_size_to_labels` now uses `Makie.Circle` ([`FIT_NODE_MARKER`](@ref))
+  instead of `:circle`, whose BezierPath draws at ~70% of `markersize` and made
+  fitted ovals too small for the labels (e.g. intro `fig-cdm-diagram`).
+- Removed-edge overlays in `dagplot_intervention!` (`show_removed_edges=true`) now
+  trim against the plot’s actual `node_size` / `node_marker` (including fitted
+  ovals), so grey dashed arrows meet the node boundary instead of the in-node
+  label.
+- `color_by` + `label_position=:outer` now uses [`OUTER_LABEL_COLOR`](@ref)
+  for outer labels (smart’s white in-node colours were kept before and were
+  unreadable on the figure background).
+- Intervention plots with `label_position=:outer` and `show_removed_edges=true` now
+  align labels against the factual DAG, so grey removed parent edges count as
+  obstacles (same placement as the left panel of `dagplot_do_comparison`).
+
+### Changed
+
+- `label_position=:outer` (and legacy `auto_align_labels=true`) defaults to
+  [`OUTER_LABEL_NODE_SIZE`](@ref) (19) unless `node_size` is set explicitly
+  (in-node themes stay larger).
 - Resolve docs: CausalInference ≥0.19.4 allows GraphMakie 0.6 in one environment
   with CausalDynamics; dual-env guidance retired.
 

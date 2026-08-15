@@ -13,6 +13,8 @@ call CausalInference activate via `using CausalInference`.
 
 Layouts are deterministic for DAGs; themes (`dag_theme`, …) control stroke and
 spacing. Pattern constructors include chain, fork, collider, and confounding.
+Prefer discoverable plot kwargs: `labels`, `label_position`, `color_by`,
+`exposure`, `show_removed_edges` (legacy aliases still work).
 
 # Quick Start
 
@@ -24,7 +26,7 @@ add_edge!(g, 1, 2)  # Z → X
 add_edge!(g, 1, 3)  # Z → Y
 add_edge!(g, 2, 3)  # X → Y
 
-fig, ax, p = dagplot(g, nlabels=["Z", "X", "Y"])
+fig, ax, p = dagplot(g, labels=["Z", "X", "Y"])
 save("confounding_dag.png", fig)
 ```
 
@@ -90,10 +92,17 @@ export dagplot_confounded, dagplot_frontdoor, dagplot_iv_confounded, dagplot_m_b
 export compute_auto_label_aligns
 export align_to_direction
 export resolve_auto_align_label_settings
-export AUTO_ALIGN_LABEL_DISTANCE, AUTO_ALIGN_LABEL_COLOR
+export resolve_outer_labels
+export resolve_nlabels, resolve_label_obstacle_graph, resolve_color_by
+export resolve_exposure, resolve_show_removed_edges, resolve_do_node_labels
+export OUTER_LABEL_DISTANCE, OUTER_LABEL_COLOR, OUTER_LABEL_NODE_SIZE
+# Deprecated aliases
+export AUTO_ALIGN_LABEL_DISTANCE, AUTO_ALIGN_LABEL_COLOR, AUTO_ALIGN_NODE_SIZE
 
 # Layout utilities
 export estimate_label_extent, compute_label_bounds, compute_padded_limits
+export estimate_label_pixel_size, node_size_for_inner_label, fit_node_sizes_to_labels
+export FIT_NODE_LABEL_PADDING, FIT_NODE_MIN_SIZE, FIT_NODE_RECT_ASPECT, FIT_NODE_MARKER
 export DAGLayoutResult, classify_graph_kind, compute_graph_layout, feedback_edge_mask, edge_waypoint_vector
 export time_indexed_layout, dagplot_time_indexed
 

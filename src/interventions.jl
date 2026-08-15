@@ -173,27 +173,29 @@ end
 
 """
     dagplot_intervention(g::AbstractGraph, intervention::Intervention;
-                         show_original::Bool=true, kwargs...)
+                         show_removed_edges::Bool=true, kwargs...)
 
 Plot a DAG with intervention applied, showing removed edges.
 
 # Arguments
 - `g`: Original DAG
 - `intervention`: Intervention specification
-- `show_original`: If true, show original edges as dashed
+- `show_removed_edges`: If true, overlay severed parent edges as dashed grey
+  (deprecated alias: `show_original`)
 - `kwargs...`: Additional arguments for dagplot
 
 # Examples
 ```julia
 g, labels = confounding_graph(["Z", "X", "Y"])
 int = Intervention(2)  # do(X)
-fig, ax, p = dagplot_intervention(g, int, nlabels=labels)
+fig, ax, p = dagplot_intervention(g, int, labels=labels)
 ```
 """
 function dagplot_intervention(
     g::AbstractGraph, 
     intervention::Intervention;
-    show_original::Bool = true,
+    show_removed_edges = nothing,
+    show_original = nothing,
     intervention_color = :darkorange,
     removed_edge_color = :lightgray,
     removed_edge_style = :dash,
@@ -203,6 +205,7 @@ function dagplot_intervention(
     fig = Figure(size = figure_size)
     ax = Axis(fig[1, 1])
     p = dagplot_intervention!(ax, g, intervention;
+        show_removed_edges = show_removed_edges,
         show_original = show_original,
         intervention_color = intervention_color,
         removed_edge_color = removed_edge_color,
@@ -216,6 +219,11 @@ end
     dagplot_intervention!(ax, g::AbstractGraph, intervention::Intervention; kwargs...)
 
 Plot intervention into an existing axis.
+
+Preferred kwargs (see also [`dagplot!`](@ref)): `labels`, `label_position`,
+`show_removed_edges` (alias `show_original`), `do_node_labels` (alias
+`relabel_nodes`). Outer labels use the factual DAG as
+`label_obstacle_graph` when removed edges are overlaid.
 """
 function dagplot_intervention!(
     ax,
@@ -242,16 +250,30 @@ function dagplot_intervention!(
     removed_edge_width = nothing,
     removed_edge_style = :dash,
     # Labels
+    labels = nothing,
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
-    auto_align_labels = false,
-    show_original::Bool = true,
-    relabel_nodes::Bool = false,
+    label_position::Symbol = :inner,
+    auto_align_labels = nothing,
+    show_removed_edges = nothing,
+    show_original = nothing,
+    do_node_labels = nothing,
+    relabel_nodes = nothing,
     kwargs...
 )
+    nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
+    outer_labels = resolve_outer_labels(label_position; auto_align_labels = auto_align_labels)
+    show_removed = resolve_show_removed_edges(;
+        show_removed_edges = show_removed_edges,
+        show_original = show_original,
+    )
+    rewrite_do_labels = resolve_do_node_labels(;
+        do_node_labels = do_node_labels,
+        relabel_nodes = relabel_nodes,
+    )
     # Apply intervention
     g_do = do_surgery(g, intervention.nodes)
     
@@ -276,11 +298,14 @@ function dagplot_intervention!(
     
     # Optionally rewrite node labels to do(·); prefer axis title for that notation
     # so short in-node labels stay centred and readable.
-    if nlabels !== nothing && relabel_nodes
+    if nlabels !== nothing && rewrite_do_labels
         nlabels = format_intervention_labels(nlabels, intervention)
     end
     
-    # Plot the post-intervention graph
+    # Plot the post-intervention graph. When removed parents are overlaid in
+    # grey (`show_removed_edges`), align outer labels against the factual DAG
+    # so those edges still count as obstacles (same placement as the left panel
+    # of a comparison).
     p = dagplot!(ax, g_do;
         layout = layout,
         padding = padding,
@@ -301,14 +326,17 @@ function dagplot_intervention!(
         nlabels_distance = nlabels_distance,
         nlabels_fontsize = nlabels_fontsize,
         nlabels_color = nlabels_color,
-        auto_align_labels = auto_align_labels,
+        label_position = outer_labels ? :outer : :inner,
+        label_obstacle_graph = (outer_labels && show_removed) ? g : nothing,
         kwargs...
     )
     
-    # Optionally show removed edges as dashed
-    if show_original && !isempty(removed_edges)
-        resolved_node_size = _fill_attribute(something(node_size, style_config.node_size), n)
-        resolved_node_marker = _fill_attribute(something(node_marker, :circle), n)
+    # Optionally show removed edges as dashed. Trim against the markers actually
+    # drawn on `p` (including `fit_node_size_to_labels` ovals); a theme default
+    # size under-trims and the grey arrow lands on the in-node label.
+    if show_removed && !isempty(removed_edges)
+        resolved_node_size = p[:node_size][]
+        resolved_node_marker = p[:node_marker][]
         edge_lookup = _edge_index_lookup(g)
         base_edge_widths = _fill_attribute(something(edge_width, style_config.edge_width), ne(g))
         base_arrow_sizes = _fill_attribute(something(arrow_size, style_config.arrow_size), ne(g))
@@ -344,38 +372,45 @@ function dagplot_intervention!(
 end
 
 """
-    dagplot_do(g::AbstractGraph, intervention_node::Int; nlabels=nothing, kwargs...)
+    dagplot_do(g::AbstractGraph, intervention_node::Int; labels=nothing, kwargs...)
 
 Convenience function for single-node intervention visualisation.
+
+Prefer `labels=` (alias `nlabels=`). Other kwargs match
+[`dagplot_intervention`](@ref) / [`dagplot!`](@ref).
 """
 function dagplot_do(
     g::AbstractGraph, 
     intervention_node::Int;
+    labels = nothing,
     nlabels = nothing,
     kwargs...
 )
+    nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
     var_name = nlabels !== nothing && intervention_node <= length(nlabels) ? 
                nlabels[intervention_node] : "X$(intervention_node)"
     int = Intervention(intervention_node; label = intervention_label(var_name))
-    return dagplot_intervention(g, int; nlabels = nlabels, kwargs...)
+    return dagplot_intervention(g, int; labels = nlabels, kwargs...)
 end
 
 """
     dagplot_comparison(g::AbstractGraph, intervention::Intervention;
-                       nlabels=nothing, kwargs...)
+                       labels=nothing, kwargs...)
 
 Create a side-by-side comparison of original and post-intervention DAGs.
 
-# Returns
-- Figure with two panels: original (left) and post-intervention (right)
+Prefer `labels=` (alias `nlabels=`). Shared layout and remaining kwargs are
+passed to [`dagplot!`](@ref) / [`dagplot_intervention!`](@ref).
 """
 function dagplot_comparison(
     g::AbstractGraph,
     intervention::Intervention;
+    labels = nothing,
     nlabels = nothing,
     figure_size::Tuple{Int, Int} = (1000, 400),
     kwargs...
 )
+    nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
     fig = Figure(size = figure_size)
 
     shared_layout = compute_graph_layout(
@@ -406,20 +441,24 @@ end
 
 """
     dagplot_do_comparison(g::AbstractGraph, intervention_node::Int;
-                          nlabels=nothing, kwargs...)
+                          labels=nothing, kwargs...)
 
 Convenience function for side-by-side comparison with single intervention.
+
+Prefer `labels=` (alias `nlabels=`). See [`dagplot_comparison`](@ref).
 """
 function dagplot_do_comparison(
     g::AbstractGraph,
     intervention_node::Int;
+    labels = nothing,
     nlabels = nothing,
     kwargs...
 )
+    nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
     var_name = nlabels !== nothing && intervention_node <= length(nlabels) ? 
                nlabels[intervention_node] : "X$(intervention_node)"
     int = Intervention(intervention_node; label = intervention_label(var_name))
-    return dagplot_comparison(g, int; nlabels = nlabels, kwargs...)
+    return dagplot_comparison(g, int; labels = nlabels, kwargs...)
 end
 
 # =============================================================================

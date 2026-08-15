@@ -24,6 +24,41 @@ using Makie: Point2f
         long = estimate_label_extent("Long Label", (:left, :center), 14, 10)
         @test long.dx_max > short.dx_max
     end
+
+    @testset "fit_node_sizes_to_labels" begin
+        w_short, h_short = estimate_label_pixel_size("A", 16)
+        w_long, h_long = estimate_label_pixel_size("nutrition", 16)
+        @test w_long > w_short
+        @test h_short == h_long
+
+        size_a, marker_a = node_size_for_inner_label("A")
+        size_n, marker_n = node_size_for_inner_label("nutrition")
+        @test marker_a === FIT_NODE_MARKER
+        @test size_a isa Real
+        @test marker_n === FIT_NODE_MARKER
+        @test size_n isa Tuple
+
+        sizes, markers = fit_node_sizes_to_labels(["A", "nutrition", "Y"])
+        @test markers[1] === FIT_NODE_MARKER
+        @test markers[2] === FIT_NODE_MARKER
+        @test sizes[2] isa Tuple
+        @test sizes[2][1] > sizes[1]
+
+        # `:circle` BezierPath undersizes vs markersize; fit normalises to Circle.
+        size_forced, marker_forced = node_size_for_inner_label("nutrition"; marker = :circle)
+        @test marker_forced === FIT_NODE_MARKER
+        @test size_forced isa Real
+
+        g, labels = confounding_graph(["nutrition", "X", "Y"])
+        fig, ax, p = dagplot(g; nlabels = labels)  # fit is default for in-node labels
+        @test fig isa Figure
+        @test p[:node_marker][][1] === FIT_NODE_MARKER
+        @test p[:node_size][][1] isa Tuple
+        @test p[:node_size][][2] isa Real
+
+        fig_off, ax_off, p_off = dagplot(g; nlabels = labels, fit_node_size_to_labels = false)
+        @test all(==(DAGMakie._resolve_style(nothing).node_size), p_off[:node_size][])
+    end
     
     @testset "compute_label_bounds" begin
         positions = [Point2f(0, 0), Point2f(1, 0), Point2f(2, 0)]

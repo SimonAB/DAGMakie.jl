@@ -48,7 +48,7 @@ flowchart LR
 | Layered causal DAG plot | Yes | Yes (ggdag, dagitty) | Partial (networkx / graphviz / CGMs) |
 | Bidirected confounding arcs | Yes | Yes (ggdag / dagitty) | Partial |
 | Path / adjustment / d-sep highlight | Yes (± CausalInference) | Yes (ggdag + dagitty) | Partial (DoWhy / CGMs) |
-| Smart / dagitty-like ancestor colouring | Yes (`smart=true`) | Yes (dagitty) | Partial |
+| Smart / dagitty-like ancestor colouring | Yes (`color_by=:ancestors`) | Yes (dagitty) | Partial |
 | Display-only `do(·)` comparison figures | Yes | Partial (custom) | Partial (custom) |
 | Time-indexed / unrolled layouts | Yes | Partial (custom ggplot) | Partial (custom) |
 | SWIG / DiD / IDAG visual grammar | Unique | Partial (custom) | Partial (custom) |
