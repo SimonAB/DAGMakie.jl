@@ -419,7 +419,13 @@ function dagplot_comparison(
         layout_mode = haskey(kwargs, :layout_mode) ? kwargs[:layout_mode] : :auto,
         orientation = haskey(kwargs, :orientation) ? kwargs[:orientation] : :lr,
         layer_gap = haskey(kwargs, :layer_gap) ? kwargs[:layer_gap] : 2.6,
-        node_gap = haskey(kwargs, :node_gap) ? kwargs[:node_gap] : 1.8,
+        node_gap = resolve_node_gap(
+            get(kwargs, :node_gap, nothing);
+            outer_labels = resolve_outer_labels(
+                get(kwargs, :label_position, :inner);
+                auto_align_labels = get(kwargs, :auto_align_labels, nothing),
+            ),
+        ),
         component_gap = haskey(kwargs, :component_gap) ? kwargs[:component_gap] : 3.2,
         scc_radius = haskey(kwargs, :scc_radius) ? kwargs[:scc_radius] : 0.9,
         feedback_curvature = haskey(kwargs, :feedback_curvature) ? kwargs[:feedback_curvature] : 0.75,

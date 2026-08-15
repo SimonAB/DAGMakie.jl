@@ -120,6 +120,8 @@ anisotropically). Pass `fit_node_size_to_labels = false` for a uniform theme
 size, or set `node_size` explicitly.
 
 ```@example basic-fit
+using Graphs, DAGMakie, CairoMakie
+
 g2, labels2 = confounding_graph(["nutrition", "X", "Y"])
 fig, ax, p = dagplot(g2; labels = labels2)
 fig
@@ -173,6 +175,8 @@ DAGMakie now defaults to an automatic layout strategy:
 - `layout_mode = :cyclic` uses an SCC-aware layout with curved feedback edges
 - `layout_mode = :spring` falls back to a force-directed layout
 - `layout = ...` still accepts explicit node positions or a `NetworkLayout.jl` layout object
+- Within-layer `node_gap` defaults to `2.6` for `label_position=:inner` and `1.8` for
+  `:outer` (override with `node_gap=…`)
 
 For CPDAG skeletons and occasion×variable grids, see
 [Skeletons & Time](skeletons_and_time.md) (`dagplot_skeleton`,

@@ -446,3 +446,15 @@ function resolve_do_node_labels(; do_node_labels = nothing, relabel_nodes = noth
         return false
     end
 end
+
+"""
+    resolve_node_gap(node_gap; outer_labels::Bool) -> Real
+
+Within-layer spacing for layered layouts. When `node_gap` is omitted (`nothing`),
+use [`DEFAULT_NODE_GAP_INNER`](@ref) for in-node labels and
+[`DEFAULT_NODE_GAP_OUTER`](@ref) for outer labels.
+"""
+function resolve_node_gap(node_gap; outer_labels::Bool)
+    node_gap !== nothing && return node_gap
+    return outer_labels ? DEFAULT_NODE_GAP_OUTER : DEFAULT_NODE_GAP_INNER
+end

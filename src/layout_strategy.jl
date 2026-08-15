@@ -82,7 +82,7 @@ function compute_graph_layout(
     layout_mode::Symbol = :auto,
     orientation::Symbol = :lr,
     layer_gap::Real = 2.6,
-    node_gap::Real = 1.8,
+    node_gap::Real = DEFAULT_NODE_GAP_INNER,
     component_gap::Real = 3.2,
     scc_radius::Real = 0.9,
     feedback_curvature::Real = 0.75,

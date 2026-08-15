@@ -99,6 +99,10 @@ limits to prevent clipping of nodes and labels.
 # Layout Keyword Arguments
 - `layout = Spring()`: Layout algorithm from NetworkLayout.jl
 - `padding::Float64 = 0.1`: Padding around graph as fraction of range
+- `layer_gap = 2.6`: Spacing between layered columns (or rows)
+- `node_gap = nothing`: Within-layer spacing. Defaults to
+  [`DEFAULT_NODE_GAP_INNER`](@ref) (`2.6`) when `label_position=:inner`, and
+  [`DEFAULT_NODE_GAP_OUTER`](@ref) (`1.8`) when `label_position=:outer`
 
 # Node Keyword Arguments
 - `node_size = DEFAULT_NODE_SIZE`: Node marker size in pixels (theme default 34;
@@ -200,7 +204,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     layout_mode::Symbol = :auto,
     orientation::Symbol = :lr,
     layer_gap::Real = 2.6,
-    node_gap::Real = 1.8,
+    node_gap = nothing,
     component_gap::Real = 3.2,
     scc_radius::Real = 0.9,
     feedback_curvature::Real = 0.75,
@@ -248,6 +252,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
 )
     resolved_nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
     outer_labels = resolve_outer_labels(label_position; auto_align_labels = auto_align_labels)
+    resolved_node_gap = resolve_node_gap(node_gap; outer_labels = outer_labels)
     resolved_obstacle = resolve_label_obstacle_graph(;
         label_obstacle_graph = label_obstacle_graph,
         auto_align_graph = auto_align_graph,
@@ -292,7 +297,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         layout_mode = layout_mode,
         orientation = orientation,
         layer_gap = layer_gap,
-        node_gap = node_gap,
+        node_gap = resolved_node_gap,
         component_gap = component_gap,
         scc_radius = scc_radius,
         feedback_curvature = feedback_curvature,

@@ -267,7 +267,7 @@ function dagplot!(ax, mg::MixedGraph;
     layout_mode::Symbol = :auto,
     orientation::Symbol = :lr,
     layer_gap::Real = 2.6,
-    node_gap::Real = 1.8,
+    node_gap = nothing,
     component_gap::Real = 3.2,
     scc_radius::Real = 0.9,
     feedback_curvature::Real = 0.75,
@@ -310,12 +310,13 @@ function dagplot!(ax, mg::MixedGraph;
 )
     nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
     outer_labels = resolve_outer_labels(label_position; auto_align_labels = auto_align_labels)
+    resolved_node_gap = resolve_node_gap(node_gap; outer_labels = outer_labels)
     p = dagplot!(ax, mg.directed;
         layout = layout,
         layout_mode = layout_mode,
         orientation = orientation,
         layer_gap = layer_gap,
-        node_gap = node_gap,
+        node_gap = resolved_node_gap,
         component_gap = component_gap,
         scc_radius = scc_radius,
         feedback_curvature = feedback_curvature,

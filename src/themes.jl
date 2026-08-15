@@ -130,9 +130,19 @@ const OUTER_LABEL_COLOR = :black
 """Default node size when `label_position=:outer` (compact markers; labels sit outside)."""
 const OUTER_LABEL_NODE_SIZE = 19
 
-# Deprecated aliases (prefer `OUTER_LABEL_*`)
+"""Within-layer node spacing when `label_position=:inner` (room for fitted markers / chords)."""
+const DEFAULT_NODE_GAP_INNER = 2.6
+
+"""Within-layer node spacing when `label_position=:outer` (compact markers)."""
+const DEFAULT_NODE_GAP_OUTER = 1.8
+
+"""Deprecated alias of [`OUTER_LABEL_DISTANCE`](@ref). Prefer `OUTER_LABEL_DISTANCE`."""
 const AUTO_ALIGN_LABEL_DISTANCE = OUTER_LABEL_DISTANCE
+
+"""Deprecated alias of [`OUTER_LABEL_COLOR`](@ref). Prefer `OUTER_LABEL_COLOR`."""
 const AUTO_ALIGN_LABEL_COLOR = OUTER_LABEL_COLOR
+
+"""Deprecated alias of [`OUTER_LABEL_NODE_SIZE`](@ref). Prefer `OUTER_LABEL_NODE_SIZE`."""
 const AUTO_ALIGN_NODE_SIZE = OUTER_LABEL_NODE_SIZE
 
 """Total padding (px) around text when fitting in-node markers to labels."""

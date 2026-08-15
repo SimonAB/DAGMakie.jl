@@ -95,7 +95,9 @@ export resolve_auto_align_label_settings
 export resolve_outer_labels
 export resolve_nlabels, resolve_label_obstacle_graph, resolve_color_by
 export resolve_exposure, resolve_show_removed_edges, resolve_do_node_labels
+export resolve_node_gap
 export OUTER_LABEL_DISTANCE, OUTER_LABEL_COLOR, OUTER_LABEL_NODE_SIZE
+export DEFAULT_NODE_GAP_INNER, DEFAULT_NODE_GAP_OUTER
 # Deprecated aliases
 export AUTO_ALIGN_LABEL_DISTANCE, AUTO_ALIGN_LABEL_COLOR, AUTO_ALIGN_NODE_SIZE
 
@@ -143,7 +145,7 @@ export SmartNodeRole, SmartExposure, SmartOutcome
 export SmartAncestorExposure, SmartAncestorOutcome, SmartAncestorBoth, SmartIrrelevant
 export smart_node_color, smart_label_color
 export ancestors_via_graphs, ancestor_sets, classify_smart_roles
-export smart_style_for_graph, dagplot_smart
+export smart_style_for_graph, apply_smart_kwargs, dagplot_smart
 export SMART_COLOR_EXPOSURE, SMART_COLOR_OUTCOME
 export SMART_COLOR_ANC_EXPOSURE, SMART_COLOR_ANC_OUTCOME, SMART_COLOR_ANC_BOTH
 export SMART_COLOR_IRRELEVANT

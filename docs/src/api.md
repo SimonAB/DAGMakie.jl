@@ -148,6 +148,7 @@ dagplot_did_swig
 SmartNodeRole
 classify_smart_roles
 smart_style_for_graph
+apply_smart_kwargs
 dagplot_smart
 ancestor_sets
 ancestors_via_graphs
@@ -194,6 +195,7 @@ compute_auto_label_aligns
 align_to_direction
 resolve_auto_align_label_settings
 resolve_outer_labels
+resolve_node_gap
 ```
 
 ## Layout Utilities
@@ -230,6 +232,8 @@ UNDIRECTED_EDGE_COLOR
 OUTER_LABEL_DISTANCE
 OUTER_LABEL_COLOR
 OUTER_LABEL_NODE_SIZE
+DEFAULT_NODE_GAP_INNER
+DEFAULT_NODE_GAP_OUTER
 AUTO_ALIGN_LABEL_DISTANCE
 AUTO_ALIGN_LABEL_COLOR
 AUTO_ALIGN_NODE_SIZE

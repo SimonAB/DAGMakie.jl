@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `labels` (alias of `nlabels`); `label_obstacle_graph` (was `auto_align_graph`)
   - `show_removed_edges` (was `show_original`); `do_node_labels` (was `relabel_nodes`)
   - `OUTER_LABEL_*` constants (aliases of `AUTO_ALIGN_*`)
+- Default within-layer `node_gap` is [`DEFAULT_NODE_GAP_INNER`](@ref) (`2.6`) when
+  `label_position=:inner`, and [`DEFAULT_NODE_GAP_OUTER`](@ref) (`1.8`) when
+  `label_position=:outer` (was a flat `1.8` for both).
 
 ### Added
 
@@ -30,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Documenter build: docstring aliases for `AUTO_ALIGN_*`, export/document
+  `apply_smart_kwargs`, and import packages in the `basic-fit` `@example`.
 - `fit_node_size_to_labels` now uses `Makie.Circle` ([`FIT_NODE_MARKER`](@ref))
   instead of `:circle`, whose BezierPath draws at ~70% of `markersize` and made
   fitted ovals too small for the labels (e.g. intro `fig-cdm-diagram`).

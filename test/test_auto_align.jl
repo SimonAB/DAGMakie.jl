@@ -150,6 +150,13 @@ using Makie: Point2f
         @test_throws ArgumentError resolve_outer_labels(:outer; auto_align_labels = false)
     end
 
+    @testset "resolve_node_gap" begin
+        @test resolve_node_gap(nothing; outer_labels = false) == DEFAULT_NODE_GAP_INNER
+        @test resolve_node_gap(nothing; outer_labels = true) == DEFAULT_NODE_GAP_OUTER
+        @test resolve_node_gap(3.1; outer_labels = false) == 3.1
+        @test resolve_node_gap(3.1; outer_labels = true) == 3.1
+    end
+
     @testset "dagplot auto_align uses outside labels" begin
         g, labels = confounding_graph(["Z", "X", "Y"])
         fig, ax, p = dagplot(g; labels = labels, label_position = :outer)
