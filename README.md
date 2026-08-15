@@ -140,6 +140,7 @@ fig, ax, p = dagplot_do(g, 2; nlabels = labels)
 ## Documentation
 
 - [Documenter site](https://simonab.github.io/DAGMakie.jl/dev/) — getting started, styling, bidirected edges, causal highlighting, interventions, API
+- [Stress validation](https://github.com/SimonAB/CausalTargeted.jl/blob/main/STRESS.md) — Quarto notebook ([qmd](https://github.com/SimonAB/CausalTargeted.jl/blob/main/docs/stress/stress_validation.qmd)); toy identify → `dagplot`; [Documenter](https://simonab.github.io/CausalTargeted.jl/dev/stress_validation/)
 - [CDCS book](https://simonab.github.io/causal-dynamics-book/) — narrative figures in context
 
 ## Roadmap
