@@ -138,7 +138,10 @@ using Makie: Point2f
         result = compute_graph_layout(g; layout_mode = :acyclic)
         @test haskey(result.edge_waypoints, (1, 4))
         @test !isempty(result.edge_waypoints[(1, 4)])
-        waypoint = only(result.edge_waypoints[(1, 4)])
+        # Default `:quadratic` routing samples several Bézier points; pick the
+        # mid sample (or the sole waypoint under `:natural_cubic` / `:rounded`).
+        waypoints = result.edge_waypoints[(1, 4)]
+        waypoint = waypoints[cld(length(waypoints), 2)]
         # Waypoint should sit off the straight chord (not collinear with 1–4)
         p1, p2 = result.positions[1], result.positions[4]
         chord = p2 - p1
