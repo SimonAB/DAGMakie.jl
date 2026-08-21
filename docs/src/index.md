@@ -32,7 +32,8 @@ Details: [Comparison](comparison.md) ·
 ## Capabilities
 
 Layouts are deterministic for DAGs (layered) and SCC-aware for cyclic graphs.
-Long skip chords receive waypoints so they do not draw through intermediate
+Long skip chords receive quadratic Bézier samples by default
+(`long_edge_routing = :quadratic`) so they do not draw through intermediate
 nodes ([Output Quality](guide/output_quality.md)). Undirected skeletons and
 time-indexed grids cover CPDAG output and unrolled temporal DAGs
 ([Skeletons & Time](guide/skeletons_and_time.md)). Themes

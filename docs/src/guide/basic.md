@@ -177,7 +177,8 @@ DAGMakie now defaults to an automatic layout strategy:
 - `layout = ...` still accepts explicit node positions or a `NetworkLayout.jl` layout object
 - Within-layer `node_gap` defaults to `2.6` for `label_position=:inner` and `1.8` for
   `:outer` (override with `node_gap=…`)
-- Long-range skip chords that skim intermediate nodes get GraphMakie waypoints
+- Long-range skip chords that skim intermediate nodes get quadratic Bézier
+  samples by default (`long_edge_routing = :quadratic`)
   (see [Output Quality](output_quality.md))
 - Comparison / intervention helpers reuse a shared layout result so panels do not jump
 

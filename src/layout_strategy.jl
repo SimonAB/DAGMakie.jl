@@ -86,6 +86,7 @@ function compute_graph_layout(
     component_gap::Real = 3.2,
     scc_radius::Real = 0.9,
     feedback_curvature::Real = 0.75,
+    long_edge_routing::Symbol = :quadratic,
 )
     mode = _resolve_layout_mode(layout_mode)
     # Self-loops are visual annotations; lay out on the loopless core so a
@@ -146,13 +147,14 @@ function compute_graph_layout(
         (Tuple{Int, Int}[], Dict{Tuple{Int, Int}, Vector{Point2f}}())
     end
 
-    # Long-range forward chords that skim intermediate nodes get a sideways
-    # waypoint (GraphMakie cubic spline). Feedback edges keep their own routing.
+    # Long-range forward chords that skim intermediate nodes get routed around
+    # obstacles (`long_edge_routing`). Feedback edges keep their own overlay path.
     if Graphs.is_directed(g_core)
         long_waypoints = _compute_long_edge_routing(
             g_core,
             positions,
             node_layers;
+            routing = long_edge_routing,
             clearance = 0.45 * Float64(node_gap),
         )
         for (edge, points) in long_waypoints
@@ -732,21 +734,44 @@ function _normalised_perpendicular(vector::Point2f)
     return perpendicular / norm(perpendicular)
 end
 
+const LONG_EDGE_ROUTINGS = (
+    :none,
+    :natural_cubic,
+    :quadratic,
+    :rounded,
+    :tangents,
+    :curve_distance,
+)
+
 """
-    _compute_long_edge_routing(g, positions, node_layers; clearance, min_layer_span)
+    _compute_long_edge_routing(g, positions, node_layers; routing, clearance, min_layer_span)
 
 For edges that skip at least one layer and whose straight chord comes within
-`clearance` of an intermediate-layer node, return a single sideways waypoint so
-GraphMakie can spline around the obstacle.
+`clearance` of an intermediate-layer node, return waypoints that steer the chord
+around the obstacle.
+
+`routing` selects the GraphMakie geometry:
+
+- `:none` / `:curve_distance` — no waypoints (`:curve_distance` bows via
+  `curve_distance` in [`dagplot!`](@ref))
+- `:quadratic` — samples of a quadratic Bézier bow (default; smoother single arc)
+- `:natural_cubic` — one sideways waypoint (GraphMakie natural cubic)
+- `:rounded` — one waypoint plus `waypoint_radius` (rounded polyline)
+- `:tangents` — one waypoint with chord-aligned endpoint tangents
 """
 function _compute_long_edge_routing(
     g::Graphs.AbstractGraph,
     positions::Vector{Point2f},
     node_layers::Vector{Int};
+    routing::Symbol = :quadratic,
     clearance::Real = 0.8,
     min_layer_span::Int = 2,
 )
+    routing in LONG_EDGE_ROUTINGS || throw(ArgumentError(
+        "long_edge_routing must be one of $(LONG_EDGE_ROUTINGS); got :$routing",
+    ))
     edge_waypoints = Dict{Tuple{Int, Int}, Vector{Point2f}}()
+    routing === :none && return edge_waypoints
     clearance_f = Float32(clearance)
 
     for edge in Graphs.edges(g)
@@ -775,6 +800,12 @@ function _compute_long_edge_routing(
         obstructing == 0 && continue
         best_distance >= clearance_f && continue
 
+        if routing === :curve_distance
+            # Mark the skip for `curve_distance` without spline waypoints.
+            edge_waypoints[(source, destination)] = Point2f[]
+            continue
+        end
+
         midpoint = (p1 + p2) / 2
         direction = _normalised_perpendicular(p2 - p1)
         to_obstacle = positions[obstructing] - midpoint
@@ -783,10 +814,35 @@ function _compute_long_edge_routing(
             side = 1.0f0
         end
         offset = max(clearance_f - best_distance, clearance_f) * 1.25f0
-        edge_waypoints[(source, destination)] = [midpoint - side * offset * direction]
+        control = midpoint - side * offset * direction
+        edge_waypoints[(source, destination)] = _long_edge_waypoints(p1, p2, control, routing)
     end
 
     return edge_waypoints
+end
+
+"""Waypoints for a long edge under `routing` (control is the offset bow apex)."""
+function _long_edge_waypoints(p1::Point2f, p2::Point2f, control::Point2f, routing::Symbol)
+    if routing === :natural_cubic || routing === :rounded || routing === :tangents
+        return Point2f[control]
+    elseif routing === :quadratic
+        return _quadratic_bezier_samples(p1, control, p2)
+    end
+    return Point2f[]
+end
+
+"""Interior samples of the quadratic Bézier ``(1-t)² p1 + 2(1-t)t c + t² p2``."""
+function _quadratic_bezier_samples(
+    p1::Point2f,
+    control::Point2f,
+    p2::Point2f;
+    ts::NTuple{N, Float32} = (0.25f0, 0.5f0, 0.75f0),
+) where {N}
+    samples = Vector{Point2f}(undef, N)
+    for (index, t) in enumerate(ts)
+        samples[index] = (1 - t)^2 * p1 + 2f0 * (1 - t) * t * control + t^2 * p2
+    end
+    return samples
 end
 
 """Perpendicular distance from `point` to the segment `a`–`b`."""

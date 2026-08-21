@@ -14,7 +14,9 @@ that read closer to Graphviz `dot` / dagitty than to a generic spring layout.
 ## Robustness features
 
 - Long-range forward edges that skim intermediate nodes receive a sideways
-  GraphMakie waypoint (cubic spline), so skip chords do not draw through nodes
+  quadratic Bézier samples (`long_edge_routing = :quadratic`), so skip chords
+  do not draw through nodes; other styles include `:natural_cubic`, `:none`,
+  `:rounded`, `:tangents`, `:curve_distance`
 - Feedback edges inside an SCC use curved overlays with boundary-aware arrowheads
 - Bidirected confounding arcs are clipped to node markers
 - Axis limits include markers, labels, and overlay waypoints

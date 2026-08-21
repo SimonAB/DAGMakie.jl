@@ -15,6 +15,8 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     scc_radius::Real = 0.9,
     feedback_curvature::Real = 0.75,
     feedback_overlay::Bool = true,
+    long_edge_routing::Symbol = :quadratic,
+    long_edge_radius::Real = 0.35,
     padding = nothing,
     style::Union{Nothing, DAGStyle} = nothing,
     title = nothing,
@@ -121,6 +123,7 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         component_gap = component_gap,
         scc_radius = scc_radius,
         feedback_curvature = feedback_curvature,
+        long_edge_routing = long_edge_routing,
     )
 
     edge_lookup = _edge_index_lookup(g)
@@ -204,6 +207,15 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     if _has_self_loops(g) && !haskey(user_kwargs, :selfedge_size)
         user_kwargs[:selfedge_size] = DEFAULT_SELFEDGE_SIZE
     end
+
+    _apply_long_edge_graphmakie_attrs!(
+        user_kwargs,
+        g,
+        layout_result,
+        base_waypoints;
+        routing = long_edge_routing,
+        radius = long_edge_radius,
+    )
 
     p = graphplot!(ax, g;
         layout = layout_result.positions,
