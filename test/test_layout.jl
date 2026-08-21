@@ -124,8 +124,61 @@ using Makie: Point2f
         @test maximum(ys) - minimum(ys) > 0.5
         @test maximum(xs) - minimum(xs) > 0.5
 
-        # Explicit layered mode still available when requested
+        # Explicit spring mode still available when requested
         layered = compute_graph_layout(g; layout_mode = :spring)
         @test length(layered.positions) == 3
+    end
+
+    @testset "long-edge waypoints for skip chords" begin
+        g = SimpleDiGraph(4)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+        add_edge!(g, 3, 4)
+        add_edge!(g, 1, 4)  # skip chord through nodes 2 and 3 when layered
+        result = compute_graph_layout(g; layout_mode = :acyclic)
+        @test haskey(result.edge_waypoints, (1, 4))
+        @test !isempty(result.edge_waypoints[(1, 4)])
+        waypoint = only(result.edge_waypoints[(1, 4)])
+        # Waypoint should sit off the straight chord (not collinear with 1–4)
+        p1, p2 = result.positions[1], result.positions[4]
+        chord = p2 - p1
+        offset = waypoint - (p1 + p2) / 2
+        cross = chord[1] * offset[2] - chord[2] * offset[1]
+        @test abs(cross) > 1e-3
+
+        fig, ax, p = dagplot(g; nlabels = ["A", "B", "C", "D"])
+        @test fig isa Figure
+        wps = p[:waypoints][]
+        edge_lookup = Dict((src(e), dst(e)) => i for (i, e) in enumerate(edges(g)))
+        @test !isempty(wps[edge_lookup[(1, 4)]])
+    end
+
+    @testset "layered crossing count" begin
+        g = SimpleDiGraph(4)
+        add_edge!(g, 1, 3)
+        add_edge!(g, 1, 4)
+        add_edge!(g, 2, 4)
+        layers_crossed = [[1, 2], [4, 3]]
+        layers_sorted = [[1, 2], [3, 4]]
+        @test count_layered_crossings(g, layers_crossed) == 1
+        @test count_layered_crossings(g, layers_sorted) == 0
+
+        result = compute_graph_layout(g; layout_mode = :acyclic)
+        layers = [Int[] for _ in 0:maximum(result.node_layers)]
+        for node in 1:nv(g)
+            push!(layers[result.node_layers[node] + 1], node)
+        end
+        # Barycentric sweeps should prefer the uncrossed pairing
+        @test count_layered_crossings(g, layers) == 0
+    end
+
+    @testset "single-node and Unicode label limits" begin
+        g = SimpleDiGraph(1)
+        fig, ax, p = dagplot(g; nlabels = ["αβγ_long_label"])
+        @test fig isa Figure
+        xlims = ax.xaxis.attributes.limits[]
+        ylims = ax.yaxis.attributes.limits[]
+        @test xlims[2] > xlims[1]
+        @test ylims[2] > ylims[1]
     end
 end

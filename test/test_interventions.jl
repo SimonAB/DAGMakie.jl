@@ -109,6 +109,24 @@
         @test fig isa Makie.Figure
     end
 
+    @testset "do comparison shares layout positions" begin
+        g = SimpleDiGraph(4)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+        add_edge!(g, 1, 4)
+        add_edge!(g, 4, 3)
+        shared = compute_graph_layout(g)
+        fig = dagplot_do_comparison(
+            g, 2;
+            labels = ["C", "A", "Y", "X"],
+            layout = shared,
+        )
+        @test fig isa Makie.Figure
+        # Re-resolving with the same DAGLayoutResult must keep positions
+        again = compute_graph_layout(g; layout = shared)
+        @test again.positions == shared.positions
+    end
+
     @testset "removed-edge overlay trims to fitted markers" begin
         g = SimpleDiGraph(3)
         add_edge!(g, 1, 2)

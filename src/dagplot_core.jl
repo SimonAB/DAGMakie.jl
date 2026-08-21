@@ -130,10 +130,18 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         falses(edge_count)
     end
     user_waypoints = _materialise_waypoints(g, waypoints)
-    base_waypoints = [
-        feedback_mask[index] ? Point2f[] : user_waypoints[index]
-        for index in 1:edge_count
-    ]
+    layout_waypoints = edge_waypoint_vector(g, layout_result)
+    base_waypoints = Vector{Vector{Point2f}}(undef, edge_count)
+    for index in 1:edge_count
+        if feedback_mask[index]
+            # Feedback geometry is drawn by the overlay, not the base graphplot.
+            base_waypoints[index] = Point2f[]
+        elseif !isempty(user_waypoints[index])
+            base_waypoints[index] = user_waypoints[index]
+        else
+            base_waypoints[index] = layout_waypoints[index]
+        end
+    end
     base_edge_colours = any(feedback_mask) ? Any[edge_colours...] : copy(edge_colours)
     base_edge_widths = copy(edge_widths)
     for index in eachindex(feedback_mask)

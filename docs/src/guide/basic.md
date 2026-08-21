@@ -177,6 +177,9 @@ DAGMakie now defaults to an automatic layout strategy:
 - `layout = ...` still accepts explicit node positions or a `NetworkLayout.jl` layout object
 - Within-layer `node_gap` defaults to `2.6` for `label_position=:inner` and `1.8` for
   `:outer` (override with `node_gap=…`)
+- Long-range skip chords that skim intermediate nodes get GraphMakie waypoints
+  (see [Output Quality](output_quality.md))
+- Comparison / intervention helpers reuse a shared layout result so panels do not jump
 
 For CPDAG skeletons and occasion×variable grids, see
 [Skeletons & Time](skeletons_and_time.md) (`dagplot_skeleton`,

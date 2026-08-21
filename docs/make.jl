@@ -31,6 +31,7 @@ makedocs(
             "Bidirected Edges" => "guide/bidirected.md",
             "Causal Analysis" => "guide/causal.md",
             "Interventions" => "guide/interventions.md",
+            "Output Quality" => "guide/output_quality.md",
         ],
         "API Reference" => "api.md",
     ],

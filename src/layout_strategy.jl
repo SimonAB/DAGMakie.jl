@@ -146,6 +146,21 @@ function compute_graph_layout(
         (Tuple{Int, Int}[], Dict{Tuple{Int, Int}, Vector{Point2f}}())
     end
 
+    # Long-range forward chords that skim intermediate nodes get a sideways
+    # waypoint (GraphMakie cubic spline). Feedback edges keep their own routing.
+    if Graphs.is_directed(g_core)
+        long_waypoints = _compute_long_edge_routing(
+            g_core,
+            positions,
+            node_layers;
+            clearance = 0.45 * Float64(node_gap),
+        )
+        for (edge, points) in long_waypoints
+            haskey(edge_waypoints, edge) && continue
+            edge_waypoints[edge] = points
+        end
+    end
+
     return DAGLayoutResult(
         positions,
         directed_kind,
@@ -258,12 +273,14 @@ function _triangle_node_layers(g::Graphs.AbstractGraph, positions::Vector{Point2
 end
 
 function _materialise_layout_positions(g::Graphs.AbstractGraph, layout)
-    raw_positions = if layout isa AbstractVector
+    raw_positions = if layout isa DAGLayoutResult
+        layout.positions
+    elseif layout isa AbstractVector
         layout
     elseif layout isa NetworkLayout.AbstractLayout || layout isa Function
         layout(g)
     else
-        error("Unsupported layout $(typeof(layout)). Provide positions, a NetworkLayout layout, or a layout function.")
+        error("Unsupported layout $(typeof(layout)). Provide positions, a DAGLayoutResult, a NetworkLayout layout, or a layout function.")
     end
 
     return Point2f.(raw_positions)
@@ -453,7 +470,7 @@ function _collect_layers(node_layers::Vector{Int}, stable_order::Vector{Int})
     return layers
 end
 
-function _barycentric_sweeps!(g::Graphs.AbstractGraph, layers::Vector{Vector{Int}}; sweeps::Int = 4)
+function _barycentric_sweeps!(g::Graphs.AbstractGraph, layers::Vector{Vector{Int}}; sweeps::Int = 6)
     for _ in 1:sweeps
         order_lookup = _layer_order_lookup(layers)
         for layer_id in 2:length(layers)
@@ -467,6 +484,41 @@ function _barycentric_sweeps!(g::Graphs.AbstractGraph, layers::Vector{Vector{Int
     end
 
     return layers
+end
+
+"""
+    count_layered_crossings(g, layers)
+
+Count pairwise edge crossings between consecutive layers of a layered digraph.
+Used for layout quality checks; not a public drawing API.
+"""
+function count_layered_crossings(g::Graphs.AbstractGraph, layers::Vector{Vector{Int}})
+    total = 0
+    for layer_id in 1:(length(layers) - 1)
+        upper = layers[layer_id]
+        lower = layers[layer_id + 1]
+        isempty(upper) && continue
+        isempty(lower) && continue
+        upper_index = Dict(node => index for (index, node) in enumerate(upper))
+        lower_index = Dict(node => index for (index, node) in enumerate(lower))
+        pairs = Tuple{Int, Int}[]
+        for u in upper
+            for v in Graphs.outneighbors(g, u)
+                haskey(lower_index, v) || continue
+                push!(pairs, (upper_index[u], lower_index[v]))
+            end
+        end
+        for i in 1:length(pairs)
+            for j in (i + 1):length(pairs)
+                a1, b1 = pairs[i]
+                a2, b2 = pairs[j]
+                if (a1 - a2) * (b1 - b2) < 0
+                    total += 1
+                end
+            end
+        end
+    end
+    return total
 end
 
 function _layer_order_lookup(layers::Vector{Vector{Int}})
@@ -678,4 +730,73 @@ function _normalised_perpendicular(vector::Point2f)
 
     perpendicular = Point2f(-vector[2], vector[1])
     return perpendicular / norm(perpendicular)
+end
+
+"""
+    _compute_long_edge_routing(g, positions, node_layers; clearance, min_layer_span)
+
+For edges that skip at least one layer and whose straight chord comes within
+`clearance` of an intermediate-layer node, return a single sideways waypoint so
+GraphMakie can spline around the obstacle.
+"""
+function _compute_long_edge_routing(
+    g::Graphs.AbstractGraph,
+    positions::Vector{Point2f},
+    node_layers::Vector{Int};
+    clearance::Real = 0.8,
+    min_layer_span::Int = 2,
+)
+    edge_waypoints = Dict{Tuple{Int, Int}, Vector{Point2f}}()
+    clearance_f = Float32(clearance)
+
+    for edge in Graphs.edges(g)
+        source = Graphs.src(edge)
+        destination = Graphs.dst(edge)
+        layer_span = abs(node_layers[destination] - node_layers[source])
+        layer_span < min_layer_span && continue
+
+        p1 = positions[source]
+        p2 = positions[destination]
+        layer_lo, layer_hi = minmax(node_layers[source], node_layers[destination])
+
+        best_distance = typemax(Float32)
+        obstructing = 0
+        for node in 1:Graphs.nv(g)
+            node == source && continue
+            node == destination && continue
+            layer = node_layers[node]
+            (layer > layer_lo && layer < layer_hi) || continue
+            distance = _point_to_segment_distance(positions[node], p1, p2)
+            if distance < best_distance
+                best_distance = distance
+                obstructing = node
+            end
+        end
+        obstructing == 0 && continue
+        best_distance >= clearance_f && continue
+
+        midpoint = (p1 + p2) / 2
+        direction = _normalised_perpendicular(p2 - p1)
+        to_obstacle = positions[obstructing] - midpoint
+        side = sign(Float32(to_obstacle[1] * direction[1] + to_obstacle[2] * direction[2]))
+        if iszero(side)
+            side = 1.0f0
+        end
+        offset = max(clearance_f - best_distance, clearance_f) * 1.25f0
+        edge_waypoints[(source, destination)] = [midpoint - side * offset * direction]
+    end
+
+    return edge_waypoints
+end
+
+"""Perpendicular distance from `point` to the segment `a`–`b`."""
+function _point_to_segment_distance(point::Point2f, a::Point2f, b::Point2f)
+    ab = b - a
+    ab2 = Float32(ab[1]^2 + ab[2]^2)
+    if ab2 <= 1f-12
+        return norm(point - a)
+    end
+    t = clamp(Float32((point[1] - a[1]) * ab[1] + (point[2] - a[2]) * ab[2]) / ab2, 0.0f0, 1.0f0)
+    projection = a + t * ab
+    return norm(point - projection)
 end

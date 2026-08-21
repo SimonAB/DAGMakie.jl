@@ -21,5 +21,6 @@ using Makie: Point2f
     include("test_dagplot.jl")
     include("test_visual_grammar.jl")
     include("test_smart.jl")
+    include("test_perf.jl")
     include("test_aqua.jl")
 end

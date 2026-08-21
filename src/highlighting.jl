@@ -28,6 +28,12 @@ Specification for highlighting elements in a DAG plot.
 - `edges::Vector{Tuple{Int,Int}}`: Edges to highlight (as src, dst pairs)
 - `edge_colors::Vector`: Colors for highlighted edges
 - `labels::Vector{String}`: Optional labels for highlighted nodes
+
+# Precedence
+
+When the same node or edge is listed more than once, the **first** listing wins
+(exposure / outcome / adjustment colours should therefore precede path colours
+in merged specs). Default theme colours sit underneath.
 """
 struct HighlightSpec
     nodes::Vector{Int}
@@ -456,10 +462,15 @@ function _apply_highlight_node_styles!(
     highlight::HighlightSpec;
     highlight_node_size,
 )
+    # First listing wins (exposure/outcome typically precede paths in specs).
+    claimed = falses(length(node_colors))
     for (index, node) in enumerate(highlight.nodes)
-        if 1 <= node <= length(node_colors) && index <= length(highlight.node_colors)
+        if 1 <= node <= length(node_colors) &&
+                index <= length(highlight.node_colors) &&
+                !claimed[node]
             node_colors[node] = highlight.node_colors[index]
             node_sizes[node] = highlight_node_size
+            claimed[node] = true
         end
     end
 
@@ -473,11 +484,16 @@ function _apply_highlight_edge_styles!(
     highlight::HighlightSpec;
     highlight_edge_width,
 )
+    # First listing wins when the same edge appears in several paths.
+    claimed = Set{Tuple{Int, Int}}()
     for (index, edge) in enumerate(highlight.edges)
-        if haskey(edge_to_idx, edge) && index <= length(highlight.edge_colors)
+        if haskey(edge_to_idx, edge) &&
+                index <= length(highlight.edge_colors) &&
+                !(edge in claimed)
             edge_index = edge_to_idx[edge]
             edge_colors[edge_index] = highlight.edge_colors[index]
             edge_widths[edge_index] = highlight_edge_width
+            push!(claimed, edge)
         end
     end
 

@@ -97,12 +97,17 @@ limits to prevent clipping of nodes and labels.
 - `g::AbstractGraph`: A graph from Graphs.jl to plot
 
 # Layout Keyword Arguments
-- `layout = Spring()`: Layout algorithm from NetworkLayout.jl
+- `layout_mode = :auto`: `:auto` uses a deterministic layered layout for DAGs
+  and an SCC-aware layout for cyclic digraphs; `:acyclic` / `:cyclic` force those
+  modes; `:spring` uses NetworkLayout `Spring()`. Pass explicit `layout = …`
+  (positions or a NetworkLayout algorithm) to bypass the strategy
 - `padding::Float64 = 0.1`: Padding around graph as fraction of range
 - `layer_gap = 2.6`: Spacing between layered columns (or rows)
 - `node_gap = nothing`: Within-layer spacing. Defaults to
   [`DEFAULT_NODE_GAP_INNER`](@ref) (`2.6`) when `label_position=:inner`, and
   [`DEFAULT_NODE_GAP_OUTER`](@ref) (`1.8`) when `label_position=:outer`
+- Comparison / intervention helpers reuse a shared [`DAGLayoutResult`](@ref) so
+  panels keep the same node positions
 
 # Node Keyword Arguments
 - `node_size = DEFAULT_NODE_SIZE`: Node marker size in pixels (theme default 34;

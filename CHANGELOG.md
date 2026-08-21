@@ -5,7 +5,7 @@ All notable changes to DAGMakie.jl will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.8] - 2026-08-21
 
 ### Changed
 
@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default within-layer `node_gap` is [`DEFAULT_NODE_GAP_INNER`](@ref) (`2.6`) when
   `label_position=:inner`, and [`DEFAULT_NODE_GAP_OUTER`](@ref) (`1.8`) when
   `label_position=:outer` (was a flat `1.8` for both).
+- Document `layout_mode = :auto` as the default (docs no longer imply `Spring()`)
+- Barycentric layer sweeps: 6 passes (was 4)
+- Highlight node/edge colours: **first listing wins** when duplicates appear
+- `label_position=:outer` (and legacy `auto_align_labels=true`) defaults to
+  [`OUTER_LABEL_NODE_SIZE`](@ref) (19) unless `node_size` is set explicitly
+  (in-node themes stay larger).
+- Resolve docs: CausalInference ≥0.19.4 allows GraphMakie 0.6 in one environment
+  with CausalDynamics; dual-env guidance retired.
 
 ### Added
 
@@ -30,6 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [`node_size_for_inner_label`](@ref) / [`fit_node_sizes_to_labels`](@ref). Pass
   `false` (or set `node_size`) to keep a uniform size. Skipped for
   `label_position=:outer`.
+- Long-range forward edges that skim intermediate nodes receive GraphMakie
+  waypoints (cubic spline) so skip chords do not draw through nodes
+- `count_layered_crossings` for layered quality checks
+- Guide page [Output Quality](docs/src/guide/output_quality.md)
+- Optional `DAGMAKIE_PERF=1` layout/render budgets in `test/test_perf.jl`
+- Geometry regressions for skip chords, Unicode single-node limits, shared
+  comparison layouts, and `show_backdoor=false`
 
 ### Fixed
 
@@ -48,14 +63,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intervention plots with `label_position=:outer` and `show_removed_edges=true` now
   align labels against the factual DAG, so grey removed parent edges count as
   obstacles (same placement as the left panel of `dagplot_do_comparison`).
-
-### Changed
-
-- `label_position=:outer` (and legacy `auto_align_labels=true`) defaults to
-  [`OUTER_LABEL_NODE_SIZE`](@ref) (19) unless `node_size` is set explicitly
-  (in-node themes stay larger).
-- Resolve docs: CausalInference ≥0.19.4 allows GraphMakie 0.6 in one environment
-  with CausalDynamics; dual-env guidance retired.
 
 ## [0.1.7] - 2026-08-09
 

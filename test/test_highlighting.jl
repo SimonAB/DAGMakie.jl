@@ -88,4 +88,35 @@
         fig, ax, p = dagplot_adjustment(g, 2, 3; adjustment = Set([1]))
         @test fig isa Makie.Figure
     end
+
+    @testset "show_backdoor=false highlights adjustment only" begin
+        g = SimpleDiGraph(3)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+        add_edge!(g, 1, 3)
+
+        fig, ax, p = dagplot_adjustment(
+            g, 2, 3;
+            adjustment = Set([1]),
+            show_backdoor = false,
+            nlabels = ["Z", "X", "Y"],
+        )
+        @test fig isa Makie.Figure
+        @test p[:node_color][][1] == :indianred
+    end
+
+    @testset "highlight first-listing precedence" begin
+        g = SimpleDiGraph(3)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+        hs = HighlightSpec(
+            nodes = [1, 1],
+            node_colors = [:seagreen, :red],
+            edges = [(1, 2), (1, 2)],
+            edge_colors = [:blue, :orange],
+        )
+        fig, ax, p = dagplot_highlighted(g, hs; nlabels = ["A", "B", "C"])
+        @test p[:node_color][][1] == :seagreen
+        @test p[:edge_color][][1] == :blue
+    end
 end

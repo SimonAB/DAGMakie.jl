@@ -214,6 +214,7 @@ DAGLayoutResult
 classify_graph_kind
 feedback_edge_mask
 edge_waypoint_vector
+count_layered_crossings
 node
 edge
 ```

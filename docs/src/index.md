@@ -32,8 +32,10 @@ Details: [Comparison](comparison.md) ·
 ## Capabilities
 
 Layouts are deterministic for DAGs (layered) and SCC-aware for cyclic graphs.
-Undirected skeletons and time-indexed grids cover CPDAG output and unrolled
-temporal DAGs ([Skeletons & Time](guide/skeletons_and_time.md)). Themes
+Long skip chords receive waypoints so they do not draw through intermediate
+nodes ([Output Quality](guide/output_quality.md)). Undirected skeletons and
+time-indexed grids cover CPDAG output and unrolled temporal DAGs
+([Skeletons & Time](guide/skeletons_and_time.md)). Themes
 (`default`, `minimal`, `bold`, `presentation`) control stroke weight and
 spacing. Node labels prefer `labels=` with `label_position = :inner | :outer`
 and optional `color_by` role colouring. Convenience constructors cover chain,
