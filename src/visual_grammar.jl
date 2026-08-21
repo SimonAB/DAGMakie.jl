@@ -209,7 +209,7 @@ function did_2x2_swig_spec(;
         NodeSpec(labels[3]; type = Outcome),
         # Non-square rects: wide labels need width; height set for clear vertical pad.
         # (GraphMakie circle markers render ≈ 0.7× markersize, so circles clip Y₁(0).)
-        # Requires GraphMakie ≥ 0.6.6 (`distance_between_markers` accepts tuples).
+        # `(w, h)` rects: DAGMakie passes a scalar extent into GraphMakie.
         NodeSpec(labels[4]; type = Outcome, marker = :rect, size = (132, 84)),
         NodeSpec(labels[5]; type = Treatment),
         NodeSpec(labels[6]; type = SwigFixed, size = (105, 80)),

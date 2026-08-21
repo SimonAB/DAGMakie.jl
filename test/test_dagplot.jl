@@ -129,6 +129,30 @@
         @test only(geometry.arrow_positions) == last(path)
     end
 
+    @testset "feedback geometry with oval (tuple) node sizes" begin
+        # General GraphMakie 0.6.6 cannot multiply by `(w, h)`; DAGMakie must
+        # pass a scalar extent. Regression for removed-edge / feedback overlays.
+        edge_pairs = [(1, 2)]
+        positions = [Makie.Point2f(-1, 0), Makie.Point2f(1, 0)]
+        fig, ax, p = dagplot(
+            graph_from_edges(2, edge_pairs);
+            layout = positions,
+            node_size = 20,
+        )
+        geometry = DAGMakie.compute_feedback_geometry(
+            edge_pairs,
+            positions,
+            Any[Makie.Circle, :circle],
+            Any[(40.0, 24.0), 20],
+            [[Makie.Point2f(0, 1.4)]],
+            DAGMakie._plot_to_px(p);
+            arrow_size = [10],
+            arrow_shift = [:end],
+        )
+        @test length(only(geometry.paths)) >= 2
+        @test length(geometry.arrow_positions) == 1
+    end
+
     @testset "dagplot with fully styled DAGSpec" begin
         g = SimpleDiGraph(3)
         add_edge!(g, 1, 2)

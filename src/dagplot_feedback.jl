@@ -32,16 +32,19 @@ function compute_feedback_geometry(
             Point2f(positions[destination]),
             waypoints[index],
         )
+        # Normalise to a scalar extent: General GraphMakie 0.6.6 multiplies
+        # sizes directly; `(width, height)` ovals need `maximum` first (fork
+        # already does this inside `distance_between_markers`).
         start_distance = distance_between_markers(
             _attribute_value(node_markers, source),
-            _attribute_value(node_sizes, source),
+            _marker_extent_px(_attribute_value(node_sizes, source)),
             :circle,
             0,
         )
         arrow_size_value = Float64(_attribute_value(arrow_size, index))
         end_distance = distance_between_markers(
             _attribute_value(node_markers, destination),
-            _attribute_value(node_sizes, destination),
+            _marker_extent_px(_attribute_value(node_sizes, destination)),
             Arrow,
             arrow_size_value,
         )

@@ -316,15 +316,16 @@ function compute_bidirected_geometry(
 
     for (i, j) in _sorted_bidirected_edges(mg)
         path = compute_bidirected_path(Point2f(positions[i]), Point2f(positions[j]); curvature = curvature)
+        # Scalar extent: General GraphMakie 0.6.6 does not accept `(w, h)` sizes.
         start_distance = distance_between_markers(
             _attribute_value(node_markers, i),
-            _attribute_value(node_sizes, i),
+            _marker_extent_px(_attribute_value(node_sizes, i)),
             Arrow,
             arrow_size,
         )
         end_distance = distance_between_markers(
             _attribute_value(node_markers, j),
-            _attribute_value(node_sizes, j),
+            _marker_extent_px(_attribute_value(node_sizes, j)),
             Arrow,
             arrow_size,
         )

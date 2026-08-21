@@ -111,6 +111,23 @@ using Makie: Point2f
         @test last(geometry.paths[1]) != positions[2]
         @test length(geometry.arrow_positions) == 2
     end
+
+    @testset "bidirected geometry with oval (tuple) node sizes" begin
+        mg = mixed_graph(2, [], [(1, 2)])
+        positions = [Point2f(0, 0), Point2f(2, 0)]
+        fig, ax, p = dagplot(mg.directed; layout = positions, node_size = 20)
+        geometry = DAGMakie.compute_bidirected_geometry(
+            mg,
+            positions,
+            Any[:rect, :circle],
+            Any[(50.0, 30.0), 20],
+            DAGMakie._plot_to_px(p);
+            curvature = 0.3,
+            arrow_size = 8,
+        )
+        @test length(geometry.paths) == 1
+        @test length(geometry.arrow_positions) == 2
+    end
     
     @testset "Pattern graphs" begin
         # Confounded
