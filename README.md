@@ -107,6 +107,22 @@ web GUI.
 Full matrices: [ECOSYSTEM_COMPARISON.md](ECOSYSTEM_COMPARISON.md) ·
 [Documenter comparison](https://simonab.github.io/DAGMakie.jl/dev/comparison/).
 
+## Testing and validation
+
+CI runs `Pkg.test()` on Julia **1.12** with CairoMakie; codecov and Aqua QA are enabled. Visual regression is exercised through layout geometry and recipe tests rather than pixel diffs.
+
+| Guardrail | What we exercise | Where |
+|-----------|------------------|-------|
+| **Unit / API** | Node types, layered and SCC-aware layouts, temporal / SWIG / DiD visual grammar, bidirected edges, path highlighting, display-only `do(·)` surgery, label alignment | `test/` |
+| **Layout regression** | Waypoints, long-edge routing, oval overlays, node sizing from labels | `test/test_layout.jl`, `test/test_temporal_layout.jl`, `test/test_auto_align.jl` |
+| **Integration / extensions** | Optional CausalInference adjustment helpers; CausalDynamics plotting bridge (when developed) | `test/test_smart.jl`, `test/test_causaldynamics_ext.jl` |
+| **Package QA** | Aqua.jl ambiguities and piracy checks | `test/test_aqua.jl` |
+| **Performance (optional)** | Layout and first-render time budgets (`DAGMAKIE_PERF=1`) | `test/test_perf.jl`, `test/benchmark_layouts.jl` |
+| **Manual / dev renders** | Feedback and layered example figures for layout inspection | `test/render_feedback_graphs.jl` |
+| **Stack stress (figures)** | Identify → `dagplot` on stress DAGs (sheep, mediation, sequential) | [CausalTargeted stress_validation.qmd](https://github.com/SimonAB/CausalTargeted.jl/blob/main/docs/stress/stress_validation.qmd) |
+
+If you have a graph layout or annotation case that should break less often (dense feedback, long labels, mixed directed / bidirected edges), please open an issue — we welcome fixtures that tighten the guardrails.
+
 Identification algorithms live in CausalInference.jl or CausalDynamics.jl.
 Pass adjustment sets / paths into `dagplot_*`, or `using CausalInference` so the
 optional extension can compute a minimal backdoor set. Prefer plotting from
