@@ -172,8 +172,6 @@ Edges are straight unless you pass `edge_routing`. Curve a fork or skip chord wi
 `:curved`, [`CurvedEdge`](@ref), or a bow fraction (fraction of chord length):
 
 ```@example getting_started
-using Makie: Point2f
-
 g_m, labels_m = mediation_graph(["W", "A", "M", "Y"])
 positions = [Point2f(0, 0), Point2f(1.2, 0), Point2f(1.2, 0.9), Point2f(2.4, 0)]
 fig, ax, p = dagplot(g_m;

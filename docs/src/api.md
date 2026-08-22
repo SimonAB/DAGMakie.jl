@@ -222,7 +222,7 @@ edge
 ## Edge routing
 
 Edges are straight by default. Per-edge bows use `edge_routing` on [`dagplot`](@ref) /
-[`dagplot!`](@ref) (see [Basic Plotting](@ref) and [Output Quality](@ref)).
+[`dagplot!`](@ref) (see [Basic Plotting](@ref) and [Output Quality](guide/output_quality.md)).
 
 ```@docs
 CurvedEdge
