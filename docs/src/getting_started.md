@@ -172,7 +172,10 @@ Edges are straight unless you pass `edge_routing`. Curve a fork or skip chord wi
 `:curved`, [`CurvedEdge`](@ref), or a bow fraction (fraction of chord length):
 
 ```@example getting_started
-g_m, labels_m = mediation_graph(["W", "A", "M", "Y"])
+g_m = DiGraph(4)
+add_edge!(g_m, 1, 2); add_edge!(g_m, 1, 3); add_edge!(g_m, 1, 4)
+add_edge!(g_m, 2, 3); add_edge!(g_m, 2, 4); add_edge!(g_m, 3, 4)
+labels_m = ["W", "A", "M", "Y"]
 positions = [Point2f(0, 0), Point2f(1.2, 0), Point2f(1.2, 0.9), Point2f(2.4, 0)]
 fig, ax, p = dagplot(g_m;
     labels = labels_m,
