@@ -177,9 +177,11 @@ DAGMakie now defaults to an automatic layout strategy:
 - `layout = ...` still accepts explicit node positions or a `NetworkLayout.jl` layout object
 - Within-layer `node_gap` defaults to `2.6` for `label_position=:inner` and `1.8` for
   `:outer` (override with `node_gap=…`)
-- Long-range skip chords that skim intermediate nodes get quadratic Bézier
-  samples by default (`long_edge_routing = :quadratic`)
+- Edges are **straight by default**; curve forks or skip chords with `:curved`,
+  `CurvedEdge()`, or a bow fraction (`long_edge_routing = :quadratic` when curved)
   (see [Output Quality](output_quality.md))
+- Per-edge overrides: `edge_routing = Dict((1, 4) => :curved, (1, 5) => CurvedEdge(bow = 0.28))`
+  (`:straight`, `:curved`, a bow fraction, or `CurvedEdge(distance=…)` for bend angle)
 - Comparison / intervention helpers reuse a shared layout result so panels do not jump
 
 For CPDAG skeletons and occasion×variable grids, see

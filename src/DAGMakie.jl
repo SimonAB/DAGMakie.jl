@@ -66,6 +66,7 @@ include("types.jl")
 include("auto_align.jl")
 include("layout.jl")
 include("utils.jl")
+include("edge_routing.jl")
 include("bidirected.jl")
 include("layout_strategy.jl")
 include("node_styling.jl")
@@ -105,6 +106,7 @@ export AUTO_ALIGN_LABEL_DISTANCE, AUTO_ALIGN_LABEL_COLOR, AUTO_ALIGN_NODE_SIZE
 export estimate_label_extent, compute_label_bounds, compute_padded_limits
 export estimate_label_pixel_size, node_size_for_inner_label, fit_node_sizes_to_labels
 export FIT_NODE_LABEL_PADDING, FIT_NODE_MIN_SIZE, FIT_NODE_RECT_ASPECT, FIT_NODE_MARKER
+export CurvedEdge, DEFAULT_EDGE_BOW
 export DAGLayoutResult, classify_graph_kind, compute_graph_layout, feedback_edge_mask, edge_waypoint_vector, count_layered_crossings
 export time_indexed_layout, dagplot_time_indexed
 

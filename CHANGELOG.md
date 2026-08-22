@@ -7,11 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-08-22
+
 ### Changed
 
-- Default `long_edge_routing` is `:quadratic` (Bézier samples around skip
-  chords); `:natural_cubic` remains available. Other styles: `:none`,
-  `:rounded`, `:tangents`, `:curve_distance`.
+- **`edge_routing`** and **`CurvedEdge`**: edges straight by default; curve per edge
+  with `:curved`, [`CurvedEdge`](@ref) (default bow [`DEFAULT_EDGE_BOW`](@ref)),
+  a bow fraction (`Real`), or `CurvedEdge(distance=…)` for GraphMakie bend angle
+  (``γ = 2\\operatorname{atan}(2d/L)``). Legacy **`straight_edges`** remains
+  shorthand for `:straight`.
+- Default `long_edge_routing` is `:quadratic` (Bézier samples when an edge is
+  curved); `:natural_cubic` remains available. Other styles: `:none`, `:rounded`,
+  `:tangents`, `:curve_distance`.
+- Removed automatic skip-chord obstacle routing (`:auto`); curvature is explicit
+  via `edge_routing` only.
 
 ## [0.1.9] - 2026-08-21
 
@@ -233,5 +242,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integration with CausalDynamics analysis functions
   - `causal_analysis` and `print_causal_analysis` helpers
 
+[0.1.10]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.10
 [0.1.1]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.1
 [0.1.0]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.0

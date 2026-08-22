@@ -129,31 +129,78 @@ using Makie: Point2f
         @test length(layered.positions) == 3
     end
 
-    @testset "long-edge waypoints for skip chords" begin
+    @testset "curved edge waypoints" begin
         g = SimpleDiGraph(4)
         add_edge!(g, 1, 2)
         add_edge!(g, 2, 3)
         add_edge!(g, 3, 4)
-        add_edge!(g, 1, 4)  # skip chord through nodes 2 and 3 when layered
-        result = compute_graph_layout(g; layout_mode = :acyclic)
+        add_edge!(g, 1, 4)
+        result = compute_graph_layout(
+            g;
+            layout_mode = :acyclic,
+            edge_routing = Dict((1, 4) => CurvedEdge()),
+        )
         @test haskey(result.edge_waypoints, (1, 4))
         @test !isempty(result.edge_waypoints[(1, 4)])
-        # Default `:quadratic` routing samples several Bézier points; pick the
-        # mid sample (or the sole waypoint under `:natural_cubic` / `:rounded`).
         waypoints = result.edge_waypoints[(1, 4)]
         waypoint = waypoints[cld(length(waypoints), 2)]
-        # Waypoint should sit off the straight chord (not collinear with 1–4)
         p1, p2 = result.positions[1], result.positions[4]
         chord = p2 - p1
         offset = waypoint - (p1 + p2) / 2
         cross = chord[1] * offset[2] - chord[2] * offset[1]
         @test abs(cross) > 1e-3
 
-        fig, ax, p = dagplot(g; nlabels = ["A", "B", "C", "D"])
+        layout = Point2f[Point2f(0, 0), Point2f(1, 0), Point2f(2, 0), Point2f(3, 0)]
+        res_shallow = compute_graph_layout(
+            g; layout = layout, edge_routing = Dict((1, 4) => CurvedEdge(bow = 0.12)),
+        )
+        res_deep = compute_graph_layout(
+            g; layout = layout, edge_routing = Dict((1, 4) => CurvedEdge(bow = 0.35)),
+        )
+        bow_depth(res, key) = begin
+            wps = res.edge_waypoints[key]
+            p1, p2 = res.positions[key[1]], res.positions[key[2]]
+            mid = (p1 + p2) / 2
+            wp = wps[cld(length(wps), 2)]
+            abs((p2[1] - p1[1]) * (wp[2] - mid[2]) - (p2[2] - p1[2]) * (wp[1] - mid[1]))
+        end
+        @test bow_depth(res_deep, (1, 4)) > bow_depth(res_shallow, (1, 4))
+
+        fig, ax, p = dagplot(
+            g;
+            nlabels = ["A", "B", "C", "D"],
+            edge_routing = Dict((1, 4) => :curved),
+        )
         @test fig isa Figure
         wps = p[:waypoints][]
         edge_lookup = Dict((src(e), dst(e)) => i for (i, e) in enumerate(edges(g)))
         @test !isempty(wps[edge_lookup[(1, 4)]])
+    end
+
+    @testset "edge_routing straight and curved" begin
+        g = SimpleDiGraph(4)
+        add_edge!(g, 1, 2); add_edge!(g, 2, 3); add_edge!(g, 1, 3); add_edge!(g, 1, 4); add_edge!(g, 3, 4)
+        layout = Point2f[
+            Point2f(0, 0),
+            Point2f(1.2, 1.0),
+            Point2f(2.4, 0),
+            Point2f(3.6, 0),
+        ]
+        res = compute_graph_layout(g; layout = layout)
+        @test !haskey(res.edge_waypoints, (1, 4))  # default straight
+        res_curved = compute_graph_layout(
+            g;
+            layout = layout,
+            edge_routing = Dict((1, 4) => 0.3),
+        )
+        @test haskey(res_curved.edge_waypoints, (1, 4))
+        fig, _, _ = dagplot(
+            g;
+            layout = layout,
+            labels = ["A", "M1", "M2", "Y"],
+            edge_routing = Dict((1, 4) => :curved),
+        )
+        @test fig isa Figure
     end
 
     @testset "layered crossing count" begin

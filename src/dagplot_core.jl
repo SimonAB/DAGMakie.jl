@@ -17,6 +17,8 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     feedback_overlay::Bool = true,
     long_edge_routing::Symbol = :quadratic,
     long_edge_radius::Real = 0.35,
+    edge_routing = nothing,
+    straight_edges = nothing,
     padding = nothing,
     style::Union{Nothing, DAGStyle} = nothing,
     title = nothing,
@@ -124,9 +126,12 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         scc_radius = scc_radius,
         feedback_curvature = feedback_curvature,
         long_edge_routing = long_edge_routing,
+        edge_routing = edge_routing,
+        straight_edges = straight_edges,
     )
 
     edge_lookup = _edge_index_lookup(g)
+    routing_specs = _merge_edge_routing(edge_routing, straight_edges)
     feedback_mask = if feedback_overlay
         feedback_edge_mask(g, layout_result)
     else
@@ -143,6 +148,16 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
             base_waypoints[index] = user_waypoints[index]
         else
             base_waypoints[index] = layout_waypoints[index]
+        end
+    end
+    for (edge, spec) in routing_specs
+        mode, curved = _parse_routing_spec(spec)
+        idx = get(edge_lookup, edge, nothing)
+        idx === nothing && continue
+        if mode === :straight
+            base_waypoints[idx] = Point2f[]
+        elseif mode === :curved && curved !== nothing && curved.distance !== nothing
+            base_waypoints[idx] = Point2f[]
         end
     end
     base_edge_colours = any(feedback_mask) ? Any[edge_colours...] : copy(edge_colours)
@@ -215,6 +230,13 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         base_waypoints;
         routing = long_edge_routing,
         radius = long_edge_radius,
+    )
+    _apply_edge_curve_distances!(
+        user_kwargs,
+        g,
+        edge_lookup,
+        layout_result.edge_curve_distances,
+        routing_specs,
     )
 
     p = graphplot!(ax, g;

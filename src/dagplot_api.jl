@@ -120,6 +120,12 @@ limits to prevent clipping of nodes and labels.
 # Edge Keyword Arguments
 - `edge_color = :black`: Edge colour
 - `edge_width = 1.0`: Edge line width
+- `straight_edges = nothing`: Shorthand for `edge_routing = Dict(e => :straight for e in edges)`
+- `edge_routing = nothing`: `Dict((src, dst) => spec)` per-edge routing — straight
+  by default; curve with `:curved`, [`CurvedEdge`](@ref) (default bow
+  [`DEFAULT_EDGE_BOW`](@ref)), a bow fraction (`Real`), or `CurvedEdge(distance=…)`
+  for GraphMakie bend angle ``γ = 2\\operatorname{atan}(2d/L)``
+- `long_edge_routing = :quadratic`: Geometry for bowed edges (`:none`, `:natural_cubic`, …)
 - `arrow_size = 10`: Arrowhead size
 - `arrow_shift = :end`: Arrow position (`:end` or Float64 0-1)
 - `elabels = nothing`: Edge labels in `Graphs.edges(g)` order. Accepts plain
@@ -216,6 +222,8 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     feedback_overlay::Bool = true,
     long_edge_routing::Symbol = :quadratic,
     long_edge_radius::Real = 0.35,
+    edge_routing = nothing,
+    straight_edges = nothing,
     padding = nothing,
     style::Union{Nothing, DAGStyle} = nothing,
     title = nothing,
@@ -311,6 +319,8 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         feedback_overlay = feedback_overlay,
         long_edge_routing = long_edge_routing,
         long_edge_radius = long_edge_radius,
+        edge_routing = edge_routing,
+        straight_edges = straight_edges,
         padding = padding,
         style = style,
         title = title,

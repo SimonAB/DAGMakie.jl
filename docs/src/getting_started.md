@@ -166,6 +166,27 @@ dagplot!(ax3, g_collider, labels = ["A", "B", "C"])
 fig
 ```
 
+## Curved edges (skip chords)
+
+Edges are straight unless you pass `edge_routing`. Curve a fork or skip chord with
+`:curved`, [`CurvedEdge`](@ref), or a bow fraction (fraction of chord length):
+
+```@example getting_started
+using Makie: Point2f
+
+g_m, labels_m = mediation_graph(["W", "A", "M", "Y"])
+positions = [Point2f(0, 0), Point2f(1.2, 0), Point2f(1.2, 0.9), Point2f(2.4, 0)]
+fig, ax, p = dagplot(g_m;
+    labels = labels_m,
+    layout = positions,
+    edge_routing = Dict(
+        (1, 4) => CurvedEdge(bow = 0.18, side = :right),
+        (1, 3) => CurvedEdge(bow = 0.12),
+    ),
+)
+fig
+```
+
 ## See also
 
 - [Basic Plotting](@ref) — node and edge appearance

@@ -9,6 +9,33 @@ using LinearAlgebra: norm
 using Makie: Point2f
 
 """
+    _normalise_edge_pairs(edges) -> Set{Tuple{Int, Int}}
+
+Normalise `(src, dst)` edge lists for routing overrides. Pass `nothing` for an
+empty set.
+"""
+function _normalise_edge_pairs(edges)
+    edges === nothing && return Set{Tuple{Int, Int}}()
+    pairs = Set{Tuple{Int, Int}}()
+    for item in edges
+        item isa Tuple{Int, Int} || throw(ArgumentError(
+            "edge pairs must be (src::Int, dst::Int); got $(typeof(item))",
+        ))
+        push!(pairs, item)
+    end
+    return pairs
+end
+
+"""Unit perpendicular to `vector` (2D, normalised)."""
+function _normalised_perpendicular(vector::Point2f)
+    if norm(vector) <= 1f-6
+        return Point2f(0, 1)
+    end
+    perpendicular = Point2f(-vector[2], vector[1])
+    return perpendicular / norm(perpendicular)
+end
+
+"""
     apply_dag_theme!(ax)
 
 Apply clean DAG theme to an existing axis.
