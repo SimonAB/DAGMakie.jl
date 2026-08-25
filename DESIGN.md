@@ -33,6 +33,8 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
   PC displays; undirected `SimpleGraph` inputs skip directed SCC logic and suppress
   arrowheads with a dedicated stroke colour.
 - Node roles (treatment, outcome, latent) are **styling hints**, not identification claims.
+- **Plate / nested-unit layout** (when added) is display-only for CausalDynamics
+  hierarchical DAG unrolls; DAGMakie does not own generative nesting or estimation.
 - **Visual grammar** (interactions / DiD): IDAG effect-measure nodes, dash-dot
   modifier annotations, and SWIG fixed halves are display-only; see
   `docs/src/guide/visual_grammar.md`.
@@ -59,9 +61,11 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 
 ### What not to add
 
-- Estimation, simulation, or registry I/O.
+- Estimation, simulation, registry I/O, or hierarchical model fitting.
 - Process-philosophy terminology in export names or manual pages.
 - Hard dependency on CausalDynamics for basic `dagplot!` usage.
+- Plate / nested-unit **layout** may visualise CausalDynamics
+  `unroll_hierarchical_dag` graphs; it must not invent generative nesting.
 
 ## Adding a feature (workflow)
 
