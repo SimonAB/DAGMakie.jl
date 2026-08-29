@@ -28,11 +28,12 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 
 - **Dashed outlines** for latent states in state-space diagrams; solid for observed and exogenous noise (see book `.cursorrules`).
 - **Layered DAG layout** for acyclic graphs; **SCC-aware** routing for feedback.
-- **Time-indexed layout** (`time_indexed_layout` / `dagplot_time_indexed`) for unrolled temporal DAGs (column = occasion, row = variable).
+- **Time-indexed layout** (`time_indexed_layout` / `dagplot_time_indexed`) for unrolled temporal DAGs (column = occasion, row = variable). With `color_by`, exposure / outcome / ancestor roles propagate across each variable row (issue #5).
 - **Undirected skeletons** (`digraph_skeleton` / `dagplot_skeleton`) for CPDAG-style
   PC displays; undirected `SimpleGraph` inputs skip directed SCC logic and suppress
   arrowheads with a dedicated stroke colour.
 - Node roles (treatment, outcome, latent) are **styling hints**, not identification claims.
+- **Default label placement** is `:outer` (compact nodes, external auto-aligned labels); `:inner` + fitted markers is opt in.
 - **Plate / nested-unit layout** (when added) is display-only for CausalDynamics
   hierarchical DAG unrolls; DAGMakie does not own generative nesting or estimation.
 - **Visual grammar** (interactions / DiD): IDAG effect-measure nodes, dash-dot
@@ -56,7 +57,7 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 
 ### Publication defaults
 
-- Sensible academic defaults: minimal chrome, readable fonts, steel-blue nodes, in-node labels.
+- Sensible academic defaults: minimal chrome, readable fonts, steel-blue nodes, outer labels by default (`label_position=:inner` for in-node text).
 - Themes (**default**, **minimal**, **bold**, **presentation**) are data, not one-off magic numbers scattered through call sites.
 
 ### What not to add

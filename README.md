@@ -69,9 +69,11 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 
 ## Capabilities
 
-- In-node white labels on steel-blue nodes by default (`label_position = :inner`);
-  pass `label_position = :outer` for dagitty-style external labels
-- Marker size follows label width by default (`fit_node_size_to_labels = true`)
+- Compact steel-blue nodes with **external** auto-aligned labels by default
+  (`label_position = :outer`; `label_position = :inner` + `fit_node_size_to_labels=true`
+  for in-node white text)
+- Marker size follows label width when `label_position=:inner` and
+  `fit_node_size_to_labels = true` (default is `false` with outer labels)
 - Prefer `labels=` for node text (`nlabels=` remains a GraphMakie-compatible alias)
 - Edge labels via GraphMakie `elabels` and [`structural_edge_labels`](https://simonab.github.io/DAGMakie.jl/dev/) (numeric \(B\) or LaTeX path coefficients)
 - Deterministic layered DAG layout for acyclic graphs (not a generic spring layout)
@@ -80,6 +82,8 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 - Causal diagram conventions: observed, latent, treatment, outcome, bidirected confounding
 - Path highlighting and `color_by = :ancestors` / `:adjustment` (dagitty-style roles;
   `smart=` is a deprecated alias; prefer `exposure=` over `treatment=`)
+- Time-unrolled DAGs: [`dagplot_time_indexed`](https://simonab.github.io/DAGMakie.jl/dev/) with
+  `color_by` roles propagated across variable rows ([#5](https://github.com/SimonAB/DAGMakie.jl/issues/5))
 - Interventions: display-only `do(·)` surgery with `show_removed_edges` overlays
 
 ## Ecosystem

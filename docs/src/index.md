@@ -38,8 +38,11 @@ or a bow fraction to receive quadratic Bézier samples (`long_edge_routing = :qu
 time-indexed grids cover CPDAG output and unrolled temporal DAGs
 ([Skeletons & Time](guide/skeletons_and_time.md)). Themes
 (`default`, `minimal`, `bold`, `presentation`) control stroke weight and
-spacing. Node labels prefer `labels=` with `label_position = :inner | :outer`
-and optional `color_by` role colouring. Convenience constructors cover chain,
+spacing. Node labels prefer `labels=`; default `label_position = :outer` (compact
+markers, external auto-aligned text). Use `:inner` with `fit_node_size_to_labels=true`
+for in-node white labels. Optional `color_by` role colouring; on time-indexed plots,
+roles propagate across variable rows (see [Skeletons & Time](guide/skeletons_and_time.md)).
+Convenience constructors cover chain,
 fork, collider, confounding, and mediation patterns. Edge labels (`elabels`,
 [`structural_edge_labels`](@ref)) carry structural path coefficients or short
 LaTeX mechanism fragments

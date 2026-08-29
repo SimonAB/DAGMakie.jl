@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-08-29
+
+### Added
+
+- Temporal smart-role propagation for time-unrolled DAGs ([#5](https://github.com/SimonAB/DAGMakie.jl/issues/5)):
+  [`propagate_temporal_smart_roles`](@ref), [`smart_style_for_temporal_graph`](@ref),
+  [`temporal_role_styling`](@ref), [`apply_temporal_smart_kwargs`](@ref), and
+  indexing helpers [`temporal_node_index`](@ref) / [`temporal_variable_time`](@ref).
+- [`dagplot_time_indexed`](@ref) applies propagated `color_by` styling when
+  `exposure` / `outcome` are set (scalar indices or `(variable, time)` tuples).
+- `color_by = :ancestors_temporal` as an explicit alias for temporal plots.
+
+### Changed
+
+- **Breaking:** default `label_position` is `:outer` (compact [`OUTER_LABEL_NODE_SIZE`](@ref)
+  markers, dark external labels, auto-aligned gaps). Use `label_position=:inner` with
+  `fit_node_size_to_labels=true` for the previous in-node white-label style.
+- [`default_style`](@ref) targets outer labels; [`DEFAULT_LABEL_FONTSIZE`](@ref) is `13`;
+  [`DEFAULT_PADDING`](@ref) is `0.38`.
+- `fit_node_size_to_labels` defaults to `false` (opt in for in-node oval markers).
+- `dagplot!` applies label-aware axis limits when outer labels are active (pre- and
+  post-`graphplot!` refinement under `DataAspect`).
+
 ## [0.1.10] - 2026-08-22
 
 ### Changed
