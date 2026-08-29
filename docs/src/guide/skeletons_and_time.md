@@ -47,34 +47,39 @@ also suppresses arrowheads and applies the undirected edge colour.
 For a graph with `n_variables × n_times` nodes in CausalDynamics order (outer
 loop over occasions, inner loop over variables), use
 [`dagplot_time_indexed`](@ref). Columns run left→right in time; rows are
-variables. Colour and stroke can follow node roles (here ``A`` as treatment,
-``B`` as outcome) via [`apply_node_type_styling`](@ref).
+variables.
 
-```@example time-indexed
+With `color_by = :ancestors` (or `:ancestors_temporal`), exposure and outcome
+roles propagate across each variable row so later occasions of the same variable
+keep treatment / outcome / ancestor colours ([#5](https://github.com/SimonAB/DAGMakie.jl/issues/5)).
+Pass scalar node indices or `(variable_index, time_index)` tuples for
+`exposure` and `outcome`.
+
+```@example time-smart
 using Graphs, DAGMakie, CairoMakie
 
-# Two variables (A, B), three occasions. Nodes: A₁, B₁, A₂, B₂, A₃, B₃.
+# W, A, Y × two occasions (CausalDynamics unroll order).
 g = SimpleDiGraph(6)
-add_edge!(g, 1, 3)  # A₁ → A₂
-add_edge!(g, 3, 5)  # A₂ → A₃
-add_edge!(g, 2, 4)  # B₁ → B₂
-add_edge!(g, 4, 6)  # B₂ → B₃
-add_edge!(g, 1, 4)  # A₁ → B₂
-add_edge!(g, 3, 6)  # A₂ → B₃
-
-types = [Treatment, Outcome, Treatment, Outcome, Treatment, Outcome]
-colors, markers, strokewidths = apply_node_type_styling(types)
+add_edge!(g, 1, 2)  # W₁ → A₁
+add_edge!(g, 1, 3)  # W₁ → Y₁
+add_edge!(g, 4, 5)  # W₂ → A₂
+add_edge!(g, 4, 6)  # W₂ → Y₂
+add_edge!(g, 2, 5)  # A₁ → A₂
+add_edge!(g, 2, 6)  # A₁ → Y₂
 
 fig, ax, p = dagplot_time_indexed(
-    g, 2, 3;
-    labels = ["A₁", "B₁", "A₂", "B₂", "A₃", "B₃"],
-    node_color = colors,
-    node_marker = markers,
-    node_strokewidth = strokewidths,
+    g, 3, 2;
+    labels = ["W₁", "A₁", "Y₁", "W₂", "A₂", "Y₂"],
+    color_by = :ancestors,
+    exposure = (2, 1),
+    outcome = (3, 2),
     figure_size = (640, 260),
 )
 fig
 ```
+
+For manual styling without the plot wrapper, use [`apply_node_type_styling`](@ref)
+or [`temporal_role_styling`](@ref).
 
 Spacing keywords `dx` and `dy` stretch columns and rows. For a
 `TemporalUnrolling` from CausalDynamics.jl, prefer

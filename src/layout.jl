@@ -425,7 +425,11 @@ end
 `dagplot` with [`time_indexed_layout`](@ref) for graphs unrolled over time.
 
 Pass `nlabels` with one label per node in the same `(t, variable)` order as
-[`time_indexed_layout`](@ref). Remaining keywords go to [`dagplot`](@ref).
+[`time_indexed_layout`](@ref). When `color_by` is set, exposure / outcome /
+ancestor roles propagate across each variable row (see
+[`propagate_temporal_smart_roles`](@ref)). `exposure` and `outcome` may be
+node indices or `(variable_index, time_index)` tuples. Remaining keywords go to
+[`dagplot`](@ref).
 """
 function dagplot_time_indexed(
     g::Graphs.AbstractGraph,
@@ -434,11 +438,33 @@ function dagplot_time_indexed(
     dx::Real = 2.0,
     dy::Real = 1.5,
     origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
+    color_by = nothing,
+    smart = nothing,
+    exposure = nothing,
+    treatment = nothing,
+    outcome = nothing,
+    adjustment = nothing,
     kwargs...,
 )
     Graphs.nv(g) == Int(n_variables) * Int(n_times) || throw(ArgumentError(
         "graph has $(Graphs.nv(g)) nodes, but n_variables×n_times = $(Int(n_variables) * Int(n_times))",
     ))
     layout = time_indexed_layout(n_variables, n_times; dx = dx, dy = dy, origin = origin)
-    return dagplot(g; layout = layout, kwargs...)
+    plot_kwargs = apply_temporal_smart_kwargs(
+        g, n_variables, n_times;
+        color_by = color_by,
+        smart = smart,
+        exposure = exposure,
+        treatment = treatment,
+        outcome = outcome,
+        adjustment = adjustment,
+        kwargs...,
+    )
+    return dagplot(
+        g;
+        layout = layout,
+        color_by = false,
+        smart = false,
+        plot_kwargs...,
+    )
 end

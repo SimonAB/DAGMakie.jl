@@ -74,6 +74,7 @@ include("paths.jl")
 include("highlighting.jl")
 include("interventions.jl")
 include("smart.jl")
+include("temporal_smart.jl")
 include("dagplot.jl")
 include("visual_grammar.jl")
 
@@ -148,6 +149,8 @@ export SmartAncestorExposure, SmartAncestorOutcome, SmartAncestorBoth, SmartIrre
 export smart_node_color, smart_label_color
 export ancestors_via_graphs, ancestor_sets, classify_smart_roles
 export smart_style_for_graph, apply_smart_kwargs, dagplot_smart
+export temporal_node_index, temporal_variable_time, propagate_temporal_smart_roles
+export smart_style_for_temporal_graph, temporal_role_styling, apply_temporal_smart_kwargs
 export SMART_COLOR_EXPOSURE, SMART_COLOR_OUTCOME
 export SMART_COLOR_ANC_EXPOSURE, SMART_COLOR_ANC_OUTCOME, SMART_COLOR_ANC_BOTH
 export SMART_COLOR_IRRELEVANT
@@ -188,6 +191,6 @@ export query_to_string
 
 # Constants
 export DEFAULT_NODE_SIZE, DEFAULT_NODE_COLOR, DEFAULT_EDGE_COLOR
-export DEFAULT_LABEL_FONTSIZE, DEFAULT_LABEL_DISTANCE, DEFAULT_SELFEDGE_SIZE
+export DEFAULT_LABEL_FONTSIZE, DEFAULT_LABEL_DISTANCE, DEFAULT_LABEL_POSITION, DEFAULT_SELFEDGE_SIZE
 
 end # module

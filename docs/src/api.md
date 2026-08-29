@@ -150,6 +150,12 @@ classify_smart_roles
 smart_style_for_graph
 apply_smart_kwargs
 dagplot_smart
+propagate_temporal_smart_roles
+smart_style_for_temporal_graph
+temporal_role_styling
+apply_temporal_smart_kwargs
+temporal_node_index
+temporal_variable_time
 ancestor_sets
 ancestors_via_graphs
 smart_node_color
@@ -257,6 +263,7 @@ DEFAULT_NODE_SIZE
 DEFAULT_EDGE_COLOR
 DEFAULT_LABEL_FONTSIZE
 DEFAULT_LABEL_DISTANCE
+DEFAULT_LABEL_POSITION
 DEFAULT_SELFEDGE_SIZE
 MODIFIER_EDGE_COLOR
 MODIFIER_EDGE_STYLE

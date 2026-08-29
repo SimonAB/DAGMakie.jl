@@ -248,12 +248,12 @@ end
 
 Whether labels should sit **outside** the nodes.
 
-Preferred API: `label_position = :inner` (default) or `:outer`. The older
+Preferred API: `label_position = :outer` (default) or `:inner`. The older
 `auto_align_labels=true` flag is accepted as a synonym for `:outer` when
 `label_position` is left at `:inner`. Conflicting combinations throw.
 """
 function resolve_outer_labels(
-    label_position::Symbol = :inner;
+    label_position::Symbol = DEFAULT_LABEL_POSITION;
     auto_align_labels::Union{Bool, Nothing} = nothing,
 )
     label_position in (:inner, :outer) || throw(ArgumentError(
@@ -359,8 +359,10 @@ end
 """
     resolve_color_by(; color_by=nothing, smart=nothing)
 
-Normalise dagitty-style colouring to `nothing` (off) or `:ancestors` / `:adjustment`.
+Normalise dagitty-style colouring to `nothing` (off), `:ancestors`, `:ancestors_temporal`, or `:adjustment`.
 Prefer `color_by=`; `smart=` is a deprecated alias (`true` → `:ancestors`).
+On [`dagplot_time_indexed`](@ref), `:ancestors` and `:ancestors_temporal` both
+propagate roles across variable rows.
 """
 function resolve_color_by(; color_by = nothing, smart = nothing)
     mode_from(x) = if x === false || x === nothing
@@ -369,9 +371,11 @@ function resolve_color_by(; color_by = nothing, smart = nothing)
         :ancestors
     elseif x === :adjustment
         :adjustment
+    elseif x === :ancestors_temporal
+        :ancestors_temporal
     else
         throw(ArgumentError(
-            "color_by/smart must be false, true, :ancestors, or :adjustment; got $(repr(x))",
+            "color_by/smart must be false, true, :ancestors, :ancestors_temporal, or :adjustment; got $(repr(x))",
         ))
     end
     cb = mode_from(color_by)
