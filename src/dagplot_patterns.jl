@@ -17,7 +17,7 @@ function _spec_defaults(spec::DAGSpec, kwargs)
     node_count = length(spec.nodes)
     fit_labels = get(kwargs, :fit_node_size_to_labels, true) !== false
     outer_labels = resolve_outer_labels(
-        get(kwargs, :label_position, :inner);
+        get(kwargs, :label_position, DEFAULT_LABEL_POSITION);
         auto_align_labels = get(kwargs, :auto_align_labels, nothing),
     )
     fontsize = haskey(kwargs, :nlabels_fontsize) && kwargs[:nlabels_fontsize] !== nothing ?
@@ -300,7 +300,7 @@ function dagplot!(ax, mg::MixedGraph;
     labels = nothing,
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
-    label_position::Symbol = :inner,
+    label_position::Symbol = DEFAULT_LABEL_POSITION,
     auto_align_labels = nothing,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,

@@ -41,7 +41,7 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     auto_align_labels = false,
     label_obstacle_graph = nothing,
     auto_align_graph = nothing,
-    fit_node_size_to_labels = true,
+    fit_node_size_to_labels = false,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
@@ -171,8 +171,7 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
 
     # Use package-local auto-align so registry GraphMakie (without
     # `nlabels_auto_align`) still gets sensible label placement.
-    # Auto-align is for *outside* labels: with the in-node default
-    # (distance 0, white text) non-centred aligns only clip text inside markers.
+    # Auto-align is for *outside* labels (the default placement mode).
     resolved_nlabels_align = nlabels_align
     if auto_align_labels && nlabels !== nothing
         # `label_obstacle_graph` lets callers (e.g. intervention overlays) include
@@ -210,11 +209,17 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     # sometimes straight) edges floating off the markers.
     apply_dag_theme!(ax)
     extra_bound_points = _extra_bound_points(layout_result.edge_waypoints)
-    _apply_data_limits!(
+    _apply_plot_limits!(
         ax,
         layout_result.positions,
         extra_bound_points;
+        outer_labels = auto_align_labels,
+        nlabels = nlabels,
+        nlabels_align = resolved_nlabels_align,
+        nlabels_distance = resolved_label_distance,
+        nlabels_fontsize = resolved_label_fontsize,
         padding = resolved_padding,
+        node_sizes = node_sizes,
     )
 
     # Compact self-loops: GraphMakie automatic size is half the nearest-neighbour
@@ -259,6 +264,21 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         nlabels_color = resolved_label_color,
         user_kwargs...
     )
+
+    if auto_align_labels && nlabels !== nothing
+        _refine_outer_label_limits!(
+            ax,
+            p,
+            layout_result.positions,
+            extra_bound_points;
+            nlabels = nlabels,
+            nlabels_align = resolved_nlabels_align,
+            nlabels_distance = resolved_label_distance,
+            nlabels_fontsize = resolved_label_fontsize,
+            padding = resolved_padding,
+            node_sizes = node_sizes,
+        )
+    end
 
     if any(feedback_mask)
         feedback_edges = layout_result.feedback_edges
@@ -331,7 +351,7 @@ end
 function _merge_spec_plot_kwargs(spec::DAGSpec, kwargs)
     merged = _merge_default_kwargs(kwargs, _spec_defaults(spec, kwargs))
     # Sizes already fitted in `_spec_defaults` when requested; avoid a second pass.
-    if get(kwargs, :fit_node_size_to_labels, true) !== false
+    if get(kwargs, :fit_node_size_to_labels, false) !== false
         merged = (; merged..., fit_node_size_to_labels = false)
     end
     return merged

@@ -113,11 +113,11 @@ label:
 With a positive `nlabels_distance`, GraphMakie also shifts the anchor along the
 same direction (so `(:left, :center)` both left-anchors and nudges east).
 
-By default labels sit **inside** the node (`label_position = :inner`), and
-marker size follows each label (`fit_node_size_to_labels = true`): short labels
-keep round circles; wider ones become ovals (`Makie.Circle` scaled
-anisotropically). Pass `fit_node_size_to_labels = false` for a uniform theme
-size, or set `node_size` explicitly.
+By default labels sit **outside** the node in the largest angular gap
+(`label_position = :outer`): compact markers ([`OUTER_LABEL_NODE_SIZE`](@ref)),
+dark text, and auto-aligned anchors. Pass `label_position = :inner` with
+`fit_node_size_to_labels = true` for in-node white labels (short names stay round;
+wider ones become ovals).
 
 ```@example basic-fit
 using Graphs, DAGMakie, CairoMakie
@@ -127,22 +127,20 @@ fig, ax, p = dagplot(g2; labels = labels2)
 fig
 ```
 
-Pass `label_position = :outer` to place labels **outside** in the largest
-angular gap between incident edges (dagitty-style external labels). That mode
-uses a positive distance, dark text, and a compact node size
-([`OUTER_LABEL_NODE_SIZE`](@ref)) unless you override them (label fitting is
-skipped while labels are outside):
+In-node labels (`label_position = :inner`) centre white text in the fill; enable
+`fit_node_size_to_labels = true` so marker size follows each label:
 
 ```@example basic
 fig, ax, p = dagplot(g,
     labels = labels,
-    label_position = :outer,
+    label_position = :inner,
+    fit_node_size_to_labels = true,
 )
 fig
 ```
 
-Manual anchors (still typically with a positive `nlabels_distance` when labels
-sit outside the fill). Panel titles show where the **label** appears relative
+Manual anchors (typically with a positive `nlabels_distance` when labels sit
+outside the fill). Panel titles show where the **label** appears relative
 to the node:
 
 ```@example basic

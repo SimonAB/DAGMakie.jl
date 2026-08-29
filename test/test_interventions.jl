@@ -140,6 +140,8 @@
             labels = labels,
             layout = positions,
             show_removed_edges = true,
+            label_position = :inner,
+            fit_node_size_to_labels = true,
         )
         @test fig isa Makie.Figure
         fitted_sizes = p[:node_size][]

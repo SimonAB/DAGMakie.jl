@@ -305,7 +305,7 @@ function apply_smart_kwargs(
     # labels sit on the figure background and need dark text unless the caller
     # set `nlabels_color` explicitly.
     if resolve_outer_labels(
-            get(merged, :label_position, :inner);
+            get(merged, :label_position, DEFAULT_LABEL_POSITION);
             auto_align_labels = get(merged, :auto_align_labels, nothing),
         )
         user_label_color = get(kwargs, :nlabels_color, nothing)

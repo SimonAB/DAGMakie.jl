@@ -200,6 +200,18 @@
         @test length(unique(round.([pt[2] for pt in positions]; digits = 3))) >= 2
     end
     
+    @testset "default outer labels" begin
+        g = SimpleDiGraph(3)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+
+        fig, ax, p = dagplot(g; labels = ["X", "Y", "Z"])
+        @test fig isa Makie.Figure
+        @test p[:nlabels_distance][] == OUTER_LABEL_DISTANCE
+        @test p[:nlabels_color][] == OUTER_LABEL_COLOR
+        @test all(==(OUTER_LABEL_NODE_SIZE), p[:node_size][])
+    end
+
     @testset "label_position option" begin
         g = SimpleDiGraph(3)
         add_edge!(g, 1, 2)
@@ -237,6 +249,7 @@
 
         fig, ax, p = dagplot(g;
             labels = ["X", "Y", "Z"],
+            label_position = :inner,
             nlabels_color = :black,
             nlabels_distance = 12,
             nlabels_align = (:center, :bottom),
@@ -251,6 +264,7 @@
         Logging.with_logger(logger) do
             fig2, ax2, p2 = dagplot(g;
                 labels = ["X", "Y", "Z"],
+                label_position = :inner,
                 nlabels_distance = 12,
             )
             @test p2[:nlabels_offset_processed][] == Point2f(0, 0)

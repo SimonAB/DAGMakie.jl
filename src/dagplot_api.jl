@@ -144,9 +144,10 @@ limits to prevent clipping of nodes and labels.
   anchors). Named sides are edges of the *label*, not “label goes this side of
   the node”: `(:left, :center)` left-anchors the text so it sits to the **right**
   of the node. See the Label Alignment guide.
-- `label_position = :inner`: `:inner` centres labels in the node fill; `:outer`
-  places them outside in the largest angular gap (positive distance, dark text,
-  and [`OUTER_LABEL_NODE_SIZE`](@ref) unless `node_size` is set)
+- `label_position = :outer`: `:outer` (default) places labels outside in the largest
+  angular gap (compact [`OUTER_LABEL_NODE_SIZE`](@ref) markers, dark text); `:inner`
+  centres labels in the node fill (white text; pass `fit_node_size_to_labels=true`
+  for oval markers on long names)
 - `auto_align_labels = nothing`: Deprecated synonym for outer labels. Prefer
   `label_position = :outer`. `true` still enables outer placement when
   `label_position` is left at `:inner`
@@ -154,11 +155,10 @@ limits to prevent clipping of nodes and labels.
   angle gaps (defaults to the plotted graph). Intervention plots pass the
   factual DAG so grey removed parent edges still count as obstacles.
   Deprecated alias: `auto_align_graph`
-- `fit_node_size_to_labels = true`: When true (default) and `node_size` is unset,
-  size in-node markers from each label: short labels stay round circles; wider
-  labels become ovals (`Makie.Circle` with a `(width, height)` size). Applies only
-  with in-node labels (`label_position = :inner`) and is skipped for outer labels
-  or an explicit `node_size`. Pass `false` for a uniform theme node size.
+- `fit_node_size_to_labels = false`: When true and `label_position=:inner`, size
+  in-node markers from each label (short labels stay round; wider labels become
+  ovals). Skipped for outer labels or an explicit `node_size`. Pass `true` with
+  `label_position=:inner` for fitted in-node markers.
 - `nlabels_distance = 0`: Label distance from node in pixels along
   `nlabels_align` (0 centres labels in nodes; with `(:center, :center)` the
   offset is zero regardless of distance—use a non-centred align or
@@ -254,11 +254,11 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     labels = nothing,
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
-    label_position::Symbol = :inner,
+    label_position::Symbol = DEFAULT_LABEL_POSITION,
     auto_align_labels = nothing,
     label_obstacle_graph = nothing,
     auto_align_graph = nothing,
-    fit_node_size_to_labels = true,
+    fit_node_size_to_labels = false,
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,

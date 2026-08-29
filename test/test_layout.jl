@@ -50,13 +50,21 @@ using Makie: Point2f
         @test size_forced isa Real
 
         g, labels = confounding_graph(["nutrition", "X", "Y"])
-        fig, ax, p = dagplot(g; nlabels = labels)  # fit is default for in-node labels
+        fig, ax, p = dagplot(g;
+            nlabels = labels,
+            label_position = :inner,
+            fit_node_size_to_labels = true,
+        )
         @test fig isa Figure
         @test p[:node_marker][][1] === FIT_NODE_MARKER
         @test p[:node_size][][1] isa Tuple
         @test p[:node_size][][2] isa Real
 
-        fig_off, ax_off, p_off = dagplot(g; nlabels = labels, fit_node_size_to_labels = false)
+        fig_off, ax_off, p_off = dagplot(g;
+            nlabels = labels,
+            label_position = :inner,
+            fit_node_size_to_labels = false,
+        )
         @test all(==(DAGMakie._resolve_style(nothing).node_size), p_off[:node_size][])
     end
     

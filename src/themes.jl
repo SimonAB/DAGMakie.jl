@@ -112,14 +112,17 @@ const DEFAULT_ARROW_SIZE = 14
 """Default arrow shift (`:end` places arrow at destination node)."""
 const DEFAULT_ARROW_SHIFT = :end
 
-"""Default label font size."""
-const DEFAULT_LABEL_FONTSIZE = 16
+"""Default label font size (compact outer labels)."""
+const DEFAULT_LABEL_FONTSIZE = 13
 
-"""Default label colour (white text inside nodes)."""
+"""Default label colour for in-node labels (white text inside nodes)."""
 const DEFAULT_LABEL_COLOR = :white
 
 """Default label distance from node (pixels); 0 centres labels in nodes."""
 const DEFAULT_LABEL_DISTANCE = 0
+
+"""Default label placement (`:outer` = compact nodes + external labels)."""
+const DEFAULT_LABEL_POSITION = :outer
 
 """Pixel offset used when `label_position=:outer` places labels outside nodes."""
 const OUTER_LABEL_DISTANCE = 14
@@ -157,8 +160,8 @@ const FIT_NODE_RECT_ASPECT = 1.4
 """Default label alignment (centred in the node)."""
 const DEFAULT_LABEL_ALIGN = (:center, :center)
 
-"""Default padding fraction."""
-const DEFAULT_PADDING = 0.35
+"""Default padding fraction (includes room for outer labels)."""
+const DEFAULT_PADDING = 0.38
 
 """Default GraphMakie `selfedge_size` (data units) for self-loops.
 
@@ -223,14 +226,14 @@ function default_style()
         DEFAULT_LABEL_FONTSIZE,
         DEFAULT_LABEL_COLOR,
         DEFAULT_LABEL_DISTANCE,
-        DEFAULT_PADDING
+        DEFAULT_PADDING,
     )
 end
 
 """
     minimal_style()
 
-Return a minimal DAG style with smaller nodes and thinner edges.
+Return a minimal DAG style with smaller nodes and thinner edges (in-node labels).
 """
 function minimal_style()
     return DAGStyle(
@@ -242,8 +245,8 @@ function minimal_style()
         1.0,            # edge_width
         10,             # arrow_size
         :end,           # arrow_shift
-        14,             # label_fontsize
-        :white,         # label_color
+        12,             # label_fontsize
+        :white,         # label_color (in-node)
         0,              # label_distance (in-node)
         0.30            # padding
     )

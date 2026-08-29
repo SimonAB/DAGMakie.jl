@@ -248,6 +248,135 @@ function _apply_data_limits!(
     return ax
 end
 
+"""Estimate axis plotting area in pixels (for pre-`graphplot!` label bounds)."""
+function _estimate_axis_pixel_size(ax)
+    viewport = ax.scene.viewport[]
+    w = Float64(viewport.widths[1])
+    h = Float64(viewport.widths[2])
+    (w > 1 && h > 1) && return (w, h)
+    return (600.0, 400.0)
+end
+
+function _label_align_for_index(aligns, i::Int)
+    aligns isa Tuple && return aligns
+    return aligns[i]
+end
+
+"""Extra horizontal data margin for outer labels on a side column."""
+function _side_label_margin_data(
+    positions,
+    labels,
+    aligns,
+    distance,
+    fontsize,
+    x_span::Float64,
+    px_width::Float64;
+    side::Symbol,
+)
+    px_width <= 1 && return 0.35
+    xs = [Float64(pos[1]) for pos in positions]
+    edge_x = side === :left ? minimum(xs) : maximum(xs)
+    max_px = 0.0
+    for (i, label) in enumerate(labels)
+        abs(xs[i] - edge_x) > 1e-6 && continue
+        ext = estimate_label_extent(
+            label,
+            _label_align_for_index(aligns, i),
+            fontsize,
+            distance,
+        )
+        if side === :left
+            max_px = max(max_px, abs(ext.dx_min))
+        else
+            max_px = max(max_px, abs(ext.dx_max))
+        end
+    end
+    max_px *= 1.22
+    denom = max(px_width - 2 * max_px, 0.25 * px_width)
+    return max_px * (x_span / denom)
+end
+
+"""
+Apply axis limits before `graphplot!`: label-aware when `outer_labels` and `nlabels` are set.
+"""
+function _apply_plot_limits!(
+    ax,
+    positions::AbstractVector,
+    extra_points::AbstractVector;
+    outer_labels::Bool,
+    nlabels,
+    nlabels_align,
+    nlabels_distance,
+    nlabels_fontsize,
+    padding::Real,
+    node_sizes,
+)
+    if outer_labels && nlabels !== nothing && !isempty(nlabels)
+        xlim, ylim = compute_padded_limits(
+            positions,
+            nlabels,
+            nlabels_align,
+            nlabels_distance,
+            nlabels_fontsize;
+            padding = Float64(padding),
+            pixel_size = _estimate_axis_pixel_size(ax),
+            extra_points = extra_points,
+            node_sizes = node_sizes,
+        )
+        xlims!(ax, xlim...)
+        ylims!(ax, ylim...)
+    else
+        _apply_data_limits!(ax, positions, extra_points; padding = padding)
+    end
+    return ax
+end
+
+"""Refine limits after `graphplot!` so outer labels are not clipped (DataAspect feedback)."""
+function _refine_outer_label_limits!(
+    ax,
+    plot,
+    positions::AbstractVector,
+    extra_points::AbstractVector;
+    nlabels,
+    nlabels_align,
+    nlabels_distance,
+    nlabels_fontsize,
+    padding::Real,
+    node_sizes,
+)
+    xlim = (0.0, 1.0)
+    ylim = (0.0, 1.0)
+    for _ in 1:3
+        xlim, ylim = compute_padded_limits(
+            positions,
+            nlabels,
+            nlabels_align,
+            nlabels_distance,
+            nlabels_fontsize;
+            padding = Float64(padding),
+            to_px = _plot_to_px(plot),
+            extra_points = extra_points,
+            node_sizes = node_sizes,
+        )
+        xlims!(ax, xlim...)
+        ylims!(ax, ylim...)
+    end
+    px_w, _ = _estimate_axis_pixel_size(ax)
+    x_span = Float64(xlim[2] - xlim[1])
+    left = _side_label_margin_data(
+        positions, nlabels, nlabels_align, nlabels_distance, nlabels_fontsize,
+        x_span, px_w; side = :left,
+    )
+    right = _side_label_margin_data(
+        positions, nlabels, nlabels_align, nlabels_distance, nlabels_fontsize,
+        x_span, px_w; side = :right,
+    )
+    extra = max(left, right, 0.12)
+    xlims!(ax, xlim[1] - extra, xlim[2] + extra)
+    ylims!(ax, ylim...)
+    return ax
+end
+
 function _extra_bound_points(edge_waypoints::Dict{Tuple{Int, Int}, Vector{Point2f}})
     points = Point2f[]
     for waypoint_set in values(edge_waypoints)

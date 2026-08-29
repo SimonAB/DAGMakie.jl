@@ -31,6 +31,10 @@ fig
 - `ax`: the `Axis`
 - `p`: the `GraphPlot` (node positions and plot attributes)
 
+By default, labels sit **outside** compact nodes (`label_position = :outer`). Pass
+`label_position = :inner` with `fit_node_size_to_labels = true` for in-node white text
+(see [Basic Plotting](guide/basic.md)).
+
 ## Edge labels (structural parameters)
 
 GraphMakie `elabels` pass through `dagplot`. Prefer
