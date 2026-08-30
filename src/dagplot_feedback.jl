@@ -257,6 +257,20 @@ function _estimate_axis_pixel_size(ax)
     return (600.0, 400.0)
 end
 
+"""Active plot pixels under `DataAspect` (letterboxing shrinks the data region)."""
+function _effective_plot_pixel_size(ax, xlim, ylim)
+    px_w, px_h = _estimate_axis_pixel_size(ax)
+    x_span = max(Float64(xlim[2] - xlim[1]), 1e-3)
+    y_span = max(Float64(ylim[2] - ylim[1]), 1e-3)
+    data_aspect = x_span / y_span
+    view_aspect = px_w / max(px_h, 1.0)
+    if data_aspect > view_aspect
+        return px_w, px_w / data_aspect
+    else
+        return px_h * data_aspect, px_h
+    end
+end
+
 function _label_align_for_index(aligns, i::Int)
     aligns isa Tuple && return aligns
     return aligns[i]
@@ -291,8 +305,8 @@ function _side_label_margin_data(
             max_px = max(max_px, abs(ext.dx_max))
         end
     end
-    max_px *= 1.22
-    denom = max(px_width - 2 * max_px, 0.25 * px_width)
+    max_px *= 1.38
+    denom = max(px_width - 2 * max_px, 0.2 * px_width)
     return max_px * (x_span / denom)
 end
 
@@ -346,7 +360,8 @@ function _refine_outer_label_limits!(
 )
     xlim = (0.0, 1.0)
     ylim = (0.0, 1.0)
-    for _ in 1:3
+    for _ in 1:4
+        px_w, px_h = _effective_plot_pixel_size(ax, xlim, ylim)
         xlim, ylim = compute_padded_limits(
             positions,
             nlabels,
@@ -355,13 +370,14 @@ function _refine_outer_label_limits!(
             nlabels_fontsize;
             padding = Float64(padding),
             to_px = _plot_to_px(plot),
+            pixel_size = (px_w, px_h),
             extra_points = extra_points,
             node_sizes = node_sizes,
         )
         xlims!(ax, xlim...)
         ylims!(ax, ylim...)
     end
-    px_w, _ = _estimate_axis_pixel_size(ax)
+    px_w, _ = _effective_plot_pixel_size(ax, xlim, ylim)
     x_span = Float64(xlim[2] - xlim[1])
     left = _side_label_margin_data(
         positions, nlabels, nlabels_align, nlabels_distance, nlabels_fontsize,
@@ -371,7 +387,7 @@ function _refine_outer_label_limits!(
         positions, nlabels, nlabels_align, nlabels_distance, nlabels_fontsize,
         x_span, px_w; side = :right,
     )
-    extra = max(left, right, 0.12)
+    extra = max(left, right, 0.22)
     xlims!(ax, xlim[1] - extra, xlim[2] + extra)
     ylims!(ax, ylim...)
     return ax
