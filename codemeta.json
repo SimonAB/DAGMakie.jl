@@ -1,0 +1,31 @@
+{
+    "@context": "https://w3id.org/codemeta/3.0",
+    "type": "SoftwareSourceCode",
+    "applicationCategory": "scientific computing",
+    "programmingLanguage": "julia",
+    "developmentStatus": "active",
+    "codeRepository": "https://github.com/SimonAB/DAGMakie.jl",
+    "name": "DAGMakie.jl",
+    "issueTracker": "https://github.com/SimonAB/DAGMakie.jl/issues",
+    "readme": "https://github.com/SimonAB/DAGMakie.jl/blob/main/README.md",
+    "buildInstructions": "https://github.com/SimonAB/DAGMakie.jl/blob/main/README.md",
+    "dateCreated": "2026-01-10",
+    "operatingSystem": [
+        "Linux",
+        "macos"
+    ],
+    "version": "v0.1.2",
+    "dateModified": "2026-07-30",
+    "datePublished": "2026-07-20",
+    "downloadUrl": "https://github.com/SimonAB/DAGMakie.jl/archive/refs/tags/v0.1.2.tar.gz",
+    "license": "https://spdx.org/licenses/MIT",
+    "author": [],
+    "keywords": [
+        "DAG",
+        "GraphMakie",
+        "Makie",
+        "causal inference",
+        "julia",
+        "visualisation"
+    ]
+}
