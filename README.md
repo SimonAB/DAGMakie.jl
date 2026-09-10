@@ -113,7 +113,7 @@ Full matrices: [ECOSYSTEM_COMPARISON.md](ECOSYSTEM_COMPARISON.md) ·
 
 ## Testing and validation
 
-CI runs `Pkg.test()` on Julia **1.12** with CairoMakie; codecov and Aqua QA are enabled. Visual regression is exercised through layout geometry and recipe tests rather than pixel diffs.
+CI runs `Pkg.test()` on Julia **1.13** (the latest stable release) with CairoMakie; codecov and Aqua QA are enabled. Visual regression is exercised through layout geometry and recipe tests rather than pixel diffs.
 
 | Guardrail | What we exercise | Where |
 |-----------|------------------|-------|
