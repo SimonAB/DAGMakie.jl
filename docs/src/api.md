@@ -316,4 +316,5 @@ is_dag
 edge_list
 adjacency_to_graph
 graph_from_edges
+resolve_temporal_exposure_outcome
 ```
