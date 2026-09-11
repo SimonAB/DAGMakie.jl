@@ -14,6 +14,8 @@ Defaults omit axes and grids; node types follow common causal-diagram
 conventions (observed, latent, treatment, outcome), with helpers for bidirected
 confounding, path highlighting, display-only `do(·)` surgery, and a [visual
 grammar](guide/visual_grammar.md) for interaction IDAGs and DiD SWIGs.
+Occasion versus enduring nodes, constitutive versus influence styling, and
+display-only surgery are summarised in [Terminology](terminology.md).
 
 ## Compared with R and Python
 

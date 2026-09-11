@@ -1,15 +1,21 @@
 # Terminology
 
-DAGMakie uses standard causal-inference names in its API (`Intervention`, `do_surgery`, `find_backdoor_paths`, …). The table below maps those names to a **process** reading (relations and occasions, not static substances) when that helps interpretation.
+DAGMakie keeps Pearl-style plot and surgery names (`Intervention`, `do_surgery`,
+`find_backdoor_paths`, …). Display surgery does not change the simulation model.
 
-| API / Pearl term | Process reading (when useful) |
-|------------------|-------------------------------|
-| Node in a DAG | **Occasion** (a variable at a point in the structure) |
-| Directed edge `i → j` | **Prehensive relation**: how `j` takes account of `i` |
-| Exogenous noise / unmodelled parent | **Creative advance** (not fixed by the diagram alone) |
-| `do_surgery`, `Intervention` | **Physical prehension**: fix a mechanism, remove incoming prehensions |
-| `find_backdoor_paths` | Paths that enter the treatment **against** the directed prehensive flow (confounding) |
-| `simulate_scm` / forward pass | One **concrescence** step given fixed exogenous `U` |
-| Counterfactual with shared `U` | **Alternative concrescences** for the same unit |
+**Temporal identity** follows CausalDynamics. Occasion and enduring are semantic
+modes; glyphs must not be passed back as extra vertices. Whitehead glossary
+terms belong in the
+[CDCS book Concept Reference](https://simonab.github.io/causal-dynamics-book/concept-reference-tables.html),
+not in this manual.
 
-Prefer established names in code; use the process column when explaining *what* an operation does, not as a replacement label.
+| Term | Meaning in this package |
+|------|-------------------------|
+| **Occasion** node `(v, t)` | One node per observation step; drawn as a circle |
+| **Enduring** node `(v, nothing)` | One node per entity; rounded rectangle at onset |
+| **Onset** | Horizontal placement of an enduring glyph (`onset_times`) |
+| **Constitutive / influence** | Edge roles from CausalDynamics `temporal_edge_records`; styling only |
+| **Replacement / deployment** | Optional view labels for successor identity and applicability intervals |
+
+Prefer established names in plotting code. Use the closed lexicon when
+explaining persistence in a temporal layout, not as a second graph ontology.

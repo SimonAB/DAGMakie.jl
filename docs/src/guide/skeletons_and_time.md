@@ -81,10 +81,47 @@ fig
 For manual styling without the plot wrapper, use [`apply_node_type_styling`](@ref)
 or [`temporal_role_styling`](@ref).
 
+### Mixed occasion and enduring nodes
+
+When an unrolled graph contains **enduring** variables as well as **occasion**
+variables, use [`dagplot_temporal`](@ref) with the graph's explicit node keys.
+An occasion key is `(variable, time)`; an enduring key is `(variable, nothing)`.
+Enduring nodes are drawn as rounded rectangles and placed at their onset time,
+while occasion nodes remain circles. Shape therefore encodes temporal
+persistence, independently of colour and stroke styling for causal role. It
+does not indicate agency, a self, a formal constraint, or an attractor.
+
+```@example mixed-temporal
+keys = [(:diagnosis, 0), (:pasture, nothing), (:weight, 0), (:weight, 1)]
+g = SimpleDiGraph(4)
+add_edge!(g, 1, 2)  # diagnosis[0] → pasture
+add_edge!(g, 1, 3)  # diagnosis[0] → weight[0]
+add_edge!(g, 2, 4)  # pasture → weight[1]
+
+fig, ax, p = dagplot_temporal(
+    g,
+    keys;
+    temporal_modes = [:occasion, :enduring, :occasion, :occasion],
+    onset_times = [0, 1, 0, 0],
+    labels = ["diagnosis[0]", "pasture", "weight[0]", "weight[1]"],
+)
+fig
+```
+
 Spacing keywords `dx` and `dy` stretch columns and rows. For a
 `TemporalUnrolling` from CausalDynamics.jl, prefer
-`CausalDynamics.dagplot_temporal(unrolling)` (labels come from
-`temporal_node_label`).
+`dagplot_temporal(unrolling)` after `using DAGMakie` (labels via
+`temporal_node_label`; enduring/occasion markers from the CausalDynamics
+extension).
+
+The display layer does not infer temporal provenance. When an auditable
+distinction is needed, obtain records from CausalDynamics with
+`temporal_edge_records(unrolling)` and use the `role` field to annotate or
+inspect the figure: `:constitutive` records form an enduring node,
+`:recurrent_influence` records reuse it at later occasions, and
+`:occasion_influence` records connect time-indexed nodes. Passing these records
+to plotting code is display metadata; it must not create alias vertices or
+change the graph used for identification.
 
 ## See also
 

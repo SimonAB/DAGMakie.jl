@@ -4,6 +4,37 @@ using Makie: Point2f, Figure
 using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
 
 @testset "time-indexed layout and skeleton" begin
+    @testset "mixed temporal layout" begin
+        keys = [(:diagnosis, 0), (:pasture, nothing), (:weight, 0), (:weight, 1)]
+        positions = temporal_layout(
+            keys;
+            temporal_modes = [:occasion, :enduring, :occasion, :occasion],
+            onset_times = [0, 1, 0, 0],
+            dx = 2.0,
+            dy = 1.5,
+        )
+
+        @test positions[1] == Point2f(0, 0)
+        @test positions[2] == Point2f(2, -1.5)
+        @test positions[3] == Point2f(0, -3.0)
+        @test positions[4] == Point2f(2, -3.0)
+        @test enduring_node_marker() isa Makie.BezierPath
+
+        g_mixed = SimpleDiGraph(4)
+        add_edge!(g_mixed, 1, 2)
+        add_edge!(g_mixed, 1, 3)
+        add_edge!(g_mixed, 2, 4)
+        fig_mixed, _ax_mixed, p_mixed = dagplot_temporal(
+            g_mixed,
+            keys;
+            temporal_modes = [:occasion, :enduring, :occasion, :occasion],
+            onset_times = [0, 1, 0, 0],
+            nlabels = ["diagnosis[0]", "pasture", "weight[0]", "weight[1]"],
+        )
+        @test fig_mixed isa Figure
+        @test p_mixed[:node_marker][][2] == enduring_node_marker()
+    end
+
     pts = time_indexed_layout(2, 3; dx = 2.0, dy = 1.5)
     @test length(pts) == 6
     @test pts[1] == Point2f(0, 0)

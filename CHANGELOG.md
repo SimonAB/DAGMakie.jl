@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- [Terminology](docs/src/terminology.md) for occasion / enduring glyphs and
+  constitutive versus influence styling. Whitehead glossary stays in the CDCS
+  book; display surgery remains non-semantic.
+
+- Key-aware temporal plotting with [`temporal_layout`](@ref) and
+  [`dagplot_temporal`](@ref), including rounded-rectangle markers for enduring
+  variables via [`enduring_node_marker`](@ref). CausalDynamics extends
+  `dagplot_temporal` for `TemporalUnrolling` (do not also export a second
+  binding from CausalDynamics).
+
 ## [0.1.11] - 2026-08-29
 
 ### Added

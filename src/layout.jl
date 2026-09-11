@@ -18,6 +18,73 @@ via `(width, height)`).
 """
 const FIT_NODE_MARKER = Circle
 
+"""Marker geometry used for variables that persist beyond one occasion."""
+const ENDURING_NODE_MARKER = Makie.BezierPath(
+    "M -0.75,-0.5 L 0.75,-0.5 Q 1,-0.5 1,-0.25 L 1,0.25 Q 1,0.5 0.75,0.5 L -0.75,0.5 Q -1,0.5 -1,0.25 L -1,-0.25 Q -1,-0.5 -0.75,-0.5 Z";
+    fit = true,
+)
+
+"""
+    enduring_node_marker()
+
+Return the Makie marker geometry used for an enduring temporal variable.
+Enduring variables use a rounded rectangle so temporal persistence is
+distinguished from causal role styling.
+"""
+enduring_node_marker() = ENDURING_NODE_MARKER
+
+"""
+    temporal_layout(node_keys; temporal_modes, onset_times, dx, dy, origin)
+
+Compute positions for a temporal graph whose nodes may be occasion-indexed or
+enduring. `node_keys` contains `(variable, time)` pairs; an enduring node uses
+`nothing` for `time` and is positioned at its `onset_time`. Rows follow the
+order in which variable names first occur, while the horizontal coordinate is
+the occasion or onset time.
+"""
+function temporal_layout(
+    node_keys::AbstractVector{<:Tuple};
+    temporal_modes = nothing,
+    onset_times = nothing,
+    dx::Real = 2.0,
+    dy::Real = 1.5,
+    origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
+)
+    n = length(node_keys)
+    modes = temporal_modes === nothing ? [key[2] === nothing ? :enduring : :occasion for key in node_keys] : collect(temporal_modes)
+    onsets = onset_times === nothing ? fill(0, n) : collect(onset_times)
+    length(modes) == n || throw(ArgumentError("temporal_modes must have one entry per node"))
+    length(onsets) == n || throw(ArgumentError("onset_times must have one entry per node"))
+
+    variable_rows = Dict{Any, Int}()
+    next_row = 0
+    positions = Point2f[]
+    x0, y0 = Float64(origin[1]), Float64(origin[2])
+    for (i, key) in enumerate(node_keys)
+        length(key) == 2 || throw(ArgumentError("each temporal node key must be (variable, time)"))
+        variable = key[1]
+        mode = modes[i]
+        mode in (:occasion, :enduring) || throw(ArgumentError(
+            "temporal mode must be :occasion or :enduring, got $mode",
+        ))
+        if !haskey(variable_rows, variable)
+            next_row += 1
+            variable_rows[variable] = next_row
+        end
+        time = if mode == :enduring
+            onsets[i]
+        else
+            key[2] === nothing && throw(ArgumentError(
+                "occasion node $variable must have an integer time",
+            ))
+            key[2]
+        end
+        time isa Integer || throw(ArgumentError("temporal positions must use integer occasions"))
+        push!(positions, Point2f(x0 + Float64(time) * Float64(dx), y0 - (variable_rows[variable] - 1) * Float64(dy)))
+    end
+    return positions
+end
+
 """
     estimate_label_extent(label, align, fontsize, distance)
 
@@ -466,5 +533,43 @@ function dagplot_time_indexed(
         color_by = false,
         smart = false,
         plot_kwargs...,
+    )
+end
+
+"""
+    dagplot_temporal(g, node_keys; temporal_modes, onset_times, kwargs...)
+
+Plot a temporal graph with a possibly mixed set of occasion and enduring
+nodes. Unlike [`dagplot_time_indexed`](@ref), this API does not require a
+complete rectangular time grid.
+"""
+function dagplot_temporal(
+    g::Graphs.AbstractGraph,
+    node_keys::AbstractVector{<:Tuple};
+    temporal_modes = nothing,
+    onset_times = nothing,
+    dx::Real = 2.0,
+    dy::Real = 1.5,
+    origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
+    node_marker = nothing,
+    kwargs...,
+)
+    Graphs.nv(g) == length(node_keys) || throw(ArgumentError(
+        "graph has $(Graphs.nv(g)) nodes, but node_keys has $(length(node_keys)) entries",
+    ))
+    modes = temporal_modes === nothing ? [key[2] === nothing ? :enduring : :occasion for key in node_keys] : collect(temporal_modes)
+    markers = node_marker === nothing ? [mode == :enduring ? enduring_node_marker() : :circle for mode in modes] : node_marker
+    return dagplot(
+        g;
+        layout = temporal_layout(
+            node_keys;
+            temporal_modes = modes,
+            onset_times = onset_times,
+            dx = dx,
+            dy = dy,
+            origin = origin,
+        ),
+        node_marker = markers,
+        kwargs...,
     )
 end

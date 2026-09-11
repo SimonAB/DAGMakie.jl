@@ -28,7 +28,8 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 
 - **Dashed outlines** for latent states in state-space diagrams; solid for observed and exogenous noise (see book `.cursorrules`).
 - **Layered DAG layout** for acyclic graphs; **SCC-aware** routing for feedback.
-- **Time-indexed layout** (`time_indexed_layout` / `dagplot_time_indexed`) for unrolled temporal DAGs (column = occasion, row = variable). With `color_by`, exposure / outcome / ancestor roles propagate across each variable row (issue #5).
+- **Time-indexed layout** (`time_indexed_layout` / `dagplot_time_indexed`) for rectangular unrolled temporal DAGs (column = occasion, row = variable). With `color_by`, exposure / outcome / ancestor roles propagate across each variable row (issue #5).
+- **Mixed enduring / occasion layout** (`temporal_layout` / `dagplot_temporal` / `enduring_node_marker`): occasion nodes are circles; enduring nodes are rounded rectangles at onset. CausalDynamics `dagplot_temporal(unrolling)` supplies keys and modes from `TemporalNodeSpec`.
 - **Undirected skeletons** (`digraph_skeleton` / `dagplot_skeleton`) for CPDAG-style
   PC displays; undirected `SimpleGraph` inputs skip directed SCC logic and suppress
   arrowheads with a dedicated stroke colour.
@@ -63,7 +64,9 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 ### What not to add
 
 - Estimation, simulation, registry I/O, or hierarchical model fitting.
-- Process-philosophy terminology in export names or manual pages.
+- Whitehead glossary terms in export names or manuals. Occasion / enduring /
+  constitutive / influence may appear when they display CausalDynamics roles;
+  they must not invent a second ontology.
 - Hard dependency on CausalDynamics for basic `dagplot!` usage.
 - Plate / nested-unit **layout** may visualise CausalDynamics
   `unroll_hierarchical_dag` graphs; it must not invent generative nesting.

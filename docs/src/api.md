@@ -5,6 +5,9 @@
 ```@docs
 time_indexed_layout
 dagplot_time_indexed
+temporal_layout
+dagplot_temporal
+enduring_node_marker
 digraph_skeleton
 dagplot_skeleton
 graph_from_structural_matrix

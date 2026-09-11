@@ -83,7 +83,9 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 - Path highlighting and `color_by = :ancestors` / `:adjustment` (dagitty-style roles;
   `smart=` is a deprecated alias; prefer `exposure=` over `treatment=`)
 - Time-unrolled DAGs: [`dagplot_time_indexed`](https://simonab.github.io/DAGMakie.jl/dev/) with
-  `color_by` roles propagated across variable rows ([#5](https://github.com/SimonAB/DAGMakie.jl/issues/5))
+  `color_by` roles propagated across variable rows ([#5](https://github.com/SimonAB/DAGMakie.jl/issues/5));
+  mixed enduring / occasion graphs via [`dagplot_temporal`](https://simonab.github.io/DAGMakie.jl/dev/)
+  (rounded rectangles for enduring nodes)
 - Interventions: display-only `do(·)` surgery with `show_removed_edges` overlays
 
 ## Ecosystem
