@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   constitutive versus influence styling. Whitehead glossary stays in the CDCS
   book; display surgery remains non-semantic.
 
+### Fixed
+
+- Mixed enduring / occasion Documenter example loads `Graphs` and `CairoMakie`.
+
 - Key-aware temporal plotting with [`temporal_layout`](@ref) and
   [`dagplot_temporal`](@ref), including rounded-rectangle markers for enduring
   variables via [`enduring_node_marker`](@ref). CausalDynamics extends

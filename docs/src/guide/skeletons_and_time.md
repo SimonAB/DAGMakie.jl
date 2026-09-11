@@ -92,6 +92,8 @@ persistence, independently of colour and stroke styling for causal role. It
 does not indicate agency, a self, a formal constraint, or an attractor.
 
 ```@example mixed-temporal
+using Graphs, DAGMakie, CairoMakie
+
 keys = [(:diagnosis, 0), (:pasture, nothing), (:weight, 0), (:weight, 1)]
 g = SimpleDiGraph(4)
 add_edge!(g, 1, 2)  # diagnosis[0] → pasture
