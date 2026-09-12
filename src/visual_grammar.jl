@@ -20,7 +20,7 @@ using Makie: Figure, Axis, Point2f
 Create a pedagogical modifier `EdgeSpec` (dash-dot, dark gray).
 
 Modifier edges annotate that one variable modifies an effect; they are **not**
-inputs to d-separation. Prefer an IDAG ([`vaccine_nutrition_idag_spec`](@ref))
+inputs to d-separation. Prefer an IDAG (`DAGMakie.vaccine_nutrition_idag_spec`)
 when the claim is about effect variation.
 """
 function modifier_edge(

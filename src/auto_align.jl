@@ -61,7 +61,7 @@ aligns = compute_auto_label_aligns(g, positions)
 - Handles both directed and undirected graphs
 - Time complexity: O(V × E) where V is vertices and E is edges
 - Intended for **outside-node** labels: pair with a positive `nlabels_distance`
-  (see [`resolve_auto_align_label_settings`](@ref)). With distance 0 the
+  (see `DAGMakie.resolve_auto_align_label_settings`). With distance 0 the
   non-centred alignments only shift text inside the marker and look broken.
 """
 function compute_auto_label_aligns(g::AbstractGraph, node_positions::AbstractVector)
