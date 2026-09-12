@@ -7,21 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- [Terminology](docs/src/terminology.md): glyphs follow temporal support /
+  value representation, not ontological occasion/enduring. Layout kwargs still
+  accept `:occasion` / `:enduring` as pointwise vs single-node synonyms.
+
 ### Added
-
-- [Terminology](docs/src/terminology.md) for occasion / enduring glyphs and
-  constitutive versus influence styling. Whitehead glossary stays in the CDCS
-  book; display surgery remains non-semantic.
-
-### Fixed
-
-- Mixed enduring / occasion Documenter example loads `Graphs` and `CairoMakie`.
 
 - Key-aware temporal plotting with [`temporal_layout`](@ref) and
   [`dagplot_temporal`](@ref), including rounded-rectangle markers for enduring
   variables via [`enduring_node_marker`](@ref). CausalDynamics extends
   `dagplot_temporal` for `TemporalUnrolling` (do not also export a second
   binding from CausalDynamics).
+- [`marker_for_value_representation`](@ref) /
+  [`marker_for_temporal_support`](@ref); `dagplot_temporal` accepts
+  `value_representations` and optional `graph_kind` title annotation.
+- `do_surgery` may refuse process/semantic `graph_kind` unless
+  `allow_non_causal=true` (callers should pass a causal projection).
+
+### Fixed
+
+- Mixed enduring / occasion Documenter example loads `Graphs` and `CairoMakie`.
 
 ## [0.1.11] - 2026-08-29
 

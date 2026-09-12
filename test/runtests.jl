@@ -12,6 +12,7 @@ using Makie: Point2f
     include("test_auto_align.jl")
     include("test_layout.jl")
     include("test_temporal_layout.jl")
+    include("test_semantic_glyphs.jl")
     include("test_temporal_smart.jl")
     include("test_utils.jl")
     include("test_bidirected.jl")

@@ -27,11 +27,42 @@ const ENDURING_NODE_MARKER = Makie.BezierPath(
 """
     enduring_node_marker()
 
-Return the Makie marker geometry used for an enduring temporal variable.
-Enduring variables use a rounded rectangle so temporal persistence is
-distinguished from causal role styling.
+Return the Makie marker geometry used for a single-node / from-onset temporal
+variable (legacy layout synonym `:enduring`). Prefer
+[`marker_for_value_representation`](@ref) when `value_representation` is known.
 """
 enduring_node_marker() = ENDURING_NODE_MARKER
+
+"""
+    marker_for_value_representation(repr; single_node=false)
+
+Glyph from declared value representation (and optional single-node support).
+Does not infer ontology. Interval summaries, attributes, and trajectories use
+the rounded rectangle; point states and events use a circle; unspecified falls
+back to `single_node`.
+"""
+function marker_for_value_representation(
+    repr::Symbol;
+    single_node::Bool = false,
+)
+    repr === :interval_summary && return enduring_node_marker()
+    repr === :attribute && return enduring_node_marker()
+    repr === :trajectory && return enduring_node_marker()
+    repr in (:state, :event, :event_indicator) && return :circle
+    return single_node ? enduring_node_marker() : :circle
+end
+
+"""
+    marker_for_temporal_support(kind; single_node=false)
+
+Heuristic glyph from a support kind symbol (`:point`, `:pointwise`,
+`:interval`, `:from_onset`, `:global`) when representation is unspecified.
+"""
+function marker_for_temporal_support(kind::Symbol; single_node::Bool = false)
+    kind in (:point, :pointwise) && return :circle
+    kind in (:interval, :from_onset, :global) && return enduring_node_marker()
+    return single_node ? enduring_node_marker() : :circle
+end
 
 """
     temporal_layout(node_keys; temporal_modes, onset_times, dx, dy, origin)
@@ -552,13 +583,34 @@ function dagplot_temporal(
     dy::Real = 1.5,
     origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
     node_marker = nothing,
+    value_representations = nothing,
+    graph_kind = nothing,
     kwargs...,
 )
     Graphs.nv(g) == length(node_keys) || throw(ArgumentError(
         "graph has $(Graphs.nv(g)) nodes, but node_keys has $(length(node_keys)) entries",
     ))
     modes = temporal_modes === nothing ? [key[2] === nothing ? :enduring : :occasion for key in node_keys] : collect(temporal_modes)
-    markers = node_marker === nothing ? [mode == :enduring ? enduring_node_marker() : :circle for mode in modes] : node_marker
+    markers = if node_marker !== nothing
+        node_marker
+    elseif value_representations !== nothing
+        reps = collect(value_representations)
+        length(reps) == length(node_keys) || throw(ArgumentError(
+            "value_representations must have one entry per node",
+        ))
+        [
+            marker_for_value_representation(
+                reps[i];
+                single_node = modes[i] === :enduring || node_keys[i][2] === nothing,
+            ) for i in eachindex(reps)
+        ]
+    else
+        [mode == :enduring ? enduring_node_marker() : :circle for mode in modes]
+    end
+    plot_kwargs = Dict{Symbol, Any}(kwargs)
+    if graph_kind !== nothing && !haskey(plot_kwargs, :title)
+        plot_kwargs[:title] = string(graph_kind)
+    end
     return dagplot(
         g;
         layout = temporal_layout(
@@ -570,6 +622,6 @@ function dagplot_temporal(
             origin = origin,
         ),
         node_marker = markers,
-        kwargs...,
+        plot_kwargs...,
     )
 end

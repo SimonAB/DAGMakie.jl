@@ -45,7 +45,25 @@ g_do = do_surgery(g, [2])
 # Result: X → Y, Z → Y (Z → X edge removed)
 ```
 """
-function do_surgery(g::AbstractGraph, intervention_nodes::Vector{Int})
+function do_surgery(
+    g::AbstractGraph,
+    intervention_nodes::Vector{Int};
+    graph_kind = nothing,
+    allow_non_causal::Bool = false,
+)
+    kind = if graph_kind === nothing
+        nothing
+    elseif graph_kind isa Symbol
+        graph_kind
+    else
+        Symbol(nameof(typeof(graph_kind)))
+    end
+    if !allow_non_causal && kind in (:ProcessGraph, :SemanticGraph, :process, :semantic)
+        throw(ArgumentError(
+            "do_surgery on a process/semantic graph requires an explicit causal " *
+            "projection (pass the projected graph) or allow_non_causal=true",
+        ))
+    end
     # Create copy of the graph
     g_new = SimpleDiGraph(nv(g))
     
@@ -61,11 +79,12 @@ function do_surgery(g::AbstractGraph, intervention_nodes::Vector{Int})
 end
 
 """
-    do_surgery(g::AbstractGraph, intervention_node::Int)
+    do_surgery(g::AbstractGraph, intervention_node::Int; kwargs...)
 
 Single-node intervention convenience method.
 """
-do_surgery(g::AbstractGraph, intervention_node::Int) = do_surgery(g, [intervention_node])
+do_surgery(g::AbstractGraph, intervention_node::Int; kwargs...) =
+    do_surgery(g, [intervention_node]; kwargs...)
 
 """
     do_surgery!(g::SimpleDiGraph, intervention_nodes::Vector{Int})

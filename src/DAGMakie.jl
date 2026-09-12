@@ -110,7 +110,7 @@ export FIT_NODE_LABEL_PADDING, FIT_NODE_MIN_SIZE, FIT_NODE_RECT_ASPECT, FIT_NODE
 export CurvedEdge, DEFAULT_EDGE_BOW
 export DAGLayoutResult, classify_graph_kind, compute_graph_layout, feedback_edge_mask, edge_waypoint_vector, count_layered_crossings
 export time_indexed_layout, dagplot_time_indexed, temporal_layout, dagplot_temporal
-export enduring_node_marker
+export enduring_node_marker, marker_for_value_representation, marker_for_temporal_support
 
 # Themes and styling
 export dag_theme
