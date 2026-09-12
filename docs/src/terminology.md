@@ -4,7 +4,8 @@ DAGMakie keeps Pearl-style plot and surgery names (`Intervention`, `do_surgery`,
 `find_backdoor_paths`, …). Display surgery does not change the simulation model.
 
 **Temporal declarations** follow CausalDynamics: glyphs follow
-`value_representation` / `temporal_support`, not ontology. Whitehead glossary
+`value_representation` (rounded only for `:interval_summary`), not ontology
+and not single-node support. Whitehead glossary
 terms belong in the
 [CDCS book Concept Reference](https://simonab.github.io/causal-dynamics-book/concept-reference-tables.html),
 not in this manual.
@@ -12,12 +13,14 @@ not in this manual.
 | Term | Meaning in this package |
 |------|-------------------------|
 | **Pointwise node** `(v, t)` | One node per discrete time; default circle glyph |
-| **Single-node support** `(v, nothing)` | Reused node (`FromOnsetSupport`, …); default rounded rectangle at onset |
-| **Onset** | Horizontal placement for single-node glyphs (`onset_times`) |
+| **Single-node support** `(v, nothing)` | Reused node (`FromOnsetSupport`, …); placed at onset; **circle by default** (shape ≠ support) |
+| **Interval summary glyph** | Rounded rectangle only when `value_representation = :interval_summary` ([`interval_summary_node_marker`](@ref)) |
+| **Onset** | Horizontal placement for single-node keys (`onset_times`) |
 | **`graph_kind`** | Annotate time-unrolled vs process vs semantic figures |
 | **Constitutive / influence** | Edge roles from CausalDynamics `temporal_edge_records`; styling only |
 | **`referent_id` lanes** | Optional identity connectors; not graph edges and not cut by `do_surgery` |
 
 Deprecated layout kwargs still accept `:occasion` / `:enduring` as synonyms for
-pointwise vs single-node placement. Prefer support-driven markers when CausalDynamics
-semantics are available. Glyphs and layout must not change identification meaning.
+pointwise vs single-node **placement**. Prefer representation-driven markers when
+CausalDynamics semantics are available. Glyphs and layout must not change
+identification meaning, and must not be read as ontology.

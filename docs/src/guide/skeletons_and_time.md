@@ -81,16 +81,17 @@ fig
 For manual styling without the plot wrapper, use [`apply_node_type_styling`](@ref)
 or [`temporal_role_styling`](@ref).
 
-### Mixed occasion and enduring nodes
+### Mixed temporal layout and glyphs
 
-When an unrolled graph contains **enduring** variables as well as **occasion**
-variables, use [`dagplot_temporal`](@ref) with the graph's explicit node keys.
-An occasion key is `(variable, time)`; an enduring key is `(variable, nothing)`.
-Enduring nodes are drawn as rounded rectangles and placed at their onset time,
-while pointwise nodes remain circles. Shape therefore encodes temporal
-support (and, when supplied, `value_representation`), independently of colour
-and stroke styling for causal role. It does not indicate agency, a self, a
-formal constraint, or an attractor.
+When an unrolled graph reuses a single node for a from-onset attribute as well
+as pointwise state nodes, use [`dagplot_temporal`](@ref) with the graph's
+explicit node keys. A pointwise key is `(variable, time)`; a reused node is
+`(variable, nothing)` and is placed at its onset time. Markers follow
+`value_representation`: only `:interval_summary` uses the rounded rectangle
+under the package convention. Attributes, trajectories, and from-onset supports
+remain circles unless you pass an explicit `node_marker`. Shape therefore never
+encodes enduring identity or node count. Show referent identity with labelled
+lanes or grouping, separately from causal arrows.
 
 ```@example mixed-temporal
 using Graphs, DAGMakie, CairoMakie
@@ -104,7 +105,7 @@ add_edge!(g, 2, 4)  # pasture → weight[1]
 fig, ax, p = dagplot_temporal(
     g,
     keys;
-    # Layout synonyms: :occasion = pointwise, :enduring = single-node
+    # Layout compatibility only: :occasion = pointwise, :enduring = single-node
     temporal_modes = [:occasion, :enduring, :occasion, :occasion],
     onset_times = [0, 1, 0, 0],
     value_representations = [:state, :attribute, :state, :state],
@@ -116,7 +117,8 @@ fig
 Spacing keywords `dx` and `dy` stretch columns and rows. For a
 `TemporalUnrolling` from CausalDynamics.jl, prefer
 `dagplot_temporal(unrolling)` after `using DAGMakie` (labels via
-`temporal_node_label`; markers from support / CausalDynamics extension).
+`temporal_node_label`; markers from `value_representation` / CausalDynamics
+extension).
 
 The display layer does not infer temporal provenance. When an auditable
 distinction is needed, obtain records from CausalDynamics with

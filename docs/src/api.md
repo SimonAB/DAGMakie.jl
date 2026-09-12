@@ -7,6 +7,7 @@ time_indexed_layout
 dagplot_time_indexed
 temporal_layout
 dagplot_temporal
+interval_summary_node_marker
 enduring_node_marker
 marker_for_value_representation
 marker_for_temporal_support

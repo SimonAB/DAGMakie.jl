@@ -9,21 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `dagplot_temporal` accepts `temporal_supports` alongside `value_representations` for support-driven glyphs.
+- [`interval_summary_node_marker`](@ref): rounded rectangle under the explicit
+  interval-summary visual convention.
+- `dagplot_temporal` accepts `temporal_supports` alongside `value_representations`.
 
 ### Changed
 
-- [Terminology](docs/src/terminology.md): glyphs follow temporal support /
-  value representation, not ontological occasion/enduring. Layout kwargs still
-  accept `:occasion` / `:enduring` as pointwise vs single-node synonyms.
+- Glyphs: rounded rectangles denote **interval summaries only**; attributes,
+  trajectories, from-onset supports, and single-node keys default to circles.
+  Shape does not encode endurance, support, or node count.
+  [`enduring_node_marker`](@ref) remains as a deprecated alias of
+  [`interval_summary_node_marker`](@ref).
+- [Terminology](docs/src/terminology.md) and temporal layout docs retargeted
+  accordingly. Layout kwargs still accept `:occasion` / `:enduring` as
+  pointwise vs single-node **placement** synonyms only.
 
 ### Added
 
 - Key-aware temporal plotting with [`temporal_layout`](@ref) and
-  [`dagplot_temporal`](@ref), including rounded-rectangle markers for enduring
-  variables via [`enduring_node_marker`](@ref). CausalDynamics extends
-  `dagplot_temporal` for `TemporalUnrolling` (do not also export a second
-  binding from CausalDynamics).
+  [`dagplot_temporal`](@ref). CausalDynamics extends `dagplot_temporal` for
+  `TemporalUnrolling` (do not also export a second binding from CausalDynamics).
 - [`marker_for_value_representation`](@ref) /
   [`marker_for_temporal_support`](@ref); `dagplot_temporal` accepts
   `value_representations` and optional `graph_kind` title annotation.

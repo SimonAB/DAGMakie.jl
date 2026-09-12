@@ -18,50 +18,60 @@ via `(width, height)`).
 """
 const FIT_NODE_MARKER = Circle
 
-"""Marker geometry used for variables that persist beyond one occasion."""
-const ENDURING_NODE_MARKER = Makie.BezierPath(
+"""Marker geometry for interval-summary nodes under an explicit visual convention.
+
+Shape does **not** encode enduring identity, temporal support, or node count.
+"""
+const INTERVAL_SUMMARY_NODE_MARKER = Makie.BezierPath(
     "M -0.75,-0.5 L 0.75,-0.5 Q 1,-0.5 1,-0.25 L 1,0.25 Q 1,0.5 0.75,0.5 L -0.75,0.5 Q -1,0.5 -1,0.25 L -1,-0.25 Q -1,-0.5 -0.75,-0.5 Z";
     fit = true,
 )
 
+"""Deprecated alias for [`interval_summary_node_marker`](@ref)."""
+const ENDURING_NODE_MARKER = INTERVAL_SUMMARY_NODE_MARKER
+
+"""
+    interval_summary_node_marker()
+
+Return the Makie marker used when `value_representation = :interval_summary`
+under the package visual convention. Labels or support bars identify the
+interval summarised; shape alone does not establish support or ontology.
+"""
+interval_summary_node_marker() = INTERVAL_SUMMARY_NODE_MARKER
+
 """
     enduring_node_marker()
 
-Return the Makie marker geometry used for a single-node / from-onset temporal
-variable (legacy layout synonym `:enduring`). Prefer
-[`marker_for_value_representation`](@ref) when `value_representation` is known.
+Deprecated name for [`interval_summary_node_marker`](@ref). Retained so older
+call sites keep compiling; do not treat the glyph as an endurance marker.
 """
-enduring_node_marker() = ENDURING_NODE_MARKER
+enduring_node_marker() = interval_summary_node_marker()
 
 """
     marker_for_value_representation(repr; single_node=false)
 
-Glyph from declared value representation (and optional single-node support).
-Does not infer ontology. Interval summaries, attributes, and trajectories use
-the rounded rectangle; point states and events use a circle; unspecified falls
-back to `single_node`.
+Glyph from declared value representation. Only `:interval_summary` selects the
+rounded rectangle under the package convention. Attributes, trajectories,
+states, and events use a circle. The unused `single_node` keyword is retained
+for call-site compatibility and does **not** change the marker.
 """
 function marker_for_value_representation(
     repr::Symbol;
     single_node::Bool = false,
 )
-    repr === :interval_summary && return enduring_node_marker()
-    repr === :attribute && return enduring_node_marker()
-    repr === :trajectory && return enduring_node_marker()
-    repr in (:state, :event, :event_indicator) && return :circle
-    return single_node ? enduring_node_marker() : :circle
+    repr === :interval_summary && return interval_summary_node_marker()
+    return :circle
 end
 
 """
     marker_for_temporal_support(kind; single_node=false)
 
-Heuristic glyph from a support kind symbol (`:point`, `:pointwise`,
-`:interval`, `:from_onset`, `:global`) when representation is unspecified.
+Support alone does not select shape. Prefer
+[`marker_for_value_representation`](@ref). Always returns a circle; the unused
+`single_node` keyword is retained for compatibility.
 """
 function marker_for_temporal_support(kind::Symbol; single_node::Bool = false)
-    kind in (:point, :pointwise) && return :circle
-    kind in (:interval, :from_onset, :global) && return enduring_node_marker()
-    return single_node ? enduring_node_marker() : :circle
+    return :circle
 end
 
 """
@@ -613,25 +623,11 @@ function dagplot_temporal(
     end
     markers = if node_marker !== nothing
         node_marker
-    elseif reps !== nothing || supports !== nothing
-        [
-            if reps !== nothing && reps[i] !== :unspecified
-                marker_for_value_representation(
-                    reps[i];
-                    single_node = modes[i] === :enduring || node_keys[i][2] === nothing,
-                )
-            elseif supports !== nothing
-                marker_for_temporal_support(
-                    supports[i];
-                    single_node = modes[i] === :enduring || node_keys[i][2] === nothing,
-                )
-            else
-                modes[i] === :enduring || node_keys[i][2] === nothing ?
-                    enduring_node_marker() : :circle
-            end for i in eachindex(node_keys)
-        ]
+    elseif reps !== nothing
+        [marker_for_value_representation(reps[i]) for i in eachindex(node_keys)]
     else
-        [mode == :enduring ? enduring_node_marker() : :circle for mode in modes]
+        # Circles by default: shape never encodes endurance, support, or node count.
+        fill(:circle, length(node_keys))
     end
     plot_kwargs = Dict{Symbol, Any}(kwargs)
     if graph_kind !== nothing && !haskey(plot_kwargs, :title)

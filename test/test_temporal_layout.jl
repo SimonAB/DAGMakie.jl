@@ -32,7 +32,8 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
             nlabels = ["diagnosis[0]", "pasture", "weight[0]", "weight[1]"],
         )
         @test fig_mixed isa Figure
-        @test p_mixed[:node_marker][][2] == enduring_node_marker()
+        @test p_mixed[:node_marker][][2] === :circle
+        @test all(m === :circle for m in p_mixed[:node_marker][])
     end
 
     @testset "declared value representation controls marker" begin
@@ -46,7 +47,7 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
             nlabels = ["burden summary"],
         )
         @test fig_summary isa Figure
-        @test p_summary[:node_marker][][1] == enduring_node_marker()
+        @test p_summary[:node_marker][][1] == interval_summary_node_marker()
 
         _fig_support, _ax_support, p_support = dagplot_temporal(
             g_summary,
@@ -56,7 +57,17 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
             value_representations = [:unspecified],
             nlabels = ["burden"],
         )
-        @test p_support[:node_marker][][1] == enduring_node_marker()
+        @test p_support[:node_marker][][1] === :circle
+
+        _fig_attr, _ax_attr, p_attr = dagplot_temporal(
+            g_summary,
+            [(:pasture, nothing)];
+            temporal_modes = [:enduring],
+            onset_times = [1],
+            value_representations = [:attribute],
+            nlabels = ["pasture"],
+        )
+        @test p_attr[:node_marker][][1] === :circle
     end
 
     pts = time_indexed_layout(2, 3; dx = 2.0, dy = 1.5)
