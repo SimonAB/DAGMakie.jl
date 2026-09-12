@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Clarity unit tests: export diet for glyph / `resolve_*` helpers, preferred
+  `color_by`/`exposure` colouring, and confirmation that legacy `smart=` /
+  `treatment=` no longer drive role fills.
 - [BOUNDARIES.md](BOUNDARIES.md); getting-started temporal glyph example
   (circle vs `:interval_summary`).
 - Key-aware temporal plotting: [`temporal_layout`](@ref) and
