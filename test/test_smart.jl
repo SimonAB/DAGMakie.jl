@@ -24,12 +24,21 @@
 
         fig, ax, p = dagplot(g; color_by = :ancestors, exposure = 2, outcome = 3, labels = labels)
         @test fig isa Figure
+        @test length(unique(p[:node_color][])) > 1
 
         fig2, ax2, p2 = dagplot_smart(g, 2, 3; labels = labels)
-        # Legacy aliases still work
         fig3, _, p3 = dagplot(g; color_by = true, exposure = 2, outcome = 3, labels = labels)
         @test p3[:node_color][] == p[:node_color][]
         @test fig2 isa Figure
+    end
+
+    @testset "color_by contract errors" begin
+        g, labels = confounding_graph(["Z", "X", "Y"])
+        @test_throws ArgumentError DAGMakie.resolve_color_by(; color_by = :bogus)
+        @test_throws ArgumentError dagplot(
+            g; color_by = true, outcome = 3, labels = labels,
+        )
+        @test_throws ArgumentError classify_smart_roles(g, 2, 2)
     end
 
     @testset "irrelevant nodes gray" begin

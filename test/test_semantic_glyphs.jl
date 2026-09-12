@@ -43,11 +43,4 @@ end
     fig_legacy, _, p_legacy = dagplot(g; smart = true, treatment = 2, outcome = 3)
     @test fig_legacy !== nothing
     @test length(unique(p_legacy[:node_color][])) == 1
-    fig_outer, _, p_outer = dagplot(
-        g;
-        labels = ["W", "A", "Y"],
-        label_position = :outer,
-    )
-    @test fig_outer !== nothing
-    @test p_outer[:nlabels_distance][] == OUTER_LABEL_DISTANCE
 end

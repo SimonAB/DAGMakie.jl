@@ -253,7 +253,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     # Pass-through
     kwargs...
 )
-    resolved_nlabels = labels !== nothing ? labels : nlabels
+    resolved_nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
     outer_labels = resolve_outer_labels(label_position)
     resolved_node_gap = resolve_node_gap(node_gap; outer_labels = outer_labels)
     resolved_obstacle = resolve_label_obstacle_graph(;

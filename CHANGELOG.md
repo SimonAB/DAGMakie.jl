@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `dagplot!` now routes `labels=` / `nlabels=` through `resolve_nlabels`, so
+  conflicting pairs throw instead of silently preferring `labels=`.
+
+### Changed
+
+- Unit tests: trim empty/duplicate outer-label checks; add `resolve_nlabels`
+  conflict and `color_by` contract error coverage.
+
 ### Breaking
 
 - Removed `enduring_node_marker` / `ENDURING_NODE_MARKER` / `AUTO_ALIGN_*`
