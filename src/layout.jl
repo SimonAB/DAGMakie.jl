@@ -39,62 +39,40 @@ interval summarised; shape alone does not establish support or ontology.
 """
 interval_summary_node_marker() = INTERVAL_SUMMARY_NODE_MARKER
 
-"""
-    enduring_node_marker()
-
-Deprecated name for [`interval_summary_node_marker`](@ref). Retained so older
-call sites keep compiling; do not treat the glyph as an endurance marker.
-"""
+"""Deprecated alias for [`interval_summary_node_marker`](@ref)."""
 enduring_node_marker() = interval_summary_node_marker()
 
 """
-    marker_for_value_representation(repr; single_node=false)
+    marker_for_value_representation(repr)
 
 Glyph from declared value representation. Only `:interval_summary` selects the
 rounded rectangle under the package convention. Attributes, trajectories,
-states, and events use a circle. The unused `single_node` keyword is retained
-for call-site compatibility and does **not** change the marker.
+states, and events use a circle. Temporal support and referent identity never
+select the shape.
 """
-function marker_for_value_representation(
-    repr::Symbol;
-    single_node::Bool = false,
-)
+function marker_for_value_representation(repr::Symbol)
     repr === :interval_summary && return interval_summary_node_marker()
     return :circle
 end
 
 """
-    marker_for_temporal_support(kind; single_node=false)
+    temporal_layout(node_keys; onset_times, dx, dy, origin)
 
-Support alone does not select shape. Prefer
-[`marker_for_value_representation`](@ref). Always returns a circle; the unused
-`single_node` keyword is retained for compatibility.
-"""
-function marker_for_temporal_support(kind::Symbol; single_node::Bool = false)
-    return :circle
-end
-
-"""
-    temporal_layout(node_keys; temporal_modes, onset_times, dx, dy, origin)
-
-Compute positions for a temporal graph whose nodes may be occasion-indexed or
-enduring. `node_keys` contains `(variable, time)` pairs; an enduring node uses
-`nothing` for `time` and is positioned at its `onset_time`. Rows follow the
-order in which variable names first occur, while the horizontal coordinate is
-the occasion or onset time.
+Compute positions for a temporal graph. `node_keys` contains `(variable, time)`
+pairs. A pointwise key `(v, t::Integer)` is placed at column `t`; a single-node
+key `(v, nothing)` is placed at its entry in `onset_times` (default `0`). Rows
+follow the order in which variable names first occur. Placement is a display
+fact only: it does not encode temporal support, endurance, or ontology.
 """
 function temporal_layout(
     node_keys::AbstractVector{<:Tuple};
-    temporal_modes = nothing,
     onset_times = nothing,
     dx::Real = 2.0,
     dy::Real = 1.5,
     origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
 )
     n = length(node_keys)
-    modes = temporal_modes === nothing ? [key[2] === nothing ? :enduring : :occasion for key in node_keys] : collect(temporal_modes)
     onsets = onset_times === nothing ? fill(0, n) : collect(onset_times)
-    length(modes) == n || throw(ArgumentError("temporal_modes must have one entry per node"))
     length(onsets) == n || throw(ArgumentError("onset_times must have one entry per node"))
 
     variable_rows = Dict{Any, Int}()
@@ -104,23 +82,14 @@ function temporal_layout(
     for (i, key) in enumerate(node_keys)
         length(key) == 2 || throw(ArgumentError("each temporal node key must be (variable, time)"))
         variable = key[1]
-        mode = modes[i]
-        mode in (:occasion, :enduring) || throw(ArgumentError(
-            "temporal mode must be :occasion or :enduring, got $mode",
-        ))
         if !haskey(variable_rows, variable)
             next_row += 1
             variable_rows[variable] = next_row
         end
-        time = if mode == :enduring
-            onsets[i]
-        else
-            key[2] === nothing && throw(ArgumentError(
-                "occasion node $variable must have an integer time",
-            ))
-            key[2]
-        end
-        time isa Integer || throw(ArgumentError("temporal positions must use integer occasions"))
+        time = key[2] === nothing ? onsets[i] : key[2]
+        time isa Integer || throw(ArgumentError(
+            "temporal positions must use integer times or onsets; got $(repr(time)) for $variable",
+        ))
         push!(positions, Point2f(x0 + Float64(time) * Float64(dx), y0 - (variable_rows[variable] - 1) * Float64(dy)))
     end
     return positions
@@ -578,17 +547,19 @@ function dagplot_time_indexed(
 end
 
 """
-    dagplot_temporal(g, node_keys; temporal_modes, onset_times,
-        temporal_supports, value_representations, kwargs...)
+    dagplot_temporal(g, node_keys; onset_times,
+        temporal_supports, value_representations, graph_kind, kwargs...)
 
-Plot a temporal graph with a possibly mixed set of occasion and enduring
-nodes. Unlike [`dagplot_time_indexed`](@ref), this API does not require a
-complete rectangular time grid.
+Plot a temporal graph whose keys mix pointwise `(v, t)` nodes and single-node
+`(v, nothing)` keys placed at `onset_times`. Unlike
+[`dagplot_time_indexed`](@ref), this API does not require a complete
+rectangular time grid. Markers follow `value_representations` (see
+[`marker_for_value_representation`](@ref)); `temporal_supports` is accepted
+for callers that carry it but does not change the glyph.
 """
 function dagplot_temporal(
     g::Graphs.AbstractGraph,
     node_keys::AbstractVector{<:Tuple};
-    temporal_modes = nothing,
     onset_times = nothing,
     dx::Real = 2.0,
     dy::Real = 1.5,
@@ -602,7 +573,6 @@ function dagplot_temporal(
     Graphs.nv(g) == length(node_keys) || throw(ArgumentError(
         "graph has $(Graphs.nv(g)) nodes, but node_keys has $(length(node_keys)) entries",
     ))
-    modes = temporal_modes === nothing ? [key[2] === nothing ? :enduring : :occasion for key in node_keys] : collect(temporal_modes)
     supports = if temporal_supports === nothing
         nothing
     else
@@ -637,7 +607,6 @@ function dagplot_temporal(
         g;
         layout = temporal_layout(
             node_keys;
-            temporal_modes = modes,
             onset_times = onset_times,
             dx = dx,
             dy = dy,

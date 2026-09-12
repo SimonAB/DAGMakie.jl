@@ -13,7 +13,8 @@ Defaults omit axes and grids; node types follow common causal-diagram
 conventions (observed, latent, treatment, outcome), with helpers for bidirected
 confounding, path highlighting, and display-only `do(·)` surgery.
 
-**Design principles:** [DESIGN.md](DESIGN.md) · [ecosystem](DESIGN_PRINCIPLES.md)
+**Design principles:** [DESIGN.md](DESIGN.md) · [BOUNDARIES.md](BOUNDARIES.md) ·
+[ecosystem](https://github.com/SimonAB/causal-dynamics-book/blob/main/packages/DESIGN_PRINCIPLES.md)
 
 DAGMakie is on the Julia **General** registry (`Pkg.add("DAGMakie")`). It is a
 **visualisation-only** package; identification and `do(·)` calculus stay in
@@ -110,7 +111,7 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 Julia. **Prefer ggdag / dagitty** for tidyverse-centric workflows or the dagitty
 web GUI.
 
-Full matrices: [ECOSYSTEM_COMPARISON.md](ECOSYSTEM_COMPARISON.md) ·
+Full matrices: [ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/causal-dynamics-book/blob/main/packages/ECOSYSTEM_COMPARISON.md) ·
 [Documenter comparison](https://simonab.github.io/DAGMakie.jl/dev/comparison/).
 
 ## Testing and validation

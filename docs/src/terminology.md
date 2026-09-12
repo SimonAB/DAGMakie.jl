@@ -20,7 +20,6 @@ not in this manual.
 | **Constitutive / influence** | Edge roles from CausalDynamics `temporal_edge_records`; styling only |
 | **`referent_id` lanes** | Optional identity connectors; not graph edges and not cut by `do_surgery` |
 
-Deprecated layout kwargs still accept `:occasion` / `:enduring` as synonyms for
-pointwise vs single-node **placement**. Prefer representation-driven markers when
-CausalDynamics semantics are available. Glyphs and layout must not change
-identification meaning, and must not be read as ontology.
+Placement follows the key shape alone: `(v, t)` sits at column `t`, `(v, nothing)`
+at its onset. There is no separate node-mode flag. Glyphs and layout must not
+change identification meaning, and must not be read as ontology.

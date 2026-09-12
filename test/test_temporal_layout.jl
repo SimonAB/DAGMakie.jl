@@ -8,7 +8,6 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
         keys = [(:diagnosis, 0), (:pasture, nothing), (:weight, 0), (:weight, 1)]
         positions = temporal_layout(
             keys;
-            temporal_modes = [:occasion, :enduring, :occasion, :occasion],
             onset_times = [0, 1, 0, 0],
             dx = 2.0,
             dy = 1.5,
@@ -18,7 +17,9 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
         @test positions[2] == Point2f(2, -1.5)
         @test positions[3] == Point2f(0, -3.0)
         @test positions[4] == Point2f(2, -3.0)
-        @test enduring_node_marker() isa Makie.BezierPath
+        @test interval_summary_node_marker() isa Makie.BezierPath
+        @test_throws ArgumentError temporal_layout(keys; onset_times = [0, 1])
+        @test_throws ArgumentError temporal_layout([(:x, 0.5)])
 
         g_mixed = SimpleDiGraph(4)
         add_edge!(g_mixed, 1, 2)
@@ -27,7 +28,6 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
         fig_mixed, _ax_mixed, p_mixed = dagplot_temporal(
             g_mixed,
             keys;
-            temporal_modes = [:occasion, :enduring, :occasion, :occasion],
             onset_times = [0, 1, 0, 0],
             nlabels = ["diagnosis[0]", "pasture", "weight[0]", "weight[1]"],
         )
@@ -41,7 +41,6 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
         fig_summary, _ax_summary, p_summary = dagplot_temporal(
             g_summary,
             [(:burden_summary, 0)];
-            temporal_modes = [:occasion],
             temporal_supports = [:pointwise],
             value_representations = [:interval_summary],
             nlabels = ["burden summary"],
@@ -52,7 +51,6 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
         _fig_support, _ax_support, p_support = dagplot_temporal(
             g_summary,
             [(:burden, 0)];
-            temporal_modes = [:occasion],
             temporal_supports = [:from_onset],
             value_representations = [:unspecified],
             nlabels = ["burden"],
@@ -62,7 +60,6 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
         _fig_attr, _ax_attr, p_attr = dagplot_temporal(
             g_summary,
             [(:pasture, nothing)];
-            temporal_modes = [:enduring],
             onset_times = [1],
             value_representations = [:attribute],
             nlabels = ["pasture"],

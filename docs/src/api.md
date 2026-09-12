@@ -8,9 +8,7 @@ dagplot_time_indexed
 temporal_layout
 dagplot_temporal
 interval_summary_node_marker
-enduring_node_marker
 marker_for_value_representation
-marker_for_temporal_support
 digraph_skeleton
 dagplot_skeleton
 graph_from_structural_matrix

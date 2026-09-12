@@ -9,35 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- [`interval_summary_node_marker`](@ref): rounded rectangle under the explicit
-  interval-summary visual convention.
-- `dagplot_temporal` accepts `temporal_supports` alongside `value_representations`.
-
-### Changed
-
-- Glyphs: rounded rectangles denote **interval summaries only**; attributes,
-  trajectories, from-onset supports, and single-node keys default to circles.
-  Shape does not encode endurance, support, or node count.
-  [`enduring_node_marker`](@ref) remains as a deprecated alias of
-  [`interval_summary_node_marker`](@ref).
-- [Terminology](docs/src/terminology.md) and temporal layout docs retargeted
-  accordingly. Layout kwargs still accept `:occasion` / `:enduring` as
-  pointwise vs single-node **placement** synonyms only.
-
-### Added
-
-- Key-aware temporal plotting with [`temporal_layout`](@ref) and
-  [`dagplot_temporal`](@ref). CausalDynamics extends `dagplot_temporal` for
-  `TemporalUnrolling` (do not also export a second binding from CausalDynamics).
-- [`marker_for_value_representation`](@ref) /
-  [`marker_for_temporal_support`](@ref); `dagplot_temporal` accepts
-  `value_representations` and optional `graph_kind` title annotation.
+- Key-aware temporal plotting: [`temporal_layout`](@ref) and
+  [`dagplot_temporal`](@ref) place pointwise keys `(v, t)` at column `t` and
+  single-node keys `(v, nothing)` at `onset_times`. No rectangular time grid
+  is required. CausalDynamics extends `dagplot_temporal` for
+  `TemporalUnrolling`.
+- [`interval_summary_node_marker`](@ref) and
+  [`marker_for_value_representation`](@ref): the rounded rectangle is drawn
+  **only** for `value_representation = :interval_summary`; states, events,
+  attributes, trajectories, and every temporal support use a circle. Shape
+  never encodes endurance, support, or node count. Legacy
+  [`enduring_node_marker`](@ref) remains an exported alias of the interval
+  summary marker.
+- `dagplot_temporal` accepts `value_representations`, `temporal_supports`
+  (carried, not drawn), and an optional `graph_kind` title annotation.
 - `do_surgery` may refuse process/semantic `graph_kind` unless
   `allow_non_causal=true` (callers should pass a causal projection).
-
-### Fixed
-
-- Mixed enduring / occasion Documenter example loads `Graphs` and `CairoMakie`.
+- [Terminology](docs/src/terminology.md) page for the temporal plotting
+  lexicon; Whitehead glossary terms stay in the CDCS book.
 
 ## [0.1.11] - 2026-08-29
 

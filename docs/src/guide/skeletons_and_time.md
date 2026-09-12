@@ -105,9 +105,7 @@ add_edge!(g, 2, 4)  # pasture → weight[1]
 fig, ax, p = dagplot_temporal(
     g,
     keys;
-    # Layout compatibility only: :occasion = pointwise, :enduring = single-node
-    temporal_modes = [:occasion, :enduring, :occasion, :occasion],
-    onset_times = [0, 1, 0, 0],
+    onset_times = [0, 1, 0, 0],  # placement of the single-node key (:pasture, nothing)
     value_representations = [:state, :attribute, :state, :state],
     labels = ["diagnosis[0]", "pasture", "weight[0]", "weight[1]"],
 )
@@ -125,7 +123,7 @@ distinction is needed, obtain records from CausalDynamics with
 `temporal_edge_records(unrolling)` and use the `role` field to annotate or
 inspect the figure: `:constitutive` records form a single-node attribute,
 `:recurrent_influence` records reuse it at later times, and
-`:occasion_influence` records connect pointwise nodes. Passing these records
+`:pointwise_influence` records connect pointwise nodes. Passing these records
 to plotting code is display metadata; it must not create alias vertices or
 change the graph used for identification. Prefer
 [`marker_for_value_representation`](@ref) when representation is known.

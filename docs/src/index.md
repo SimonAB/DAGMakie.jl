@@ -29,7 +29,7 @@ display-only surgery are summarised in [Terminology](terminology.md).
 **Choose DAGMakie** for publication figures in the Julia/Makie stack.
 **Prefer ggdag / dagitty** for tidyverse pipelines or the dagitty GUI.
 Details: [Comparison](comparison.md) ·
-[ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/DAGMakie.jl/blob/main/ECOSYSTEM_COMPARISON.md).
+[ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/causal-dynamics-book/blob/main/packages/ECOSYSTEM_COMPARISON.md).
 
 ## Capabilities
 

@@ -19,7 +19,7 @@ same Makie stack as SciML and book figures.
 need the dagitty web GUI, or a one-off ggplot is enough.
 
 Stack overview:
-[ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/DAGMakie.jl/blob/main/ECOSYSTEM_COMPARISON.md).
+[ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/causal-dynamics-book/blob/main/packages/ECOSYSTEM_COMPARISON.md).
 
 ```mermaid
 flowchart LR
