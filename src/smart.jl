@@ -250,7 +250,7 @@ Deprecated: use [`resolve_color_by`](@ref). Normalise a colouring keyword to
 `nothing` (off) or a mode symbol.
 """
 function resolve_smart_mode(smart)
-    return resolve_color_by(; smart = smart)
+    return resolve_color_by(; color_by = smart)
 end
 
 """
@@ -264,19 +264,17 @@ Deprecated aliases: `smart=` for `color_by=`, `treatment=` for `exposure=`.
 function apply_smart_kwargs(
     g::AbstractGraph;
     color_by = nothing,
-    smart = nothing,
     exposure = nothing,
-    treatment = nothing,
     outcome = nothing,
     adjustment = nothing,
     kwargs...,
 )
-    mode = resolve_color_by(; color_by = color_by, smart = smart)
+    mode = resolve_color_by(; color_by = color_by)
     mode === nothing && return (; kwargs...)
 
-    resolved_exposure = resolve_exposure(; exposure = exposure, treatment = treatment)
+    resolved_exposure = resolve_exposure(; exposure = exposure)
     resolved_exposure === nothing && throw(ArgumentError(
-        "color_by colouring requires exposure= (or treatment=) node index",
+        "color_by colouring requires exposure= node index",
     ))
     outcome === nothing && throw(ArgumentError(
         "color_by colouring requires outcome= (outcome node index)",
@@ -327,14 +325,12 @@ function dagplot_smart(
     treatment::Int,
     outcome::Int;
     color_by::Union{Bool, Symbol, Nothing} = :ancestors,
-    smart = nothing,
-    adjustment = nothing,
+        adjustment = nothing,
     kwargs...,
 )
     return dagplot(
         g;
         color_by = color_by,
-        smart = smart,
         exposure = treatment,
         outcome = outcome,
         adjustment = adjustment,

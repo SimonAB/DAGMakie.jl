@@ -27,7 +27,7 @@
 
         fig2, ax2, p2 = dagplot_smart(g, 2, 3; labels = labels)
         # Legacy aliases still work
-        fig3, _, p3 = dagplot(g; smart = true, treatment = 2, outcome = 3, nlabels = labels)
+        fig3, _, p3 = dagplot(g; color_by = true, exposure = 2, outcome = 3, labels = labels)
         @test p3[:node_color][] == p[:node_color][]
         @test fig2 isa Figure
     end

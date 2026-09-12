@@ -23,3 +23,12 @@ not in this manual.
 Placement follows the key shape alone: `(v, t)` sits at column `t`, `(v, nothing)`
 at its onset. There is no separate node-mode flag. Glyphs and layout must not
 change identification meaning, and must not be read as ontology.
+
+
+## Display vs identify
+
+DAGMakie reuses Pearl plot names (`Intervention`, `CausalQuery`, `do_surgery`)
+for **display surgery** only. Prefer the `DAGMakie.` qualifier in mixed
+sessions. Identification and generative `do(·)` remain in CausalDynamics.
+See the Policy taxonomy in the shared
+[DESIGN_PRINCIPLES](https://github.com/SimonAB/causal-dynamics-book/blob/main/packages/DESIGN_PRINCIPLES.md).

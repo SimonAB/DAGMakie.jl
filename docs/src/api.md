@@ -8,7 +8,6 @@ dagplot_time_indexed
 temporal_layout
 dagplot_temporal
 interval_summary_node_marker
-enduring_node_marker
 marker_for_value_representation
 digraph_skeleton
 dagplot_skeleton
@@ -191,12 +190,6 @@ Public plotting prefers discoverable names; legacy aliases still work:
 GraphMakie pass-throughs keep the `nlabels_*` / `elabels_*` prefixes.
 
 ```@docs
-resolve_nlabels
-resolve_label_obstacle_graph
-resolve_color_by
-resolve_exposure
-resolve_show_removed_edges
-resolve_do_node_labels
 ```
 
 ## Label Alignment
@@ -204,9 +197,6 @@ resolve_do_node_labels
 ```@docs
 compute_auto_label_aligns
 align_to_direction
-resolve_auto_align_label_settings
-resolve_outer_labels
-resolve_node_gap
 ```
 
 ## Layout Utilities
@@ -256,9 +246,6 @@ OUTER_LABEL_COLOR
 OUTER_LABEL_NODE_SIZE
 DEFAULT_NODE_GAP_INNER
 DEFAULT_NODE_GAP_OUTER
-AUTO_ALIGN_LABEL_DISTANCE
-AUTO_ALIGN_LABEL_COLOR
-AUTO_ALIGN_NODE_SIZE
 FIT_NODE_LABEL_PADDING
 FIT_NODE_MIN_SIZE
 FIT_NODE_RECT_ASPECT

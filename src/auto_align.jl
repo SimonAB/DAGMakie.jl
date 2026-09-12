@@ -67,11 +67,11 @@ aligns = compute_auto_label_aligns(g, positions)
 function compute_auto_label_aligns(g::AbstractGraph, node_positions::AbstractVector)
     n = nv(g)
     aligns = Vector{Tuple{Symbol, Symbol}}(undef, n)
-    
+
     for node in 1:n
         node_pos = node_positions[node]
         edge_angles = Float64[]
-        
+
         # Collect angles of ALL incident edges (both incoming and outgoing)
         # Direction is FROM current node TO the connected node
         for other in 1:n
@@ -88,17 +88,17 @@ function compute_auto_label_aligns(g::AbstractGraph, node_positions::AbstractVec
                 push!(edge_angles, atan(dy, dx))
             end
         end
-        
+
         # Default alignment for isolated nodes
         if isempty(edge_angles)
             aligns[node] = (:right, :bottom)
             continue
         end
-        
+
         # Find the largest angular gap between adjacent edges
         aligns[node] = _angle_to_alignment(_find_best_gap_midpoint(edge_angles))
     end
-    
+
     return aligns
 end
 
@@ -116,14 +116,14 @@ Find the midpoint angle of the largest gap between sorted angles.
 function _find_best_gap_midpoint(edge_angles::Vector{Float64})
     # Normalise angles to [0, 2π] and sort
     angles_norm = sort([mod(a + 2π, 2π) for a in edge_angles])
-    
+
     # Find gaps between adjacent angles (including wrap-around gap)
     best_gap = 0.0
     best_midpoint = -π/4  # Default: Southeast (bottom-right)
-    
+
     for i in 1:length(angles_norm)
         next_i = i == length(angles_norm) ? 1 : i + 1
-        
+
         # Gap from angles_norm[i] to angles_norm[next_i]
         if next_i == 1
             # Wrap-around gap
@@ -136,13 +136,13 @@ function _find_best_gap_midpoint(edge_angles::Vector{Float64})
             gap = angles_norm[next_i] - angles_norm[i]
             midpoint = angles_norm[i] + gap / 2
         end
-        
+
         if gap > best_gap
             best_gap = gap
             best_midpoint = midpoint
         end
     end
-    
+
     return best_midpoint
 end
 
@@ -170,7 +170,7 @@ Maps angles to 8 cardinal/ordinal directions:
 function _angle_to_alignment(angle::Float64)
     # Normalise to [0, 2π]
     angle_norm = mod(angle + 2π, 2π)
-    
+
     # Map to 8 directions (each sector spans π/4 = 45°)
     # Sector boundaries centred on cardinal/ordinal directions
     return if angle_norm < π/8 || angle_norm >= 15π/8
@@ -217,7 +217,7 @@ align_to_direction((:center, :bottom)) # (0, 1)  — label ends up north of node
 """
 function align_to_direction(align::Tuple{Symbol, Symbol})
     halign, valign = align
-    
+
     x = if halign === :left
         1.0
     elseif halign === :right
@@ -225,7 +225,7 @@ function align_to_direction(align::Tuple{Symbol, Symbol})
     else
         0.0
     end
-    
+
     y = if valign === :top
         -1.0
     elseif valign === :bottom
@@ -233,13 +233,13 @@ function align_to_direction(align::Tuple{Symbol, Symbol})
     else
         0.0
     end
-    
+
     # Normalise
     len = sqrt(x^2 + y^2)
     if len ≈ 0.0
         return (0.0, 0.0)
     end
-    
+
     return (x / len, y / len)
 end
 
@@ -254,26 +254,12 @@ Preferred API: `label_position = :outer` (default) or `:inner`. The older
 """
 function resolve_outer_labels(
     label_position::Symbol = DEFAULT_LABEL_POSITION;
-    auto_align_labels::Union{Bool, Nothing} = nothing,
+    auto_align_labels = nothing,  # ignored; prefer label_position alone
 )
     label_position in (:inner, :outer) || throw(ArgumentError(
         "label_position must be :inner or :outer, got $(repr(label_position))",
     ))
-    if auto_align_labels === nothing
-        return label_position === :outer
-    elseif auto_align_labels === true
-        if label_position === :outer
-            return true
-        end
-        # Legacy: `auto_align_labels=true` with default `:inner` → outer
-        return true
-    else  # false
-        label_position === :outer && throw(ArgumentError(
-            "label_position=:outer conflicts with auto_align_labels=false; " *
-            "omit auto_align_labels (preferred: label_position=:outer alone)",
-        ))
-        return false
-    end
+    return label_position === :outer
 end
 
 """
@@ -357,50 +343,36 @@ function resolve_label_obstacle_graph(;
 end
 
 """
-    resolve_color_by(; color_by=nothing, smart=nothing)
+    resolve_color_by(; color_by=nothing)
 
-Normalise dagitty-style colouring to `nothing` (off), `:ancestors`, `:ancestors_temporal`, or `:adjustment`.
-Prefer `color_by=`; `smart=` is a deprecated alias (`true` → `:ancestors`).
+Normalise dagitty-style colouring to `nothing` (off), `:ancestors`,
+`:ancestors_temporal`, or `:adjustment`.
 On [`dagplot_time_indexed`](@ref), `:ancestors` and `:ancestors_temporal` both
 propagate roles across variable rows.
 """
-function resolve_color_by(; color_by = nothing, smart = nothing)
-    mode_from(x) = if x === false || x === nothing
-        nothing
-    elseif x === true || x === :ancestors
-        :ancestors
-    elseif x === :adjustment
-        :adjustment
-    elseif x === :ancestors_temporal
-        :ancestors_temporal
+function resolve_color_by(; color_by = nothing)
+    if color_by === false || color_by === nothing
+        return nothing
+    elseif color_by === true || color_by === :ancestors
+        return :ancestors
+    elseif color_by === :adjustment
+        return :adjustment
+    elseif color_by === :ancestors_temporal
+        return :ancestors_temporal
     else
         throw(ArgumentError(
-            "color_by/smart must be false, true, :ancestors, :ancestors_temporal, or :adjustment; got $(repr(x))",
+            "color_by must be false, true, :ancestors, :ancestors_temporal, or :adjustment; got $(repr(color_by))",
         ))
     end
-    cb = mode_from(color_by)
-    sm = mode_from(smart)
-    if color_by !== nothing && smart !== nothing && cb !== sm
-        throw(ArgumentError(
-            "conflicting color_by=$(repr(color_by)) and smart=$(repr(smart)); " *
-            "prefer color_by= alone",
-        ))
-    end
-    return cb !== nothing ? cb : sm
 end
 
 """
-    resolve_exposure(; exposure=nothing, treatment=nothing)
+    resolve_exposure(; exposure=nothing)
 
-Exposure / treatment node index. Prefer `exposure=`; `treatment=` remains an alias.
+Exposure node index for smart / ancestor colouring.
 """
-function resolve_exposure(; exposure = nothing, treatment = nothing)
-    if exposure !== nothing && treatment !== nothing && exposure != treatment
-        throw(ArgumentError(
-            "conflicting exposure= and treatment=; prefer exposure= alone",
-        ))
-    end
-    return exposure !== nothing ? exposure : treatment
+function resolve_exposure(; exposure = nothing)
+    return exposure
 end
 
 """

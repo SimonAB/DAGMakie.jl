@@ -23,8 +23,8 @@
     end
 
     @testset "Vaccine × nutrition specs" begin
-        outcome = vaccine_nutrition_outcome_spec()
-        idag = vaccine_nutrition_idag_spec()
+        outcome = DAGMakie.vaccine_nutrition_outcome_spec()
+        idag = DAGMakie.vaccine_nutrition_idag_spec()
         @test length(outcome.nodes) == 3
         @test outcome.nodes[1].type == Confounder
         @test outcome.nodes[2].type == Treatment
@@ -32,7 +32,7 @@
         @test idag.nodes[3].type == EffectMeasure
         @test has_edge(outcome.graph, 1, 2)
         @test has_edge(idag.graph, 2, 3)
-        @test length(vaccine_nutrition_layout()) == 3
+        @test length(DAGMakie.vaccine_nutrition_layout()) == 3
     end
 
     @testset "2×2 DiD specs" begin
@@ -53,14 +53,14 @@
     end
 
     @testset "Example figures smoke" begin
-        fig1 = dagplot_vaccine_nutrition_interaction()
+        fig1 = DAGMakie.dagplot_vaccine_nutrition_interaction()
         @test fig1 isa Figure
         fig2 = dagplot_did_swig()
         @test fig2 isa Figure
         fig3 = dagplot_side_by_side(
-            vaccine_nutrition_outcome_spec(),
-            vaccine_nutrition_idag_spec();
-            layout = vaccine_nutrition_layout(),
+            DAGMakie.vaccine_nutrition_outcome_spec(),
+            DAGMakie.vaccine_nutrition_idag_spec();
+            layout = DAGMakie.vaccine_nutrition_layout(),
         )
         @test fig3 isa Figure
     end

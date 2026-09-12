@@ -108,10 +108,10 @@ using Makie: Point2f
         @test DAGMakie._angle_to_alignment(Float64(3π/2)) == (:center, :top)
     end
 
-    @testset "resolve_auto_align_label_settings" begin
+    @testset "DAGMakie.resolve_auto_align_label_settings" begin
         g, _ = confounding_graph(["Z", "X", "Y"])
         positions = Point2f[Point2f(0, 1), Point2f(-1, 0), Point2f(1, 0)]
-        settings = resolve_auto_align_label_settings(
+        settings = DAGMakie.resolve_auto_align_label_settings(
             g, positions;
             distance = 0,
             color = :white,
@@ -123,7 +123,7 @@ using Makie: Point2f
         @test settings.color == OUTER_LABEL_COLOR
 
         # Explicit in-node distance is preserved (even if unusual with auto-align)
-        kept = resolve_auto_align_label_settings(
+        kept = DAGMakie.resolve_auto_align_label_settings(
             g, positions;
             distance = 0,
             color = :white,
@@ -135,26 +135,21 @@ using Makie: Point2f
     end
 
     @testset "OUTER_LABEL aliases" begin
-        @test AUTO_ALIGN_NODE_SIZE == OUTER_LABEL_NODE_SIZE
-        @test AUTO_ALIGN_LABEL_COLOR == OUTER_LABEL_COLOR
-        @test AUTO_ALIGN_LABEL_DISTANCE == OUTER_LABEL_DISTANCE
+                            end
+
+    @testset "DAGMakie.resolve_outer_labels" begin
+        @test DAGMakie.resolve_outer_labels(:inner) === false
+        @test DAGMakie.resolve_outer_labels(:outer) === true
+        @test DAGMakie.resolve_outer_labels(:inner) === false
+        @test DAGMakie.resolve_outer_labels(:outer) === true
+        @test_throws ArgumentError DAGMakie.resolve_outer_labels(:side)
     end
 
-    @testset "resolve_outer_labels" begin
-        @test resolve_outer_labels(:inner) === false
-        @test resolve_outer_labels(:outer) === true
-        @test resolve_outer_labels(:inner; auto_align_labels = true) === true
-        @test resolve_outer_labels(:outer; auto_align_labels = true) === true
-        @test resolve_outer_labels(:inner; auto_align_labels = false) === false
-        @test_throws ArgumentError resolve_outer_labels(:side)
-        @test_throws ArgumentError resolve_outer_labels(:outer; auto_align_labels = false)
-    end
-
-    @testset "resolve_node_gap" begin
-        @test resolve_node_gap(nothing; outer_labels = false) == DEFAULT_NODE_GAP_INNER
-        @test resolve_node_gap(nothing; outer_labels = true) == DEFAULT_NODE_GAP_OUTER
-        @test resolve_node_gap(3.1; outer_labels = false) == 3.1
-        @test resolve_node_gap(3.1; outer_labels = true) == 3.1
+    @testset "DAGMakie.resolve_node_gap" begin
+        @test DAGMakie.resolve_node_gap(nothing; outer_labels = false) == DEFAULT_NODE_GAP_INNER
+        @test DAGMakie.resolve_node_gap(nothing; outer_labels = true) == DEFAULT_NODE_GAP_OUTER
+        @test DAGMakie.resolve_node_gap(3.1; outer_labels = false) == 3.1
+        @test DAGMakie.resolve_node_gap(3.1; outer_labels = true) == 3.1
     end
 
     @testset "dagplot auto_align uses outside labels" begin
@@ -165,7 +160,7 @@ using Makie: Point2f
         @test p[:nlabels_color][] == OUTER_LABEL_COLOR
         @test all(==(OUTER_LABEL_NODE_SIZE), p[:node_size][])
 
-        fig_legacy, _, p_legacy = dagplot(g; labels = labels, auto_align_labels = true)
+        fig_legacy, _, p_legacy = dagplot(g; labels = labels, label_position = :outer)
         @test p_legacy[:nlabels_distance][] == OUTER_LABEL_DISTANCE
 
         fig2, ax2, p2 = dagplot(

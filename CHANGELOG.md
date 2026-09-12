@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking
+
+- Removed `enduring_node_marker` / `ENDURING_NODE_MARKER` / `AUTO_ALIGN_*`
+  public aliases. Use `interval_summary_node_marker` and `OUTER_LABEL_*`.
+- Removed dagplot synonyms `smart=`, `treatment=`, `auto_align_labels=`,
+  `auto_align_graph=`. Prefer `color_by=`, `exposure=`, `label_position=`,
+  `label_obstacle_graph=`.
+- Unexported `resolve_*` helpers and vaccine-nutrition demo constructors;
+  qualify as `DAGMakie.…` when needed (visual-grammar guide still documents
+  demos).
+
 ### Added
 
 - [BOUNDARIES.md](BOUNDARIES.md); getting-started temporal glyph example
@@ -20,9 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [`marker_for_value_representation`](@ref): the rounded rectangle is drawn
   **only** for `value_representation = :interval_summary`; states, events,
   attributes, trajectories, and every temporal support use a circle. Shape
-  never encodes endurance, support, or node count. Legacy
-  [`enduring_node_marker`](@ref) remains an exported alias of the interval
-  summary marker.
+  never encodes endurance, support, or node count.
 - `dagplot_temporal` accepts `value_representations`, `temporal_supports`
   (carried, not drawn), and an optional `graph_kind` title annotation.
 - `do_surgery` may refuse process/semantic `graph_kind` unless

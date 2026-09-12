@@ -238,10 +238,9 @@ function temporal_role_styling(
     exposure,
     outcome,
     color_by = :ancestors,
-    smart = nothing,
     adjustment = nothing,
 )
-    mode = resolve_color_by(; color_by = color_by, smart = smart)
+    mode = resolve_color_by(; color_by = color_by)
     mode === nothing && throw(ArgumentError("temporal_role_styling requires color_by=:ancestors, :ancestors_temporal, or :adjustment"))
     mode = mode === :ancestors_temporal ? :ancestors : mode
     mode in (:ancestors, :adjustment) || throw(ArgumentError(
@@ -268,25 +267,22 @@ function apply_temporal_smart_kwargs(
     n_variables::Integer,
     n_times::Integer;
     color_by = nothing,
-    smart = nothing,
     exposure = nothing,
-    treatment = nothing,
     outcome = nothing,
     adjustment = nothing,
     kwargs...,
 )
-    mode = resolve_color_by(; color_by = color_by, smart = smart)
+    mode = resolve_color_by(; color_by = color_by)
     mode === nothing && return (; kwargs...)
 
-    exp_input = something(exposure, treatment)
-    exp_input === nothing && throw(ArgumentError(
-        "color_by colouring requires exposure= (or treatment=) node index or (variable, time) tuple",
+    exposure === nothing && throw(ArgumentError(
+        "color_by colouring requires exposure= node index or (variable, time) tuple",
     ))
     outcome === nothing && throw(ArgumentError(
         "color_by colouring requires outcome= node index or (variable, time) tuple",
     ))
 
-    exp_node, out_node = resolve_temporal_exposure_outcome(exp_input, outcome, n_variables)
+    exp_node, out_node = resolve_temporal_exposure_outcome(exposure, outcome, n_variables)
     style = smart_style_for_temporal_graph(
         g, n_variables, n_times, exp_node, out_node;
         mode = mode === :ancestors_temporal ? :ancestors : mode,
@@ -304,10 +300,7 @@ function apply_temporal_smart_kwargs(
             merged[key] = value
         end
     end
-    if resolve_outer_labels(
-            get(merged, :label_position, DEFAULT_LABEL_POSITION);
-            auto_align_labels = get(merged, :auto_align_labels, nothing),
-        )
+    if resolve_outer_labels(get(merged, :label_position, DEFAULT_LABEL_POSITION))
         user_label_color = get(kwargs, :nlabels_color, nothing)
         if user_label_color === nothing
             merged[:nlabels_color] = OUTER_LABEL_COLOR

@@ -93,16 +93,8 @@ export dagplot_confounded, dagplot_frontdoor, dagplot_iv_confounded, dagplot_m_b
 # Auto-alignment
 export compute_auto_label_aligns
 export align_to_direction
-export resolve_auto_align_label_settings
-export resolve_outer_labels
-export resolve_nlabels, resolve_label_obstacle_graph, resolve_color_by
-export resolve_exposure, resolve_show_removed_edges, resolve_do_node_labels
-export resolve_node_gap
 export OUTER_LABEL_DISTANCE, OUTER_LABEL_COLOR, OUTER_LABEL_NODE_SIZE
 export DEFAULT_NODE_GAP_INNER, DEFAULT_NODE_GAP_OUTER
-# Deprecated aliases
-export AUTO_ALIGN_LABEL_DISTANCE, AUTO_ALIGN_LABEL_COLOR, AUTO_ALIGN_NODE_SIZE
-
 # Layout utilities
 export estimate_label_extent, compute_label_bounds, compute_padded_limits
 export estimate_label_pixel_size, node_size_for_inner_label, fit_node_sizes_to_labels
@@ -110,7 +102,7 @@ export FIT_NODE_LABEL_PADDING, FIT_NODE_MIN_SIZE, FIT_NODE_RECT_ASPECT, FIT_NODE
 export CurvedEdge, DEFAULT_EDGE_BOW
 export DAGLayoutResult, classify_graph_kind, compute_graph_layout, feedback_edge_mask, edge_waypoint_vector, count_layered_crossings
 export time_indexed_layout, dagplot_time_indexed, temporal_layout, dagplot_temporal
-export interval_summary_node_marker, enduring_node_marker, marker_for_value_representation
+export interval_summary_node_marker, marker_for_value_representation
 
 # Themes and styling
 export dag_theme
@@ -139,8 +131,6 @@ export typed_confounding_graph, typed_mediation_graph, typed_instrumental_graph,
 
 # Visual grammar (interactions / DiD SWIGs)
 export modifier_edge, dagplot_side_by_side
-export vaccine_nutrition_outcome_spec, vaccine_nutrition_idag_spec
-export vaccine_nutrition_layout, dagplot_vaccine_nutrition_interaction
 export did_2x2_factual_spec, did_2x2_swig_spec
 export did_2x2_factual_layout, did_2x2_swig_layout, dagplot_did_swig
 

@@ -27,9 +27,6 @@ const INTERVAL_SUMMARY_NODE_MARKER = Makie.BezierPath(
     fit = true,
 )
 
-"""Deprecated alias for [`interval_summary_node_marker`](@ref)."""
-const ENDURING_NODE_MARKER = INTERVAL_SUMMARY_NODE_MARKER
-
 """
     interval_summary_node_marker()
 
@@ -38,9 +35,6 @@ under the package visual convention. Labels or support bars identify the
 interval summarised; shape alone does not establish support or ontology.
 """
 interval_summary_node_marker() = INTERVAL_SUMMARY_NODE_MARKER
-
-"""Deprecated alias for [`interval_summary_node_marker`](@ref)."""
-enduring_node_marker() = interval_summary_node_marker()
 
 """
     marker_for_value_representation(repr)
@@ -117,26 +111,26 @@ the approximate bounding box offset from the node position.
 - Returns pixel-space estimates (caller must convert to data coordinates)
 """
 function estimate_label_extent(
-    label::AbstractString, 
-    align::Tuple{Symbol, Symbol}, 
-    fontsize::Real, 
+    label::AbstractString,
+    align::Tuple{Symbol, Symbol},
+    fontsize::Real,
     distance::Real
 )
     halign, valign = align
-    
+
     # Approximate character dimensions (in pixels)
     # Typical monospace/sans-serif: width ≈ 0.6 × height
     char_width = 0.6 * fontsize
     char_height = Float64(fontsize)
-    
+
     # Estimate label dimensions in pixels
     label_width = length(label) * char_width
     label_height = char_height
-    
+
     # Calculate offset based on alignment
     # The alignment specifies which part of the label is at the anchor point
     # e.g., (:left, :center) means label's LEFT edge is at anchor, so label extends RIGHT
-    
+
     # Horizontal extent from anchor
     dx_min, dx_max = if halign === :left
         (Float64(distance), Float64(distance) + label_width)      # Label extends right
@@ -145,7 +139,7 @@ function estimate_label_extent(
     else  # :center
         (-label_width / 2, label_width / 2)
     end
-    
+
     # Vertical extent from anchor
     dy_min, dy_max = if valign === :bottom
         (Float64(distance), Float64(distance) + label_height)     # Label extends up
@@ -154,7 +148,7 @@ function estimate_label_extent(
     else  # :center
         (-label_height / 2, label_height / 2)
     end
-    
+
     return (dx_min = dx_min, dx_max = dx_max, dy_min = dy_min, dy_max = dy_max)
 end
 
@@ -298,10 +292,10 @@ function compute_label_bounds(
         align = _get_align(nlabels_align, i)
         label_distance = _get_scalar_or_indexed(nlabels_distance, i)
         label_fontsize = _get_scalar_or_indexed(nlabels_fontsize, i)
-        
+
         # Get pixel-space extent
         extent = estimate_label_extent(label, align, label_fontsize, label_distance)
-        
+
         # Convert to data coordinates and expand bounds
         x_min = min(x_min, Float64(pos[1]) + extent.dx_min * px_to_data_x)
         x_max = max(x_max, Float64(pos[1]) + extent.dx_max * px_to_data_x)
@@ -516,9 +510,7 @@ function dagplot_time_indexed(
     dy::Real = 1.5,
     origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
     color_by = nothing,
-    smart = nothing,
     exposure = nothing,
-    treatment = nothing,
     outcome = nothing,
     adjustment = nothing,
     kwargs...,
@@ -530,9 +522,7 @@ function dagplot_time_indexed(
     plot_kwargs = apply_temporal_smart_kwargs(
         g, n_variables, n_times;
         color_by = color_by,
-        smart = smart,
         exposure = exposure,
-        treatment = treatment,
         outcome = outcome,
         adjustment = adjustment,
         kwargs...,
@@ -541,7 +531,6 @@ function dagplot_time_indexed(
         g;
         layout = layout,
         color_by = false,
-        smart = false,
         plot_kwargs...,
     )
 end

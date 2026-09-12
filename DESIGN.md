@@ -2,7 +2,7 @@
 
 This package is **visualisation only**: causal DAGs on GraphMakie/Makie, with optional highlighting tied to identification.
 
-**Shared principles:** [DESIGN_PRINCIPLES.md](https://github.com/SimonAB/causal-dynamics-book/blob/main/packages/DESIGN_PRINCIPLES.md)
+**Shared principles + Policy taxonomy:** [DESIGN_PRINCIPLES.md](https://github.com/SimonAB/causal-dynamics-book/blob/main/packages/DESIGN_PRINCIPLES.md)
 
 ## Role in the stack
 
@@ -29,7 +29,7 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 - **Dashed outlines** for latent states in state-space diagrams; solid for observed and exogenous noise (see book `.cursorrules`).
 - **Layered DAG layout** for acyclic graphs; **SCC-aware** routing for feedback.
 - **Time-indexed layout** (`time_indexed_layout` / `dagplot_time_indexed`) for rectangular unrolled temporal DAGs (column = time index, row = variable). With `color_by`, exposure / outcome / ancestor roles propagate across each variable row (issue #5).
-- **Mixed temporal layout** (`temporal_layout` / `dagplot_temporal` / `interval_summary_node_marker`): pointwise and from-onset nodes default to circles; rounded rectangles denote `:interval_summary` only. Legacy `enduring_node_marker` is an alias. CausalDynamics `dagplot_temporal(unrolling)` supplies keys and representations from `TemporalNodeSpec`.
+- **Mixed temporal layout** (`temporal_layout` / `dagplot_temporal` / `interval_summary_node_marker`): pointwise and from-onset nodes default to circles; rounded rectangles denote `:interval_summary` only. CausalDynamics `dagplot_temporal(unrolling)` supplies keys and representations from `TemporalNodeSpec`.
 - **Undirected skeletons** (`digraph_skeleton` / `dagplot_skeleton`) for CPDAG-style
   PC displays; undirected `SimpleGraph` inputs skip directed SCC logic and suppress
   arrowheads with a dedicated stroke colour.

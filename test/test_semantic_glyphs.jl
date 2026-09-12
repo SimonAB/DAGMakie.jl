@@ -8,5 +8,5 @@ using DAGMakie
     @test marker_for_value_representation(:trajectory) === :circle
     @test marker_for_value_representation(:interval_summary) === interval_summary_node_marker()
     @test marker_for_value_representation(:unspecified) === :circle
-    @test enduring_node_marker() === interval_summary_node_marker()
+    @test interval_summary_node_marker() !== :circle
 end
