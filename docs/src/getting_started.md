@@ -192,6 +192,29 @@ fig, ax, p = dagplot(g_m;
 fig
 ```
 
+## Temporal glyphs
+
+Rounded rectangles mean `value_representation = :interval_summary` only. Single-node
+supports (from-onset attributes) stay circles unless you pass that representation:
+
+```@example getting_started
+keys = [(:pasture, nothing), (:burden, 0)]
+g = SimpleDiGraph(2)
+add_edge!(g, 1, 2)
+fig, ax, p = dagplot_temporal(
+    g,
+    keys;
+    onset_times = [0, 0],
+    value_representations = [:attribute, :interval_summary],
+    labels = ["pasture", "burden"],
+    figure_size = (420, 220),
+    fit_node_size_to_labels = false,
+)
+(p[:node_marker][][1] == :circle, p[:node_marker][][2] == interval_summary_node_marker())
+```
+
+See [Skeletons & Time](guide/skeletons_and_time.md) and [Terminology](terminology.md).
+
 ## See also
 
 - [Basic Plotting](@ref) — node and edge appearance

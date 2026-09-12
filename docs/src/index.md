@@ -14,8 +14,8 @@ Defaults omit axes and grids; node types follow common causal-diagram
 conventions (observed, latent, treatment, outcome), with helpers for bidirected
 confounding, path highlighting, display-only `do(·)` surgery, and a [visual
 grammar](guide/visual_grammar.md) for interaction IDAGs and DiD SWIGs.
-Occasion versus enduring nodes, constitutive versus influence styling, and
-display-only surgery are summarised in [Terminology](terminology.md).
+Temporal glyphs, single-node placement, and display-only surgery are summarised
+in [Terminology](terminology.md). Scope limits: [BOUNDARIES.md](https://github.com/SimonAB/DAGMakie.jl/blob/main/BOUNDARIES.md).
 
 ## Compared with R and Python
 

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [BOUNDARIES.md](BOUNDARIES.md); getting-started temporal glyph example
+  (circle vs `:interval_summary`).
 - Key-aware temporal plotting: [`temporal_layout`](@ref) and
   [`dagplot_temporal`](@ref) place pointwise keys `(v, t)` at column `t` and
   single-node keys `(v, nothing)` at `onset_times`. No rectangular time grid
