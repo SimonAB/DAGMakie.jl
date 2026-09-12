@@ -9,3 +9,6 @@ NetworkLayout = "46757867-2c16-5918-afeb-47bfcb05e46a"
 CairoMakie = "0.13, 0.14, 0.15"
 Documenter = "1"
 Graphs = "1"
+
+[sources]
+DAGMakie = {path = ".."}

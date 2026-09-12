@@ -135,10 +135,6 @@ query_to_string
 ```@docs
 modifier_edge
 dagplot_side_by_side
-vaccine_nutrition_outcome_spec
-vaccine_nutrition_idag_spec
-vaccine_nutrition_layout
-dagplot_vaccine_nutrition_interaction
 did_2x2_factual_spec
 did_2x2_swig_spec
 did_2x2_factual_layout
@@ -176,21 +172,18 @@ SMART_COLOR_IRRELEVANT
 
 Public plotting prefers discoverable names; legacy aliases still work:
 
-| Prefer | Alias |
+| Prefer | Alias (removed from public API) |
 |--------|-------|
-| `labels` | `nlabels` |
-| `label_position` | `auto_align_labels=true` → `:outer` |
-| `label_obstacle_graph` | `auto_align_graph` |
-| `color_by` | `smart` |
-| `exposure` | `treatment` (for colouring kwargs) |
-| `show_removed_edges` | `show_original` |
-| `do_node_labels` | `relabel_nodes` |
-| `OUTER_LABEL_*` | `AUTO_ALIGN_*` |
+| `labels` | `nlabels` (GraphMakie pass-through still accepted) |
+| `label_position = :outer` | former `auto_align_labels=true` |
+| `label_obstacle_graph` | former `auto_align_graph` |
+| `color_by` | former `smart` |
+| `exposure` | former `treatment` (colouring kwargs) |
+| `show_removed_edges` | former `show_original` |
+| `do_node_labels` | former `relabel_nodes` |
+| `OUTER_LABEL_*` | former `AUTO_ALIGN_*` |
 
 GraphMakie pass-throughs keep the `nlabels_*` / `elabels_*` prefixes.
-
-```@docs
-```
 
 ## Label Alignment
 

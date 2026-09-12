@@ -78,16 +78,16 @@ is replaced by an effect-measure node ``δ`` (Nilsson et al. style).
 using DAGMakie, CairoMakie
 
 fig = with_theme(dag_theme()) do
-    dagplot_vaccine_nutrition_interaction()
+    DAGMakie.dagplot_vaccine_nutrition_interaction()
 end
 fig
 ```
 
 Constructors if you need the specs separately:
 
-- [`vaccine_nutrition_outcome_spec`](@ref)
-- [`vaccine_nutrition_idag_spec`](@ref)
-- [`dagplot_vaccine_nutrition_interaction`](@ref)
+- `DAGMakie.vaccine_nutrition_outcome_spec`
+- `DAGMakie.vaccine_nutrition_idag_spec`
+- `DAGMakie.dagplot_vaccine_nutrition_interaction`
 
 **Caption pattern:** *Left: structural DAG for identifying* ``E[Y \mid do(V)]``
 *after adjusting for* ``N``*. Right: IDAG for additive effect modification; the
@@ -131,13 +131,13 @@ factual | SWIG pairs (same habit as [`dagplot_do_comparison`](@ref)).
 ```@example grammar-side
 using DAGMakie, CairoMakie
 
-left = vaccine_nutrition_outcome_spec()
-right = vaccine_nutrition_idag_spec()
+left = DAGMakie.vaccine_nutrition_outcome_spec()
+right = DAGMakie.vaccine_nutrition_idag_spec()
 fig = with_theme(dag_theme()) do
     dagplot_side_by_side(
         left, right;
         titles = ("Outcome DAG", "IDAG"),
-        layout = vaccine_nutrition_layout(),
+        layout = DAGMakie.vaccine_nutrition_layout(),
     )
 end
 fig
