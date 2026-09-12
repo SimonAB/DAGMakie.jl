@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `dagplot_temporal` accepts `temporal_supports` alongside `value_representations` for support-driven glyphs.
+
 ### Changed
 
 - [Terminology](docs/src/terminology.md): glyphs follow temporal support /

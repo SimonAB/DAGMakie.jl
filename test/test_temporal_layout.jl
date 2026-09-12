@@ -35,6 +35,30 @@ using Graphs: SimpleGraph, SimpleDiGraph, add_edge!, ne, has_edge, is_directed
         @test p_mixed[:node_marker][][2] == enduring_node_marker()
     end
 
+    @testset "declared value representation controls marker" begin
+        g_summary = SimpleDiGraph(1)
+        fig_summary, _ax_summary, p_summary = dagplot_temporal(
+            g_summary,
+            [(:burden_summary, 0)];
+            temporal_modes = [:occasion],
+            temporal_supports = [:pointwise],
+            value_representations = [:interval_summary],
+            nlabels = ["burden summary"],
+        )
+        @test fig_summary isa Figure
+        @test p_summary[:node_marker][][1] == enduring_node_marker()
+
+        _fig_support, _ax_support, p_support = dagplot_temporal(
+            g_summary,
+            [(:burden, 0)];
+            temporal_modes = [:occasion],
+            temporal_supports = [:from_onset],
+            value_representations = [:unspecified],
+            nlabels = ["burden"],
+        )
+        @test p_support[:node_marker][][1] == enduring_node_marker()
+    end
+
     pts = time_indexed_layout(2, 3; dx = 2.0, dy = 1.5)
     @test length(pts) == 6
     @test pts[1] == Point2f(0, 0)

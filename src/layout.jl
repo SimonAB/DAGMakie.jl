@@ -568,7 +568,8 @@ function dagplot_time_indexed(
 end
 
 """
-    dagplot_temporal(g, node_keys; temporal_modes, onset_times, kwargs...)
+    dagplot_temporal(g, node_keys; temporal_modes, onset_times,
+        temporal_supports, value_representations, kwargs...)
 
 Plot a temporal graph with a possibly mixed set of occasion and enduring
 nodes. Unlike [`dagplot_time_indexed`](@ref), this API does not require a
@@ -583,6 +584,7 @@ function dagplot_temporal(
     dy::Real = 1.5,
     origin::Tuple{<:Real, <:Real} = (0.0, 0.0),
     node_marker = nothing,
+    temporal_supports = nothing,
     value_representations = nothing,
     graph_kind = nothing,
     kwargs...,
@@ -591,18 +593,42 @@ function dagplot_temporal(
         "graph has $(Graphs.nv(g)) nodes, but node_keys has $(length(node_keys)) entries",
     ))
     modes = temporal_modes === nothing ? [key[2] === nothing ? :enduring : :occasion for key in node_keys] : collect(temporal_modes)
-    markers = if node_marker !== nothing
-        node_marker
-    elseif value_representations !== nothing
-        reps = collect(value_representations)
-        length(reps) == length(node_keys) || throw(ArgumentError(
+    supports = if temporal_supports === nothing
+        nothing
+    else
+        values = collect(temporal_supports)
+        length(values) == length(node_keys) || throw(ArgumentError(
+            "temporal_supports must have one entry per node",
+        ))
+        values
+    end
+    reps = if value_representations === nothing
+        nothing
+    else
+        values = collect(value_representations)
+        length(values) == length(node_keys) || throw(ArgumentError(
             "value_representations must have one entry per node",
         ))
+        values
+    end
+    markers = if node_marker !== nothing
+        node_marker
+    elseif reps !== nothing || supports !== nothing
         [
-            marker_for_value_representation(
-                reps[i];
-                single_node = modes[i] === :enduring || node_keys[i][2] === nothing,
-            ) for i in eachindex(reps)
+            if reps !== nothing && reps[i] !== :unspecified
+                marker_for_value_representation(
+                    reps[i];
+                    single_node = modes[i] === :enduring || node_keys[i][2] === nothing,
+                )
+            elseif supports !== nothing
+                marker_for_temporal_support(
+                    supports[i];
+                    single_node = modes[i] === :enduring || node_keys[i][2] === nothing,
+                )
+            else
+                modes[i] === :enduring || node_keys[i][2] === nothing ?
+                    enduring_node_marker() : :circle
+            end for i in eachindex(node_keys)
         ]
     else
         [mode == :enduring ? enduring_node_marker() : :circle for mode in modes]
