@@ -87,9 +87,10 @@ When an unrolled graph contains **enduring** variables as well as **occasion**
 variables, use [`dagplot_temporal`](@ref) with the graph's explicit node keys.
 An occasion key is `(variable, time)`; an enduring key is `(variable, nothing)`.
 Enduring nodes are drawn as rounded rectangles and placed at their onset time,
-while occasion nodes remain circles. Shape therefore encodes temporal
-persistence, independently of colour and stroke styling for causal role. It
-does not indicate agency, a self, a formal constraint, or an attractor.
+while pointwise nodes remain circles. Shape therefore encodes temporal
+support (and, when supplied, `value_representation`), independently of colour
+and stroke styling for causal role. It does not indicate agency, a self, a
+formal constraint, or an attractor.
 
 ```@example mixed-temporal
 using Graphs, DAGMakie, CairoMakie
@@ -103,8 +104,10 @@ add_edge!(g, 2, 4)  # pasture → weight[1]
 fig, ax, p = dagplot_temporal(
     g,
     keys;
+    # Layout synonyms: :occasion = pointwise, :enduring = single-node
     temporal_modes = [:occasion, :enduring, :occasion, :occasion],
     onset_times = [0, 1, 0, 0],
+    value_representations = [:state, :attribute, :state, :state],
     labels = ["diagnosis[0]", "pasture", "weight[0]", "weight[1]"],
 )
 fig
@@ -113,17 +116,19 @@ fig
 Spacing keywords `dx` and `dy` stretch columns and rows. For a
 `TemporalUnrolling` from CausalDynamics.jl, prefer
 `dagplot_temporal(unrolling)` after `using DAGMakie` (labels via
-`temporal_node_label`; enduring/occasion markers from the CausalDynamics
-extension).
+`temporal_node_label`; markers from support / CausalDynamics extension).
 
 The display layer does not infer temporal provenance. When an auditable
 distinction is needed, obtain records from CausalDynamics with
 `temporal_edge_records(unrolling)` and use the `role` field to annotate or
-inspect the figure: `:constitutive` records form an enduring node,
-`:recurrent_influence` records reuse it at later occasions, and
-`:occasion_influence` records connect time-indexed nodes. Passing these records
+inspect the figure: `:constitutive` records form a single-node attribute,
+`:recurrent_influence` records reuse it at later times, and
+`:occasion_influence` records connect pointwise nodes. Passing these records
 to plotting code is display metadata; it must not create alias vertices or
-change the graph used for identification.
+change the graph used for identification. Prefer
+[`marker_for_value_representation`](@ref) when representation is known.
+`do_surgery` on process/semantic `graph_kind` requires `allow_non_causal=true`
+or an explicit causal projection.
 
 ## See also
 
