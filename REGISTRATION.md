@@ -1,6 +1,6 @@
 ## Registration status
 
-DAGMakie is on General (`0.1.0`, `0.1.1`, **`0.1.6`**). Local tip is **`0.1.7`**
+DAGMakie is on General (`0.1.0`, `0.1.1`, **`0.1.6`**). Local tip is **`0.1.11`**
 (not yet registered).
 
 Tip **0.1.6** was registered via [General#163400](https://github.com/JuliaRegistries/General/pull/163400)
