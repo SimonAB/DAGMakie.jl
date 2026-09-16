@@ -8,6 +8,14 @@ using Graphs: AbstractGraph, nv, ne, edges, src, dst, has_edge
 using LinearAlgebra: norm
 using Makie: Point2f
 
+"""Marker for an inhibitory edge terminal (a bar perpendicular to the edge)."""
+const INHIBITORY_EDGE_MARKER = Makie.Polygon(Point2f[
+    (-0.08, -0.5),
+    (0.08, -0.5),
+    (0.08, 0.5),
+    (-0.08, 0.5),
+])
+
 """
     _normalise_edge_pairs(edges) -> Set{Tuple{Int, Int}}
 
@@ -704,6 +712,44 @@ function structural_edge_labels(
         _format_edge_label(β; latex = latex, digits = digits)
     end
     return collect(labels)
+end
+
+"""
+    edge_terminal_markers(g, weights; atol=0.0)
+
+Return GraphMakie arrow markers in `Graphs.edges(g)` order. Negative entries in
+`weights` use [`INHIBITORY_EDGE_MARKER`](@ref), producing an inhibitory `-|`
+terminal; non-negative entries use the ordinary arrowhead.
+
+`weights` may be a vector with one entry per edge, or a square structural
+matrix `B` whose `B[i, j]` entry is the weight on `j → i`. This is display
+metadata only: DAGMakie does not infer a mechanism sign from graph topology.
+Values with absolute magnitude at most `atol` use an ordinary arrowhead.
+"""
+function edge_terminal_markers(
+    g::AbstractGraph,
+    weights::AbstractVector{<:Real};
+    atol::Real = 0.0,
+)
+    atol >= 0 || throw(ArgumentError("atol must be non-negative"))
+    length(weights) == Graphs.ne(g) ||
+        throw(ArgumentError("need one weight per edge (ne(g) = $(Graphs.ne(g)))"))
+    return [weight < -atol ? INHIBITORY_EDGE_MARKER : GraphMakie.Arrow for weight in weights]
+end
+
+function edge_terminal_markers(
+    g::AbstractGraph,
+    B::AbstractMatrix{<:Real};
+    atol::Real = 0.0,
+)
+    atol >= 0 || throw(ArgumentError("atol must be non-negative"))
+    size(B, 1) == size(B, 2) || throw(ArgumentError("B must be square"))
+    size(B, 1) == Graphs.nv(g) || throw(ArgumentError("size(B, 1) must equal nv(g)"))
+    return edge_terminal_markers(
+        g,
+        [B[Graphs.dst(edge), Graphs.src(edge)] for edge in Graphs.edges(g)];
+        atol = atol,
+    )
 end
 
 """

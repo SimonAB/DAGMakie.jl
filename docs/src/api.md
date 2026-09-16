@@ -15,6 +15,8 @@ graph_from_structural_matrix
 ensure_structural_self_loops!
 structural_edge_labels
 edge_coefficient_labels
+edge_terminal_markers
+INHIBITORY_EDGE_MARKER
 ```
 
 ## Main Plotting Functions

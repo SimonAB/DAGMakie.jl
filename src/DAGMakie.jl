@@ -153,6 +153,7 @@ export ensure_structural_self_loops!
 export chain_graph, fork_graph, collider_graph, confounding_graph, mediation_graph, instrumental_graph
 export digraph_skeleton, dagplot_skeleton
 export structural_edge_labels, edge_coefficient_labels
+export edge_terminal_markers, INHIBITORY_EDGE_MARKER
 
 # Bidirected edges / Mixed graphs
 export MixedGraph, mixed_graph

@@ -76,6 +76,7 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
   `fit_node_size_to_labels = true` (default is `false` with outer labels)
 - Prefer `labels=` for node text (`nlabels=` remains a GraphMakie-compatible alias)
 - Edge labels via GraphMakie `elabels` and [`structural_edge_labels`](https://simonab.github.io/DAGMakie.jl/dev/) (numeric \(B\) or LaTeX path coefficients)
+- Optional signed edge terminals: negative declared `edge_weights` values render as inhibitory `-|` bars
 - Deterministic layered DAG layout for acyclic graphs (not a generic spring layout)
 - SCC-aware cyclic layout with explicit curved feedback edges
 - Themes without axes or grids (`default`, `minimal`, `bold`, `presentation`)

@@ -55,7 +55,7 @@ new rainbow of fills.
 
 | Kind | Style | Notes |
 |------|-------|-------|
-| Causal ``→`` | solid black | usual GraphMakie arrows |
+| Causal ``→`` | solid black | usual GraphMakie arrows; an explicitly declared negative `edge_weights` value uses an inhibitory ``-|`` terminal |
 | Latent confounding ``↔`` | dashed curve | [`MixedGraph`](@ref) |
 | Removed by ``do(·)`` | dashed, light | intervention plots |
 | Modifier annotation | **dash-dot**, `:darkgray` | [`modifier_edge`](@ref); caption required |

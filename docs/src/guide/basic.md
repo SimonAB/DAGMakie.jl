@@ -260,6 +260,33 @@ fig, ax, p = dagplot(g;
 fig
 ```
 
+## Signed edge terminals
+
+Use `edge_weights` when a diagram should distinguish an explicitly declared
+inhibitory mechanism from an ordinary directed mechanism. Negative values draw
+an inhibitory `-|` terminal; non-negative values retain the usual arrowhead.
+The values are display metadata: DAGMakie does not infer a mechanism sign from
+the graph or from an edge label.
+
+Pass either one value per `Graphs.edges(g)` entry or the structural matrix $B$
+used by [`structural_edge_labels`](@ref):
+
+```@example basic
+B_signed = [
+    0.0   0.0  0.0;
+    0.8   0.0  0.0;
+    0.5  -1.2  0.0;
+]
+fig, ax, p = dagplot(g;
+    labels = labels,
+    edge_weights = B_signed,
+    elabels = structural_edge_labels(g, B_signed; digits = 1),
+    elabels_rotation = 0,
+    padding = 0.45,
+)
+fig
+```
+
 ## Padding
 
 Control spacing around the graph:

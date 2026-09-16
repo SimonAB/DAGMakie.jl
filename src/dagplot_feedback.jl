@@ -95,6 +95,7 @@ function _plot_directed_overlay!(
     edge_linestyles,
     arrow_sizes,
     arrow_shifts,
+    arrow_markers = nothing,
     waypoints,
     to_px,
 )
@@ -121,7 +122,7 @@ function _plot_directed_overlay!(
 
     if !isempty(geometry.arrow_positions)
         scatter!(ax, geometry.arrow_positions;
-            marker = Arrow,
+            marker = something(arrow_markers, Arrow),
             markersize = geometry.arrow_sizes,
             color = edge_colours,
             rotation = geometry.arrow_rotations,
@@ -400,4 +401,3 @@ function _extra_bound_points(edge_waypoints::Dict{Tuple{Int, Int}, Vector{Point2
     end
     return points
 end
-

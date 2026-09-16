@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 using Makie: Point2f
+using GraphMakie: Arrow
 
 @testset "Utilities" begin
     @testset "is_dag" begin
@@ -183,5 +184,22 @@ using Makie: Point2f
         end
         @test has_edge(g_off, 3, 3)  # diagonal still ensured
         @test any(r -> occursin("no matching edge", string(r.message)), logger.logs)
+    end
+
+    @testset "signed edge terminals" begin
+        g = SimpleDiGraph(3)
+        add_edge!(g, 1, 2)
+        add_edge!(g, 2, 3)
+
+        markers = edge_terminal_markers(g, [0.8, -0.5])
+        @test markers[1] === Arrow
+        @test markers[2] === INHIBITORY_EDGE_MARKER
+
+        B = [0.0 0.0 0.0; 0.8 0.0 0.0; 0.0 -0.5 0.0]
+        @test edge_terminal_markers(g, B) == markers
+
+        fig, ax, p = dagplot(g; edge_weights = [0.8, -0.5])
+        @test p[:arrow_marker][] == markers
+        @test_throws ArgumentError edge_terminal_markers(g, [0.8])
     end
 end

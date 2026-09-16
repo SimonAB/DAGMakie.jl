@@ -33,6 +33,7 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     feedback_color = nothing,
     feedback_width = nothing,
     feedback_linestyle = nothing,
+    edge_weights = nothing,
     arrow_size = nothing,
     arrow_shift = nothing,
     waypoints = nothing,
@@ -70,6 +71,14 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
     # can still leave stubs; force a clean stroke here.
     undirected = !Graphs.is_directed(g)
     user_kwargs = Dict{Symbol, Any}(kwargs)
+    edge_arrow_markers = nothing
+    if edge_weights !== nothing
+        haskey(user_kwargs, :arrow_marker) && throw(ArgumentError(
+            "edge_weights cannot be combined with GraphMakie arrow_marker; use one terminal specification.",
+        ))
+        edge_arrow_markers = edge_terminal_markers(g, edge_weights)
+        user_kwargs[:arrow_marker] = edge_arrow_markers
+    end
     if undirected && arrow_size === nothing && !haskey(user_kwargs, :arrow_size)
         resolved_arrow_size = 0
     else
@@ -287,6 +296,8 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
         overlay_styles = _overlay_values(feedback_linestyle, feedback_edges, edge_lookup, edge_linestyles)
         overlay_arrow_sizes = _overlay_values(nothing, feedback_edges, edge_lookup, edge_arrow_sizes)
         overlay_arrow_shifts = _overlay_values(nothing, feedback_edges, edge_lookup, edge_arrow_shifts)
+        overlay_arrow_markers = edge_arrow_markers === nothing ? nothing :
+            _overlay_values(nothing, feedback_edges, edge_lookup, edge_arrow_markers)
         overlay_waypoints = [get(layout_result.edge_waypoints, edge, Point2f[]) for edge in feedback_edges]
 
         _plot_directed_overlay!(
@@ -300,6 +311,7 @@ function _dagplot_core!(ax, g::Graphs.AbstractGraph;
             edge_linestyles = overlay_styles,
             arrow_sizes = overlay_arrow_sizes,
             arrow_shifts = overlay_arrow_shifts,
+            arrow_markers = overlay_arrow_markers,
             waypoints = overlay_waypoints,
             to_px = _plot_to_px(p),
         )
@@ -356,4 +368,3 @@ function _merge_spec_plot_kwargs(spec::DAGSpec, kwargs)
     end
     return merged
 end
-

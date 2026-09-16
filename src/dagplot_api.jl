@@ -123,6 +123,9 @@ limits to prevent clipping of nodes and labels.
 - `long_edge_routing = :quadratic`: Geometry for bowed edges (`:none`, `:natural_cubic`, …)
 - `arrow_size = 10`: Arrowhead size
 - `arrow_shift = :end`: Arrow position (`:end` or Float64 0-1)
+- `edge_weights = nothing`: Optional signed edge values. A negative value uses
+  an inhibitory `-|` terminal; pass either one value per `Graphs.edges(g)` entry
+  or a structural matrix `B` with `B[i, j]` the value on `j → i`.
 - `elabels = nothing`: Edge labels in `Graphs.edges(g)` order. Accepts plain
   `String`s or Makie `LaTeXString`s (e.g. from [`structural_edge_labels`](@ref)
   with `latex=true`) for structural parameters or short mechanism TeX on edges
