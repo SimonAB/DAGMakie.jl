@@ -12,8 +12,8 @@ GraphMakie **0.6.6** (General, 2026-08-05) includes
 (non-scalar `node_size`). **0.1.7** restores tuple DiD SWIG defaults and requires
 `GraphMakie = "0.6.6"`.
 
-Book / CDCS authoring may still use the local GraphMakie path dep for other fork
-features (auto-label alignment).
+Book / CDCS authoring uses registry GraphMakie 0.6.6; automatic label alignment
+is implemented in DAGMakie.
 
 ## GraphMakie / CausalDynamics resolve matrix
 
@@ -23,7 +23,6 @@ environment can resolve CausalDynamics + DAGMakie + GraphMakie **≥0.6.6**.
 | Combo | Result |
 |-------|--------|
 | CausalDynamics + DAGMakie + GraphMakie **≥0.6.6** | OK (supported single-env) |
-| + CDCS GraphMakie fork (auto-label alignment) | OK via path develop |
 
 Dual-env was required only while CausalInference’s GraphMakie weakdep was capped
 at 0.5 ([#179](https://github.com/mschauer/CausalInference.jl/pull/179), merged

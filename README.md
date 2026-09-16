@@ -34,10 +34,9 @@ From the CDCS monorepo:
 Pkg.develop(path="packages/DAGMakie.jl")
 ```
 
-With CausalDynamics in the same project, use GraphMakie **≥0.6.6**
-(CausalInference **≥0.19.4**). Book authoring may still path-develop the CDCS
-GraphMakie fork for extra features (e.g. auto-label alignment) — see
-[REGISTRATION.md](REGISTRATION.md#graphmakie--causaldynamics-resolve-matrix).
+With CausalDynamics in the same project, use registry GraphMakie **0.6.6**
+(CausalInference **≥0.19.4**). DAGMakie provides its own automatic label
+alignment, so no GraphMakie fork is required.
 
 ## Quick start
 

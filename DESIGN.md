@@ -21,7 +21,7 @@ DAGMakie does not identify effects, estimate them, or load data. It draws what t
 
 ### Julia native graphics
 
-- Build on **Makie** and **GraphMakie**; do not fork layout algorithms without upstreaming general fixes to the GraphMakie fork when required by the book pin.
+- Build on the registry **Makie** and **GraphMakie** packages; keep causal-specific visual behaviour in DAGMakie.
 - API surface: **`dagplot!`**, style presets, convenience constructors (`dagplot_confounding`, …)—not a reimplementation of dagitty’s GUI.
 
 ### Causal diagram conventions
