@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Optional `edge_weights` for `dagplot` / `dagplot!`: negative declared weights
+  render as inhibitory `-|` terminals via [`edge_terminal_markers`](@ref) and
+  [`INHIBITORY_EDGE_MARKER`](@ref). Accepts a per-edge vector or structural
+  matrix `B` with `B[i, j]` on `j → i`. Feedback overlays honour the same
+  terminals when trimming curved edges.
+
 ### Fixed
 
 - `dagplot!` now routes `labels=` / `nlabels=` through `resolve_nlabels`, so

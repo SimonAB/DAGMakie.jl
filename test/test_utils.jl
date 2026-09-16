@@ -201,5 +201,15 @@ using GraphMakie: Arrow
         fig, ax, p = dagplot(g; edge_weights = [0.8, -0.5])
         @test p[:arrow_marker][] == markers
         @test_throws ArgumentError edge_terminal_markers(g, [0.8])
+        @test_throws ArgumentError dagplot(g; edge_weights = [0.8, -0.5], arrow_marker = Arrow)
+
+        g_cycle = SimpleDiGraph(2)
+        add_edge!(g_cycle, 1, 2)
+        add_edge!(g_cycle, 2, 1)
+        B_cycle = [0.0 -0.5; 0.8 0.0]
+        markers_cycle = edge_terminal_markers(g_cycle, B_cycle)
+        @test count(==(INHIBITORY_EDGE_MARKER), markers_cycle) == 1
+        fig_c, ax_c, p_c = dagplot(g_cycle; edge_weights = B_cycle, layout_mode = :cyclic)
+        @test p_c[:arrow_marker][] == markers_cycle
     end
 end

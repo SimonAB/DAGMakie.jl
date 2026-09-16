@@ -4,7 +4,7 @@
 
 """
     compute_feedback_geometry(edge_pairs, positions, node_markers, node_sizes, waypoints, to_px;
-        arrow_size=8, arrow_shift=:end)
+        arrow_size=8, arrow_shift=:end, arrow_marker=Arrow)
 
 Compute boundary-aware paths and arrowheads for curved directed feedback edges.
 """
@@ -17,6 +17,7 @@ function compute_feedback_geometry(
     to_px;
     arrow_size = 8,
     arrow_shift = :end,
+    arrow_marker = Arrow,
 )
     @assert length(waypoints) == length(edge_pairs) "Waypoint vector must match the number of feedback edges."
 
@@ -45,7 +46,7 @@ function compute_feedback_geometry(
         end_distance = distance_between_markers(
             _attribute_value(node_markers, destination),
             _marker_extent_px(_attribute_value(node_sizes, destination)),
-            Arrow,
+            _attribute_value(arrow_marker, index),
             arrow_size_value,
         )
 
@@ -101,6 +102,7 @@ function _plot_directed_overlay!(
 )
     isempty(edge_pairs) && return Point2f[]
 
+    resolved_arrow_markers = something(arrow_markers, Arrow)
     geometry = compute_feedback_geometry(
         edge_pairs,
         positions,
@@ -110,6 +112,7 @@ function _plot_directed_overlay!(
         to_px;
         arrow_size = arrow_sizes,
         arrow_shift = arrow_shifts,
+        arrow_marker = resolved_arrow_markers,
     )
 
     for (index, path) in enumerate(geometry.paths)
@@ -122,7 +125,7 @@ function _plot_directed_overlay!(
 
     if !isempty(geometry.arrow_positions)
         scatter!(ax, geometry.arrow_positions;
-            marker = something(arrow_markers, Arrow),
+            marker = resolved_arrow_markers,
             markersize = geometry.arrow_sizes,
             color = edge_colours,
             rotation = geometry.arrow_rotations,
