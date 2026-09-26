@@ -42,6 +42,15 @@ fig
 Passing an undirected `SimpleGraph` to [`dagplot`](@ref) / [`dagplot!`](@ref)
 also suppresses arrowheads and applies the undirected edge colour.
 
+## Relational graphs
+
+CausalDynamics can ground a declared relational schema and skeleton to an
+ordinary directed graph whose node labels retain `(entity type, instance,
+attribute)` provenance. Plot that grounded graph with `dagplot` and pass those
+labels explicitly. DAGMakie does not infer relational mechanisms, identify
+effects across unseen skeletons, or decide whether a relation is causal; future
+plate/grouping helpers remain display-only.
+
 ## Time-indexed unrolling
 
 For a graph with `n_variables × n_times` nodes in CausalDynamics order (outer
