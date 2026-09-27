@@ -346,6 +346,7 @@ function dagplot_intervention!(
         nlabels_fontsize = nlabels_fontsize,
         nlabels_color = nlabels_color,
         label_position = outer_labels ? :outer : :inner,
+        auto_align_labels = auto_align_labels,
         label_obstacle_graph = (outer_labels && show_removed) ? g : nothing,
         kwargs...
     )
@@ -418,8 +419,9 @@ end
 
 Create a side-by-side comparison of original and post-intervention DAGs.
 
-Prefer `labels=` (alias `nlabels=`). Shared layout and remaining kwargs are
-passed to [`dagplot!`](@ref) / [`dagplot_intervention!`](@ref).
+Both panels share node positions and axis limits, so corresponding nodes remain
+aligned at the same scale. Prefer `labels=` (alias `nlabels=`). Shared layout and
+remaining kwargs are passed to [`dagplot!`](@ref) / [`dagplot_intervention!`](@ref).
 """
 function dagplot_comparison(
     g::AbstractGraph,
@@ -460,6 +462,7 @@ function dagplot_comparison(
     # Post-intervention DAG
     ax2 = Axis(fig[1, 2], title = intervention.label)
     dagplot_intervention!(ax2, g, intervention; intervention_kwargs...)
+    Makie.linkaxes!(ax1, ax2)
 
     return fig
 end

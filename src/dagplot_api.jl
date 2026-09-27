@@ -248,6 +248,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
     label_position::Symbol = DEFAULT_LABEL_POSITION,
+    auto_align_labels = nothing,
     label_obstacle_graph = nothing,
     fit_node_size_to_labels = false,
     nlabels_distance = nothing,
@@ -258,6 +259,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
 )
     resolved_nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
     outer_labels = resolve_outer_labels(label_position)
+    resolved_auto_align = something(auto_align_labels, outer_labels)
     resolved_node_gap = resolve_node_gap(node_gap; outer_labels = outer_labels)
     resolved_obstacle = resolve_label_obstacle_graph(;
         label_obstacle_graph = label_obstacle_graph,
@@ -287,7 +289,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         nlabels = resolved_nlabels,
         nlabels_align = nlabels_align,
         label_position = label_position,
-        auto_align_labels = outer_labels,
+        auto_align_labels = resolved_auto_align,
         label_obstacle_graph = resolved_obstacle,
         fit_node_size_to_labels = fit_node_size_to_labels,
         nlabels_distance = nlabels_distance,

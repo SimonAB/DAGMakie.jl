@@ -78,6 +78,15 @@
         )
         @test fig_hidden isa Makie.Figure
         @test length(ax.scene.plots) > length(ax_hidden.scene.plots)
+
+        manual_align = [(:center, :bottom), (:right, :center), (:center, :top)]
+        _, _, p_manual = dagplot_intervention(g, int;
+            labels = ["Z", "X", "Y"],
+            nlabels_align = manual_align,
+            label_position = :outer,
+            auto_align_labels = false,
+        )
+        @test p_manual[:nlabels_align_processed][] == manual_align
     end
 
     @testset "dagplot_do" begin
@@ -122,6 +131,8 @@
             layout = shared,
         )
         @test fig isa Makie.Figure
+        axes = [Makie.content(fig.layout[1, column]) for column in 1:2]
+        @test axes[1].targetlimits[] == axes[2].targetlimits[]
         # Re-resolving with the same DAGLayoutResult must keep positions
         again = compute_graph_layout(g; layout = shared)
         @test again.positions == shared.positions
