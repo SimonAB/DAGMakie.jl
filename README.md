@@ -7,6 +7,8 @@
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+This package is part of the [CDCS Julia package set](https://github.com/SimonAB/causal-dynamics-book/tree/main/packages), which supports the [Causal Dynamics of Complex Systems book](https://simonab.github.io/causal-dynamics-book/).
+
 DAGMakie plots directed acyclic, directed cyclic, and mixed causal graphs with
 Makie, building on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl).
 Defaults omit axes and grids; node types follow common causal-diagram
