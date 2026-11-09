@@ -1,10 +1,13 @@
 ## Registration status
 
+Source release **0.1.12** is identified by tag `v0.1.12`; General registration
+remains pending. See [CHANGELOG.md](CHANGELOG.md) for the released changes.
+
 DAGMakie **0.1.11** is on
 [General](https://github.com/JuliaRegistries/General/blob/master/D/DAGMakie/Versions.toml)
 (tree `5d6cb170b4bac35d4a66ced98d2c55cb8c13b8e1`); TagBot tagged `v0.1.11`.
-The development tip includes a subsequent manual intervention-label alignment
-fix, which is not part of the registered release.
+Source release **0.1.12** includes subsequent label-alignment corrections,
+which are not part of the registered **0.1.11** release.
 
 Tip **0.1.6** was registered via [General#163400](https://github.com/JuliaRegistries/General/pull/163400)
 (2026-08-04), using plan path **2**: scalar DiD SWIG `node_size` so AutoMerge

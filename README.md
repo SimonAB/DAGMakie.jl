@@ -23,6 +23,10 @@ DAGMakie is on the Julia **General** registry (`Pkg.add("DAGMakie")`). It is a
 [CausalInference.jl](https://github.com/mschauer/CausalInference.jl) /
 [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl).
 
+Source release **0.1.12** includes the label-alignment corrections in
+[CHANGELOG.md](CHANGELOG.md). General continues to provide **0.1.11** until
+the new release is registered.
+
 ## Installation
 
 ```julia
@@ -30,10 +34,10 @@ using Pkg
 Pkg.add("DAGMakie")
 ```
 
-From the CDCS monorepo:
+From a local clone:
 
 ```julia
-Pkg.develop(path="packages/DAGMakie.jl")
+Pkg.develop(path="path/to/DAGMakie.jl")
 ```
 
 With CausalDynamics in the same project, use registry GraphMakie **0.6.6**

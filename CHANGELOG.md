@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-11-09
+
+### Fixed
+
+- `dagplot!` and `dagplot_intervention!` now preserve an explicit
+  `auto_align_labels` choice through to the renderer.
+- `dagplot_comparison` links the two panel axes so zooming and panning retain a
+  shared scale.
+
+## [0.1.11] - 2026-08-29
+
 ### Added
 
 - Optional `edge_weights` for `dagplot` / `dagplot!`: negative declared weights
@@ -14,30 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [`INHIBITORY_EDGE_MARKER`](@ref). Accepts a per-edge vector or structural
   matrix `B` with `B[i, j]` on `j → i`. Feedback overlays honour the same
   terminals when trimming curved edges.
-
-### Fixed
-
-- `dagplot!` now routes `labels=` / `nlabels=` through `resolve_nlabels`, so
-  conflicting pairs throw instead of silently preferring `labels=`.
-
-### Changed
-
-- Unit tests: trim empty/duplicate outer-label checks; add `resolve_nlabels`
-  conflict and `color_by` contract error coverage.
-
-### Breaking
-
-- Removed `enduring_node_marker` / `ENDURING_NODE_MARKER` / `AUTO_ALIGN_*`
-  public aliases. Use `interval_summary_node_marker` and `OUTER_LABEL_*`.
-- Removed dagplot synonyms `smart=`, `treatment=`, `auto_align_labels=`,
-  `auto_align_graph=`. Prefer `color_by=`, `exposure=`, `label_position=`,
-  `label_obstacle_graph=`.
-- Unexported `resolve_*` helpers and vaccine-nutrition demo constructors;
-  qualify as `DAGMakie.…` when needed (visual-grammar guide still documents
-  demos).
-
-### Added
-
 - Clarity unit tests: export diet for glyph / `resolve_*` helpers, preferred
   `color_by`/`exposure` colouring, and confirmation that legacy `smart=` /
   `treatment=` no longer drive role fills.
@@ -59,11 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `allow_non_causal=true` (callers should pass a causal projection).
 - [Terminology](docs/src/terminology.md) page for the temporal plotting
   lexicon; Whitehead glossary terms stay in the CDCS book.
-
-## [0.1.11] - 2026-08-29
-
-### Added
-
 - Temporal smart-role propagation for time-unrolled DAGs ([#5](https://github.com/SimonAB/DAGMakie.jl/issues/5)):
   [`propagate_temporal_smart_roles`](@ref), [`smart_style_for_temporal_graph`](@ref),
   [`temporal_role_styling`](@ref), [`apply_temporal_smart_kwargs`](@ref), and
@@ -72,8 +54,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `exposure` / `outcome` are set (scalar indices or `(variable, time)` tuples).
 - `color_by = :ancestors_temporal` as an explicit alias for temporal plots.
 
+### Fixed
+
+- `dagplot!` now routes `labels=` / `nlabels=` through `resolve_nlabels`, so
+  conflicting pairs throw instead of silently preferring `labels=`.
+
 ### Changed
 
+- Unit tests: trim empty/duplicate outer-label checks; add `resolve_nlabels`
+  conflict and `color_by` contract error coverage.
 - **Breaking:** default `label_position` is `:outer` (compact [`OUTER_LABEL_NODE_SIZE`](@ref)
   markers, dark external labels, auto-aligned gaps). Use `label_position=:inner` with
   `fit_node_size_to_labels=true` for the previous in-node white-label style.
@@ -82,6 +71,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `fit_node_size_to_labels` defaults to `false` (opt in for in-node oval markers).
 - `dagplot!` applies label-aware axis limits when outer labels are active (pre- and
   post-`graphplot!` refinement under `DataAspect`).
+
+### Breaking
+
+- Removed `enduring_node_marker` / `ENDURING_NODE_MARKER` / `AUTO_ALIGN_*`
+  public aliases. Use `interval_summary_node_marker` and `OUTER_LABEL_*`.
+- Removed dagplot synonyms `smart=`, `treatment=`, `auto_align_labels=`,
+  `auto_align_graph=`. Prefer `color_by=`, `exposure=`, `label_position=`,
+  `label_obstacle_graph=`.
+- Unexported `resolve_*` helpers and vaccine-nutrition demo constructors;
+  qualify as `DAGMakie.…` when needed (visual-grammar guide still documents
+  demos).
 
 ## [0.1.10] - 2026-08-22
 
@@ -318,6 +318,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integration with CausalDynamics analysis functions
   - `causal_analysis` and `print_causal_analysis` helpers
 
+[0.1.12]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.12
+[0.1.11]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.11
 [0.1.10]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.10
 [0.1.1]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.1
 [0.1.0]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.0

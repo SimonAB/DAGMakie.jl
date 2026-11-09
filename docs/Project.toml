@@ -3,12 +3,16 @@ CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DAGMakie = "4e3bd891-6b6d-4d36-a31e-f0404dd10c7d"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+GraphMakie = "1ecd5474-83a3-4783-bb4f-06765db800d2"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 NetworkLayout = "46757867-2c16-5918-afeb-47bfcb05e46a"
 
 [compat]
 CairoMakie = "0.13, 0.14, 0.15"
 Documenter = "1"
 Graphs = "1"
+GraphMakie = "=0.6.6"
+Makie = "=0.24.8"
 
 [sources]
 DAGMakie = {path = ".."}
