@@ -24,8 +24,8 @@ DAGMakie is on the Julia **General** registry (`Pkg.add("DAGMakie")`). It is a
 [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl).
 
 Source release **0.1.12** includes the label-alignment corrections in
-[CHANGELOG.md](CHANGELOG.md). General continues to provide **0.1.11** until
-the new release is registered.
+[CHANGELOG.md](CHANGELOG.md) and is registered in General. The stable manual
+may still reflect 0.1.11 while the Pages deployment issue is unresolved.
 
 ## Installation
 
