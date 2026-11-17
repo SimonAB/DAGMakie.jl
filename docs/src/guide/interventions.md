@@ -1,9 +1,10 @@
 # Interventions (`do(·)`)
 
-Graph surgery and intervention *plots* live in DAGMakie. `do_surgery` is
-**display-only** (mutilate a DAG for figures); it is not an identification API.
-For whether an effect is identifiable, and for CDM `do(·)` semantics, use
-CausalInference.jl / CausalDynamics.jl (`DoIntervention`, `apply_intervention`, …).
+Graph surgery and intervention *plots* live in DAGMakie. Display follows Pearl’s
+`do(·)` graph surgery (Pearl, 2009). `do_surgery` is **display-only** (mutilate
+a DAG for figures); it is not an identification API. For whether an effect is
+identifiable, and for CDM `do(·)` semantics, use CausalInference.jl /
+CausalDynamics.jl (`DoIntervention`, `apply_intervention`, …).
 
 ```@example interventions
 using Graphs, DAGMakie, CairoMakie

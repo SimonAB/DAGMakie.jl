@@ -11,9 +11,12 @@ DAGMakie
 DAGMakie plots directed acyclic, directed cyclic, and mixed causal graphs with
 Makie, building on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl).
 Defaults omit axes and grids; node types follow common causal-diagram
-conventions (observed, latent, treatment, outcome), with helpers for bidirected
-confounding, path highlighting, display-only `do(·)` surgery, and a [visual
-grammar](guide/visual_grammar.md) for interaction IDAGs and DiD SWIGs.
+conventions from Pearl (2009) and related practice (observed, latent, treatment,
+outcome), with helpers for bidirected confounding, path highlighting (Textor et
+al., 2016, dagitty-style roles), display-only `do(·)` surgery, and a [visual
+grammar](guide/visual_grammar.md) for interaction IDAGs and DiD SWIGs. Example
+layouts often follow Cinelli, Forney & Pearl (2024,
+[doi:10.1177/00491241221099552](https://doi.org/10.1177/00491241221099552)).
 Temporal glyphs, single-node placement, and display-only surgery are summarised
 in [Terminology](terminology.md). Scope limits: [BOUNDARIES.md](https://github.com/SimonAB/DAGMakie.jl/blob/main/BOUNDARIES.md).
 

@@ -186,8 +186,33 @@ display-only interventions, optional CausalInference extension). Remaining:
 
 ## Acknowledgements
 
-Part of the Causal Dynamics for Complex Systems (CDCS) project.
+Developed in the [CDCS Julia package set](https://github.com/SimonAB/causal-dynamics-book/tree/main/packages).
 Maintainer: [Simon A. Babayan](https://orcid.org/0000-0002-4949-1117).
+
+Plotting builds on [Makie.jl](https://github.com/MakieOrg/Makie.jl) and
+[GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl). Optional
+identification highlighting uses
+[CausalInference.jl](https://github.com/mschauer/CausalInference.jl). Closest R
+companions for causal-diagram figures are
+[dagitty](https://cran.r-project.org/package=dagitty) (Textor et al.) and
+[ggdag](https://cran.r-project.org/package=ggdag); role colouring and path
+highlighting follow dagitty-style conventions and common Pearl / Cinelli
+diagram practice. This package is visualisation-only.
+
+## Related literature and software
+
+- Pearl (2009). *Causality* (2nd ed.). Cambridge University Press — structural diagrams and do-calculus display
+- Textor, van der Zander, Gilthorpe, Liśkiewicz & Ellison (2016). Robust causal inference using directed acyclic graphs: the R package ‘dagitty’. *International Journal of Epidemiology*. [doi:10.1093/ije/dyw341](https://doi.org/10.1093/ije/dyw341)
+- Cinelli, Forney & Pearl (2024). A crash course in good and bad controls. *Sociological Methods & Research*. [doi:10.1177/00491241221099552](https://doi.org/10.1177/00491241221099552) — good-control vs estimand-path layouts used in examples
+- GraphMakie / Makie documentation — underlying graph recipes and themes
+
+Related software: [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl),
+[Makie.jl](https://github.com/MakieOrg/Makie.jl),
+[Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl),
+[CausalInference.jl](https://github.com/mschauer/CausalInference.jl),
+[CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl),
+R [dagitty](https://cran.r-project.org/package=dagitty) /
+[ggdag](https://cran.r-project.org/package=ggdag).
 
 ## License
 

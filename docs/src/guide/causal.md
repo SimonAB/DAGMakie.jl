@@ -1,7 +1,9 @@
 # Causal highlighting
 
 DAGMakie highlights paths and adjustment sets that you already computed.
-**Identification algorithms** live in [CausalInference.jl](https://github.com/mschauer/CausalInference.jl)
+Ancestor / adjustment colouring follows dagitty-style roles (Textor et al.,
+2016, [IJE](https://doi.org/10.1093/ije/dyw341)). **Identification algorithms**
+live in [CausalInference.jl](https://github.com/mschauer/CausalInference.jl)
 (or [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) façades).
 Pass the resulting sets into the plot helpers — the core package does not pull
 CausalInference; load it when you want registry identification helpers alongside

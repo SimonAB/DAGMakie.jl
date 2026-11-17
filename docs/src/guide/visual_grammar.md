@@ -9,11 +9,12 @@ seagreen mediators / effect nodes, and gray hollow latents.
 
 ## Terms
 
-- **SWIG** (single-world intervention graph; Richardson & Robins, 2013): under
-  ``do(A = a)``, the intervened node is drawn as a split — a random half ``A``
-  that still receives incoming edges, and a fixed half ``a`` from which outgoing
-  edges leave. Counterfactual labels such as ``Y(0)`` live on this graph; the
-  factual DAG alone does not carry them.
+- **SWIG** (single-world intervention graph; Richardson & Robins, 2013,
+  [arXiv:1201.5658](https://arxiv.org/abs/1201.5658)): under ``do(A = a)``, the
+  intervened node is drawn as a split — a random half ``A`` that still receives
+  incoming edges, and a fixed half ``a`` from which outgoing edges leave.
+  Counterfactual labels such as ``Y(0)`` live on this graph; the factual DAG
+  alone does not carry them.
 - **IDAG** (interaction DAG): companion to an ordinary outcome DAG in which the
   outcome node is replaced by an **effect-measure** node (e.g. ``δ``). Use it
   when the question is how an effect varies with a modifier, not when identifying
