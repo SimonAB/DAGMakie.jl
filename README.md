@@ -7,7 +7,7 @@
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This package is part of the [CDCS Julia package set](https://github.com/SimonAB/causal-dynamics-book/tree/main/packages). The packages are the primary software; an early draft of [*Causal Dynamics of Complex Systems*](https://simonab.github.io/causal-dynamics-book/) uses them as a pedagogical implementation.
+This package is part of the [CDCS Julia package set](https://github.com/SimonAB/causal-dynamics-book/tree/main/packages). An early draft of [*Causal Dynamics of Complex Systems*](https://simonab.github.io/causal-dynamics-book/) uses the packages as a pedagogical implementation.
 
 DAGMakie plots directed acyclic, directed cyclic, and mixed causal graphs with
 Makie, building on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl).
@@ -201,10 +201,13 @@ diagram practice. This package is visualisation-only.
 
 ## Related literature and software
 
-- Pearl (2009). *Causality* (2nd ed.). Cambridge University Press — structural diagrams and do-calculus display
-- Textor, van der Zander, Gilthorpe, Liśkiewicz & Ellison (2016). Robust causal inference using directed acyclic graphs: the R package ‘dagitty’. *International Journal of Epidemiology*. [doi:10.1093/ije/dyw341](https://doi.org/10.1093/ije/dyw341)
-- Cinelli, Forney & Pearl (2024). A crash course in good and bad controls. *Sociological Methods & Research*. [doi:10.1177/00491241221099552](https://doi.org/10.1177/00491241221099552) — good-control vs estimand-path layouts used in examples
-- GraphMakie / Makie documentation — underlying graph recipes and themes
+This package provides Julia-native implementations of diagram practices from
+the following papers:
+
+- Pearl (2009). *Causality* (2nd ed.). Cambridge University Press — structural diagrams and display-only `do(·)` surgery
+- Textor, van der Zander, Gilthorpe, Liśkiewicz & Ellison (2016). Robust causal inference using directed acyclic graphs: the R package ‘dagitty’. *International Journal of Epidemiology*. [doi:10.1093/ije/dyw341](https://doi.org/10.1093/ije/dyw341) — ancestor / role colouring
+- Cinelli, Forney & Pearl (2024). A crash course in good and bad controls. *Sociological Methods & Research*. [doi:10.1177/00491241221099552](https://doi.org/10.1177/00491241221099552) — good-control vs estimand-path layouts
+- Richardson & Robins (2013). Single world intervention graphs. [arXiv:1201.5658](https://arxiv.org/abs/1201.5658) — SWIG visual grammar
 
 Related software: [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl),
 [Makie.jl](https://github.com/MakieOrg/Makie.jl),
