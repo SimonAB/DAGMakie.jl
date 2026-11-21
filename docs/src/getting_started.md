@@ -215,6 +215,45 @@ fig, ax, p = dagplot_temporal(
 
 See [Skeletons & Time](guide/skeletons_and_time.md) and [Terminology](terminology.md).
 
+## Signed and cyclic biological feedback
+
+Pass `edge_weights` to distinguish activating (`→`, positive) from inhibitory
+(`-|`, negative) influences, and `layout_mode = :cyclic` when a biological
+diagram contains a reciprocal feedback loop (such as host immunity suppressing
+parasite load):
+
+```@example getting_started
+# 1=Infection (I), 2=Immunity (M), 3=Condition (C)
+# I → M (+0.7), M -| I (-0.6), I -| C (-0.5)
+B_fb = [
+     0.0  -0.6   0.0;
+     0.7   0.0   0.0;
+    -0.5   0.0   0.0;
+]
+g_fb = graph_from_structural_matrix(B_fb)
+fig, ax, p = dagplot(
+    g_fb;
+    labels = ["I", "M", "C"],
+    edge_weights = B_fb,
+    layout_mode = :cyclic,
+    title = "Host–parasite feedback (inhibitory -|)",
+)
+fig
+```
+
+## Difference-in-differences (BACI) SWIG
+
+In a before–after-control-impact (BACI) or difference-in-differences study, the
+parallel-trends assumption is a statement about the untreated potential outcome
+`Yₜ(0)` rather than the factual DAG alone. `dagplot_did_swig()` pairs the
+factual 2×2 DAG with its Single-World Intervention Graph (Richardson & Robins,
+2013; see [Visual Grammar](guide/visual_grammar.md)):
+
+```@example getting_started
+fig = dagplot_did_swig()
+fig
+```
+
 ## See also
 
 - [Basic Plotting](@ref) — node and edge appearance

@@ -8,6 +8,15 @@ CurrentModule = DAGMakie
 DAGMakie
 ```
 
+DAGMakie draws causal diagrams for observational studies, experiments, and
+time-evolving biological systems using Makie, making confounders, mediators,
+unmeasured variables, interventions, and temporal structure explicit before
+fitting a statistical model.
+
+**Deciding which diagram fits your study?** See
+[Choosing a diagram](orientation.md) to match your biological question or study
+design to the right graph type and helper.
+
 DAGMakie plots directed acyclic, directed cyclic, and mixed causal graphs with
 Makie, building on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl).
 Defaults omit axes and grids; node types follow common causal-diagram
