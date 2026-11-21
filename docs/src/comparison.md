@@ -60,8 +60,9 @@ flowchart LR
 | Package | Role |
 |---------|------|
 | [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl) | General graph plotting backend |
-| [CausalDynamics.jl](https://simonab.github.io/CausalDynamics.jl/dev/) | Identification sets consumed by plot helpers ([comparison](https://simonab.github.io/CausalDynamics.jl/dev/comparison/)) |
-| [CausalTargeted.jl](https://simonab.github.io/CausalTargeted.jl/dev/) | Estimation (not plotted here) ([comparison](https://simonab.github.io/CausalTargeted.jl/dev/comparison/)) |
+| [CausalDynamics.jl](https://simonab.github.io/CausalDynamics.jl/dev/) | Identification sets and `TemporalUnrolling` consumed by plot helpers ([comparison](https://simonab.github.io/CausalDynamics.jl/dev/comparison/)) |
+| [CausalTargeted.jl](https://simonab.github.io/CausalTargeted.jl/dev/) | Continuous MTP / LMTP estimation (not plotted here) ([comparison](https://simonab.github.io/CausalTargeted.jl/dev/comparison/)) |
+| [CausalMediation.jl](https://simonab.github.io/CausalMediation.jl/dev/) | Interventional, natural, organic, and controlled direct mediation (not plotted here) ([comparison](https://simonab.github.io/CausalMediation.jl/dev/comparison/)) |
 
 ## What is distinctive here
 

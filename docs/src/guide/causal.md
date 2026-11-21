@@ -147,9 +147,9 @@ fig, ax, p = dagplot(g; color_by = :adjustment, exposure = 2, outcome = 3, label
 ```
 
 That call draws the same emphasis as below (for this DAG the extension returns
-``{Z}``). The documentation environment does not load CausalInference (registry
-builds pin GraphMakie incompatible with 0.6), so the figure uses the equivalent
-explicit set:
+``\{Z\}``). Because `docs/Project.toml` omits optional weak dependencies such
+as `CausalInference` (which supports `GraphMakie 0.6` from version `0.19.4`
+onwards), this example passes the equivalent explicit adjustment set:
 
 ```@example causal-smart-adj-auto
 using Graphs, DAGMakie, CairoMakie

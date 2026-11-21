@@ -21,7 +21,7 @@ add_edge!(g, 1, 2)
 add_edge!(g, 2, 3)
 
 # Plot with labels
-fig, ax, p = dagplot(g, labels =["A", "B", "C"])
+fig, ax, p = dagplot(g, labels = ["A", "B", "C"])
 fig
 ```
 
@@ -78,7 +78,7 @@ fig, ax, p = dagplot(g_w;
 fig
 ```
 
-See [Basic plotting](guide/basic.md#structural-edge-labels-latex) for more
+See [Basic Plotting](guide/basic.md#structural-edge-labels-latex) for more
 `elabels_*` options.
 
 ## Saving figures
@@ -91,44 +91,23 @@ save("my_dag.svg", fig)           # SVG (vector)
 
 ## Common patterns
 
-Convenience constructors for frequent causal structures:
+Convenience constructors cover the five canonical three-variable causal motifs:
 
 ```@example getting_started
-fig = Figure(size = (1000, 220))
+fig = Figure(size = (1100, 220))
 ax1 = Axis(fig[1, 1], title = "Chain")
 ax2 = Axis(fig[1, 2], title = "Fork")
 ax3 = Axis(fig[1, 3], title = "Collider")
 ax4 = Axis(fig[1, 4], title = "Confounding")
+ax5 = Axis(fig[1, 5], title = "Mediation")
 
 g_chain, _ = chain_graph(["X", "Y", "Z"])
 g_fork, _ = fork_graph(["X", "Y", "Z"])
 g_collider, _ = collider_graph(["X", "Y", "Z"])
-g_conf, _ = confounding_graph(["Z", "X", "Y"])
-
-dagplot!(ax1, g_chain, labels = ["X", "Y", "Z"])
-dagplot!(ax2, g_fork, labels = ["X", "Y", "Z"])
-dagplot!(ax3, g_collider, labels = ["X", "Y", "Z"])
-# Triangle layout is applied automatically for the Z→X→Y, Z→Y pattern
-dagplot!(ax4, g_conf, labels = ["Z", "X", "Y"])
-fig
-```
-
-Each pattern also has a one-liner (`dagplot_chain`, `dagplot_fork`, …). Composed
-into one figure:
-
-```@example getting_started
-fig = Figure(size = (1100, 200))
-ax1 = Axis(fig[1, 1], title = "chain")
-ax2 = Axis(fig[1, 2], title = "fork")
-ax3 = Axis(fig[1, 3], title = "collider")
-ax4 = Axis(fig[1, 4], title = "confounding")
-ax5 = Axis(fig[1, 5], title = "mediation")
-
-g_chain, _ = chain_graph(["X", "Y", "Z"])
-g_fork, _ = fork_graph(["X", "Y", "Z"])
-g_collider, _ = collider_graph(["X", "Y", "Z"])
+# Triangle layout is applied automatically for confounding and mediation
 g_conf, _ = confounding_graph(["Z", "X", "Y"])
 g_med, _ = mediation_graph(["X", "M", "Y"])
+
 dagplot!(ax1, g_chain; labels = ["X", "Y", "Z"])
 dagplot!(ax2, g_fork; labels = ["X", "Y", "Z"])
 dagplot!(ax3, g_collider; labels = ["X", "Y", "Z"])
@@ -137,7 +116,7 @@ dagplot!(ax5, g_med; labels = ["X", "M", "Y"])
 fig
 ```
 
-Stand-alone one-liners return `(fig, ax, p)`:
+Each pattern also has a stand-alone one-liner returning `(fig, ax, p)`:
 
 ```julia
 fig, ax, p = dagplot_chain(["X", "Y", "Z"])
@@ -151,23 +130,15 @@ Confounding, mediation, and mixed-graph helpers (`dagplot_frontdoor`,
 `dagplot_iv_confounded`, etc.) use fixed triangle layouts by default so
 shortcut and bidirected edges remain visible. Pass `layout=...` to override.
 
-## Multiple DAGs in one figure
+To compose multiple panels in a single `Figure`, pass `Axis` objects to
+`dagplot!`:
 
-```@example getting_started
-fig = Figure(size = (900, 280))
-
-ax1 = Axis(fig[1, 1], title = "Chain")
-ax2 = Axis(fig[1, 2], title = "Fork")
-ax3 = Axis(fig[1, 3], title = "Collider")
-
-g_chain, _ = chain_graph(["A", "B", "C"])
-g_fork, _ = fork_graph(["A", "B", "C"])
-g_collider, _ = collider_graph(["A", "B", "C"])
-
-dagplot!(ax1, g_chain, labels = ["A", "B", "C"])
-dagplot!(ax2, g_fork, labels = ["A", "B", "C"])
-dagplot!(ax3, g_collider, labels = ["A", "B", "C"])
-fig
+```julia
+fig = Figure(size = (720, 260))
+ax1 = Axis(fig[1, 1], title = "Panel A")
+ax2 = Axis(fig[1, 2], title = "Panel B")
+dagplot!(ax1, g1; labels = labels1)
+dagplot!(ax2, g2; labels = labels2)
 ```
 
 ## Curved edges (skip chords)
@@ -210,7 +181,9 @@ fig, ax, p = dagplot_temporal(
     figure_size = (420, 220),
     fit_node_size_to_labels = false,
 )
-(p[:node_marker][][1] == :circle, p[:node_marker][][2] == interval_summary_node_marker())
+@assert p[:node_marker][][1] == :circle
+@assert p[:node_marker][][2] == interval_summary_node_marker()
+fig
 ```
 
 See [Skeletons & Time](guide/skeletons_and_time.md) and [Terminology](terminology.md).

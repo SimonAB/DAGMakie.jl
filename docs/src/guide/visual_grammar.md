@@ -2,10 +2,12 @@
 
 DAGMakie keeps a small, fixed visual vocabulary for **effect modification /
 interaction** figures and **difference-in-differences (DiD)** single-world
-intervention graphs (SWIGs). The grammar
-extends the publication defaults in [`dag_theme`](@ref) / [`default_style`](@ref):
-white ground, no axes, in-node labels, steel-blue fills, goldenrod confounders,
-seagreen mediators / effect nodes, and gray hollow latents.
+intervention graphs (SWIGs). [`dag_theme`](@ref) sets the canvas and axis chrome
+(white background, hidden spines/ticks/grids, and `DataAspect`), while
+[`DAGSpec`](@ref) node types and [`default_style`](@ref) set fill, marker,
+stroke, and label colours: in-node labels, steel-blue observed/treatment/outcome
+fills, goldenrod confounders, seagreen mediators / effect nodes, and gray
+hollow latents.
 
 ## Terms
 

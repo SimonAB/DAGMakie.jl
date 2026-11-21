@@ -28,13 +28,17 @@ p = dagplot!(ax, g; kwargs...)
 
 ### Size and Colour
 
-Default plots use steel-blue fills with **white in-node labels**. When you choose
-light fills, set `nlabels_color` accordingly (and keep nodes large enough for
-the label):
+By default, `label_position = :outer` draws compact steel-blue nodes
+([`OUTER_LABEL_NODE_SIZE`](@ref)) with dark external labels
+([`OUTER_LABEL_COLOR`](@ref)). For **in-node white labels**, pass
+`label_position = :inner` (with `node_size = 34` or
+`fit_node_size_to_labels = true`), and adjust `nlabels_color` when you choose
+light node fills:
 
 ```@example basic
 fig, ax, p = dagplot(g,
     labels = labels,
+    label_position = :inner,
     node_size = 34,
     node_color = [:goldenrod, :seagreen, :steelblue],
     nlabels_color = :white,
@@ -70,24 +74,29 @@ fig
 
 ### Basic Labels
 
-In-node labels (default) want a contrasting colour on the fill. External labels
-need a positive `nlabels_distance` **and** a non-centred `nlabels_align`:
+By default, `label_position = :outer` places dark labels outside compact nodes
+in the largest angular gap. For **in-node** labels, pass
+`label_position = :inner` (which centres white text in 34-pixel fills); for
+manual external placement without auto-alignment, pass `label_position = :inner`
+with a positive `nlabels_distance` **and** a non-centred `nlabels_align`:
 GraphMakie offsets along the align direction, so `(:center, :center)` leaves the
 pixel offset at zero and the text stays inside the marker. Prefer black text off
 the fill:
 
 ```@example basic
 fig = Figure(size = (720, 280))
-ax1 = Axis(fig[1, 1], title = "In-node (default)")
-ax2 = Axis(fig[1, 2], title = "Outside the node")
+ax1 = Axis(fig[1, 1], title = "In-node (:inner)")
+ax2 = Axis(fig[1, 2], title = "Manual external align")
 dagplot!(ax1, g;
     labels = labels,
+    label_position = :inner,
     nlabels_fontsize = 16,
     nlabels_color = :white,
     nlabels_distance = 0,
 )
 dagplot!(ax2, g;
     labels = labels,
+    label_position = :inner,
     nlabels_color = :black,
     nlabels_distance = 12,
     # (:center, :bottom) anchors the bottom of the text, so labels sit above
@@ -116,23 +125,15 @@ same direction (so `(:left, :center)` both left-anchors and nudges east).
 By default labels sit **outside** the node in the largest angular gap
 (`label_position = :outer`): compact markers ([`OUTER_LABEL_NODE_SIZE`](@ref)),
 dark text, and auto-aligned anchors. Pass `label_position = :inner` with
-`fit_node_size_to_labels = true` for in-node white labels (short names stay round;
-wider ones become ovals).
+`fit_node_size_to_labels = true` for in-node white labels whose marker size
+follows each label (short names stay round; wider ones become ovals):
 
 ```@example basic-fit
 using Graphs, DAGMakie, CairoMakie
 
 g2, labels2 = confounding_graph(["nutrition", "X", "Y"])
-fig, ax, p = dagplot(g2; labels = labels2)
-fig
-```
-
-In-node labels (`label_position = :inner`) centre white text in the fill; enable
-`fit_node_size_to_labels = true` so marker size follows each label:
-
-```@example basic
-fig, ax, p = dagplot(g,
-    labels = labels,
+fig, ax, p = dagplot(g2;
+    labels = labels2,
     label_position = :inner,
     fit_node_size_to_labels = true,
 )
@@ -177,10 +178,27 @@ DAGMakie now defaults to an automatic layout strategy:
   `:outer` (override with `node_gap=…`)
 - Edges are **straight by default**; curve forks or skip chords with `:curved`,
   `CurvedEdge()`, or a bow fraction (`long_edge_routing = :quadratic` when curved)
-  (see [Output Quality](output_quality.md))
 - Per-edge overrides: `edge_routing = Dict((1, 4) => :curved, (1, 5) => CurvedEdge(bow = 0.28))`
   (`:straight`, `:curved`, a bow fraction, or `CurvedEdge(distance=…)` for bend angle)
-- Comparison / intervention helpers reuse a shared layout result so panels do not jump
+- Comparison / intervention helpers reuse a shared [`DAGLayoutResult`](@ref) so panels do not jump
+
+### Robustness & routing defaults
+
+DAGMakie targets notebook- and publication-scale causal diagrams (roughly
+5–200 labelled nodes) that read closer to Graphviz `dot` / `dagitty` than to a
+generic spring layout:
+
+- **Curved edge styles:** `long_edge_routing` defaults to `:quadratic` Bézier
+  samples for bowed edges; alternatives include `:natural_cubic`, `:none`,
+  `:rounded`, `:tangents`, and `:curve_distance`.
+- **Feedback & bidirected arcs:** feedback edges inside an SCC use curved
+  overlays with boundary-aware arrowheads; bidirected confounding arcs are
+  clipped to node markers.
+- **Label-aware axis limits:** computed bounds include markers, labels, and
+  overlay waypoints so external labels and curves are not clipped.
+- **Highlight precedence:** [`HighlightSpec`](@ref) uses **first listing wins**
+  when the same node or edge appears in multiple layers (list exposure /
+  outcome / adjustment styling before path colours).
 
 For CPDAG skeletons and occasion×variable grids, see
 [Skeletons & Time](skeletons_and_time.md) (`dagplot_skeleton`,
@@ -218,7 +236,7 @@ fig
 
 GraphMakie `elabels` pass through `dagplot` / `dagplot!`. Use
 [`structural_edge_labels`](@ref) to annotate edges with linear-SCM structural
-weights from a matrix $B$ (with $B_{ij}$ the parameter on $j\to i$), or with
+weights from a matrix ``B`` (with ``B_{ij}`` the parameter on ``j \to i``), or with
 short TeX fragments of a mechanism, optionally as Makie `LaTeXString`s.
 A non-zero diagonal is treated as a self-loop: by default
 `structural_edge_labels` adds any missing `i → i` edges on `g` before labelling
@@ -268,7 +286,7 @@ an inhibitory `-|` terminal; non-negative values retain the usual arrowhead.
 The values are display metadata: DAGMakie does not infer a mechanism sign from
 the graph or from an edge label.
 
-Pass either one value per `Graphs.edges(g)` entry or the structural matrix $B$
+Pass either one value per `Graphs.edges(g)` entry or the structural matrix ``B``
 used by [`structural_edge_labels`](@ref):
 
 ```@example basic

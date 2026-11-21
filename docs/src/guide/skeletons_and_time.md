@@ -129,15 +129,20 @@ extension).
 
 The display layer does not infer temporal provenance. When an auditable
 distinction is needed, obtain records from CausalDynamics with
-`temporal_edge_records(unrolling)` and use the `role` field to annotate or
-inspect the figure: `:constitutive` records form a single-node attribute,
-`:recurrent_influence` records reuse it at later times, and
-`:pointwise_influence` records connect pointwise nodes. Passing these records
-to plotting code is display metadata; it must not create alias vertices or
-change the graph used for identification. Prefer
-[`marker_for_value_representation`](@ref) when representation is known.
-`do_surgery` on process/semantic `graph_kind` requires `allow_non_causal=true`
-or an explicit causal projection.
+`temporal_edge_records(unrolling)` and inspect the `role` field. In
+CausalDynamics, **declared `relation_kind`** (`:causal_influence`,
+`:constitutive_persistence`, `:constitutive_dependence`, `:participation`) is the
+sole input to `causal_projection`; **construction `temporal_edge_role`**
+labels which supports a causal edge joins: `:onset_assignment` forms a
+single-node attribute from a pointwise node, `:recurrent_influence` reuses a
+single-node attribute at later times, `:pointwise_influence` connects pointwise
+nodes, and `:causal_influence` connects two single-node keys (non-causal
+declared `relation_kind` values are returned verbatim). Passing these records
+to plotting code is display metadata; it must not create alias vertices, turn
+an `:onset_assignment` edge into a constitutive constraint, or change the graph
+used for identification. Prefer [`marker_for_value_representation`](@ref) when
+representation is known. `do_surgery` on process/semantic `graph_kind` requires
+`allow_non_causal=true` or an explicit causal projection.
 
 ## See also
 

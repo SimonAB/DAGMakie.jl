@@ -9,6 +9,8 @@
 
 This package is part of the [CDCS Julia package set](https://github.com/SimonAB/causal-dynamics-book/tree/main/packages). An early draft of [*Causal Dynamics of Complex Systems*](https://simonab.github.io/causal-dynamics-book/) uses the packages as a pedagogical implementation.
 
+DAGMakie brings published causal-diagram conventions into Julia’s Makie plotting ecosystem. See [Related literature and software](#related-literature-and-software) for the sources behind those conventions and the tools that informed the design.
+
 DAGMakie plots directed acyclic, directed cyclic, and mixed causal graphs with
 Makie, building on [GraphMakie.jl](https://github.com/MakieOrg/GraphMakie.jl).
 Defaults omit axes and grids; node types follow common causal-diagram
@@ -24,8 +26,7 @@ DAGMakie is on the Julia **General** registry (`Pkg.add("DAGMakie")`). It is a
 [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl).
 
 Source release **0.1.12** includes the label-alignment corrections in
-[CHANGELOG.md](CHANGELOG.md) and is registered in General. The stable manual
-may still reflect 0.1.11 while the Pages deployment issue is unresolved.
+[CHANGELOG.md](CHANGELOG.md) and is registered in General.
 
 ## Installation
 
@@ -81,7 +82,7 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 - Marker size follows label width when `label_position=:inner` and
   `fit_node_size_to_labels = true` (default is `false` with outer labels)
 - Prefer `labels=` for node text (`nlabels=` remains a GraphMakie-compatible alias)
-- Edge labels via GraphMakie `elabels` and [`structural_edge_labels`](https://simonab.github.io/DAGMakie.jl/dev/) (numeric \(B\) or LaTeX path coefficients)
+- Edge labels via GraphMakie `elabels` and [`structural_edge_labels`](https://simonab.github.io/DAGMakie.jl/dev/api/plotting/) (numeric $B$ or LaTeX path coefficients)
 - Optional signed edge terminals: negative declared `edge_weights` values render as inhibitory `-|` bars
 - Deterministic layered DAG layout for acyclic graphs (not a generic spring layout)
 - SCC-aware cyclic layout with explicit curved feedback edges
@@ -89,9 +90,9 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 - Causal diagram conventions: observed, latent, treatment, outcome, bidirected confounding
 - Path highlighting and `color_by = :ancestors` / `:adjustment` (dagitty-style roles;
   `smart=` is a deprecated alias; prefer `exposure=` over `treatment=`)
-- Time-unrolled DAGs: [`dagplot_time_indexed`](https://simonab.github.io/DAGMakie.jl/dev/) with
+- Time-unrolled DAGs: [`dagplot_time_indexed`](https://simonab.github.io/DAGMakie.jl/dev/api/temporal_and_skeletons/) with
   `color_by` roles propagated across variable rows ([#5](https://github.com/SimonAB/DAGMakie.jl/issues/5));
-  mixed temporal graphs via [`dagplot_temporal`](https://simonab.github.io/DAGMakie.jl/stable/)
+  mixed temporal graphs via [`dagplot_temporal`](https://simonab.github.io/DAGMakie.jl/dev/api/temporal_and_skeletons/)
   (rounded rectangles for `:interval_summary` only; shape ≠ endurance)
 - Interventions: display-only `do(·)` surgery with `show_removed_edges` overlays
 
@@ -100,7 +101,8 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 | Package | Role |
 |---------|------|
 | [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) | Graphs, identification, CDMs (plot via its DAGMakie extension) |
-| [CausalTargeted.jl](https://github.com/SimonAB/CausalTargeted.jl) | Cross-fitted LMTP / interventional mediation |
+| [CausalTargeted.jl](https://github.com/SimonAB/CausalTargeted.jl) | Cross-fitted LMTP and Bayesian g-computation |
+| [CausalMediation.jl](https://github.com/SimonAB/CausalMediation.jl) | Interventional, natural, organic, and controlled direct mediation |
 | **DAGMakie** | DAG figures |
 | Application repos | Cohort data, registries, concordance (thin) |
 
@@ -163,7 +165,8 @@ fig, ax, p = dagplot_do(g, 2; labels = labels)
 | Package | Role |
 |---------|------|
 | [CausalDynamics.jl](https://github.com/SimonAB/CausalDynamics.jl) | Graphs, identification, CDMs |
-| [CausalTargeted.jl](https://github.com/SimonAB/CausalTargeted.jl) | Continuous MTP / LMTP and interventional mediation |
+| [CausalTargeted.jl](https://github.com/SimonAB/CausalTargeted.jl) | Continuous MTP / LMTP estimation |
+| [CausalMediation.jl](https://github.com/SimonAB/CausalMediation.jl) | Interventional, natural, organic, and controlled direct mediation |
 | [TMLE.jl](https://github.com/TARGENE/TMLE.jl) | Point-treatment TMLE / OSE (CM, ATE, AIE) |
 | [CausalInference.jl](https://github.com/mschauer/CausalInference.jl) | Optional weakdep for adjustment / d-separation in plots |
 | [CausalTables.jl](https://github.com/salbalkus/CausalTables.jl) | SCM-aware tables; often paired with TMLE.jl |
@@ -181,7 +184,7 @@ fig, ax, p = dagplot_do(g, 2; labels = labels)
 Phases 1–4 are complete (layouts, themes, bidirected edges, path highlighting,
 display-only interventions, optional CausalInference extension). Remaining:
 
-- [ ] CausalDynamics.jl package extension (deferred until CausalDynamics is on General; prefer CausalDynamics’ own DAGMakie extension today)
+- [x] CausalDynamics.jl package extension (shipped in CausalDynamics.jl as `CausalDynamicsDAGMakieExt`: `plot_causal_graph`, `plot_backdoor_paths`, `dagplot_temporal`)
 - [ ] Direct plotting of SCM types (`GraphSCM`, …)
 
 ## Acknowledgements

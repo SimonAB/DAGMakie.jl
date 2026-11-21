@@ -44,7 +44,7 @@ Pearl, 2024):
 
 | Study design or biological question | Diagram type | Entry point in `DAGMakie` | Guide / reference |
 |-------------------------------------|--------------|---------------------------|-------------------|
-| **Three-variable building blocks** (confounder, mediator, collider, chain) | Canonical motif DAG | [`dagplot_confounding`](@ref), [`dagplot_mediation`](@ref), [`dagplot_fork`](@ref), [`dagplot_chain`](@ref), [`dagplot_collider`](@ref) | Pearl (2009); Cinelli, Forney & Pearl (2024). [Getting Started](getting_started.md) |
+| **Three-variable building blocks** (confounder, mediator, collider, chain) | Canonical motif DAG | [`dagplot_confounding`](@ref), [`dagplot_mediation`](@ref), [`dagplot_fork`](@ref), [`dagplot_chain`](@ref), [`dagplot_collider`](@ref) | Pearl (2009); Cinelli, Forney & Pearl (2024). [Getting Started](getting-started.md) |
 | **Show which covariates to adjust for** (and which backdoor paths are blocked) | Highlighted backdoor / adjustment DAG | [`dagplot_backdoor`](@ref), [`dagplot_adjustment`](@ref), [`dagplot_smart`](@ref) | Textor et al. (2016). [Causal Analysis](guide/causal.md) |
 | **Unmeasured confounding** (e.g. unmeasured genetics or habitat quality affecting both ``A`` and ``Y``) | Mixed graph with bidirected arc (``\leftrightarrow``), frontdoor, IV, or M-bias | [`MixedGraph`](@ref), [`dagplot_confounded`](@ref), [`dagplot_frontdoor`](@ref), [`dagplot_iv_confounded`](@ref), [`dagplot_m_bias`](@ref) | Pearl (2009). [Bidirected Edges](guide/bidirected.md) |
 | **Repeated measurements, cohorts, or ecological time series** | Time-indexed unrolled DAG (variables on rows, time on columns) | [`dagplot_temporal`](@ref), [`dagplot_time_indexed`](@ref) | Hernán & Robins (2020). [Skeletons & Time](guide/skeletons_and_time.md) |
@@ -52,7 +52,7 @@ Pearl, 2024):
 | **Experimental manipulation or `do(·)` intervention** | Graph surgery (removing incoming arrows to the intervened node) | [`dagplot_do`](@ref), [`dagplot_do_comparison`](@ref), [`do_surgery`](@ref) | Pearl (2009). [Interventions](guide/interventions.md) |
 | **Effect modification / interaction or difference-in-differences (DiD)** | Interaction DAG (IDAG) or Single-World Intervention Graph (SWIG) | [`modifier_edge`](@ref), [`dagplot_did_swig`](@ref), [`dagplot_side_by_side`](@ref) | Richardson & Robins (2013). [Visual Grammar](guide/visual_grammar.md) |
 | **Discovery output (undirected skeleton / CPDAG)** | Skeleton with undirected and directed edges | [`dagplot_skeleton`](@ref) | [Skeletons & Time](guide/skeletons_and_time.md) |
-| **Quantitative path diagram** (showing estimated effects or structural coefficients on arrows) | Edge-labelled DAG | `elabels` + [`structural_edge_labels`](@ref) or [`edge_coefficient_labels`](@ref) | [Getting Started](getting_started.md#edge-labels-structural-parameters) |
+| **Quantitative path diagram** (showing estimated effects or structural coefficients on arrows) | Edge-labelled DAG | `elabels` + [`structural_edge_labels`](@ref) or [`edge_coefficient_labels`](@ref) | [Getting Started](getting-started.md#edge-labels-structural-parameters) |
 
 ## Minimal example: good control vs interventional surgery
 
@@ -83,7 +83,7 @@ fig
 
 ## Next steps
 
-- Executable motif and styling examples: [Getting Started](getting_started.md).
+- Executable motif and styling examples: [Getting Started](getting-started.md).
 - Role colouring and adjustment highlighting: [Causal Analysis](guide/causal.md).
 - Time-indexed grids and interval glyphs: [Skeletons & Time](guide/skeletons_and_time.md).
 - Visual grammar for interactions and DiD SWIGs: [Visual Grammar](guide/visual_grammar.md).

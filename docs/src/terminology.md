@@ -17,7 +17,8 @@ not in this manual.
 | **Interval summary glyph** | Rounded rectangle only when `value_representation = :interval_summary` ([`interval_summary_node_marker`](@ref)) |
 | **Onset** | Horizontal placement for single-node keys (`onset_times`) |
 | **`graph_kind`** | Annotate time-unrolled vs process vs semantic figures |
-| **Constitutive / influence** | Edge roles from CausalDynamics `temporal_edge_records`; styling only |
+| **Declared `relation_kind`** | CausalDynamics edge semantics (`:causal_influence`, `:constitutive_persistence`, `:constitutive_dependence`, `:participation`); the sole input to `causal_projection` |
+| **Edge role (`temporal_edge_role`)** | From CausalDynamics `temporal_edge_records`: non-causal `relation_kind` if declared, or construction label (`:onset_assignment`, `:recurrent_influence`, `:pointwise_influence`, `:causal_influence`); styling/provenance only |
 | **`referent_id` lanes** | Optional identity connectors; not graph edges and not cut by `do_surgery` |
 
 Placement follows the key shape alone: `(v, t)` sits at column `t`, `(v, nothing)`
