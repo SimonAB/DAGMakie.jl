@@ -6,6 +6,7 @@ authors:
   orcid: "https://orcid.org/0000-0002-4949-1117"
 title: "DAGMakie.jl"
 doi: 10.5281/zenodo.21703327
-version: 0.1.12
+version: 0.1.13
+date-released: 2026-11-28
 url: "https://github.com/SimonAB/DAGMakie.jl"
 license: MIT

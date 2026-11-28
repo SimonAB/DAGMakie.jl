@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-11-28
+
+### Fixed
+
+- `resolve_outer_labels` and its callers (`dagplot!`, `dagplot_intervention!`,
+  `dagplot_comparison`, `dagplot_highlighted!`, `dagplot!(::MixedGraph)`,
+  `apply_smart_kwargs`, `apply_temporal_smart_kwargs`) now honour
+  `auto_align_labels::Bool` consistently across node spacing and label placement
+  when `label_position` is omitted, and throw an `ArgumentError` on conflicting
+  explicit `label_position` + `auto_align_labels`.
+- Removed duplicate `DEFAULT_NODE_COLOR` export in `src/DAGMakie.jl`.
+- Fixed `ext/DAGMakieCausalDynamicsExt.jl` docstring default (`show_exogenous=true`),
+  broken `CHANGELOG.md` guide link, stale `smart=` / `treatment=` alias claims,
+  and `README.md` CI / Aqua QA descriptions.
+
+### Added
+
+- Added `CausalInference` to `[targets] test` and `test/test_causalinference_ext.jl`
+  covering `DAGMakieCausalInferenceExt` (`dsep_status`, `min_backdoor_adjustment`,
+  `ancestor_sets`, `dagplot_dsep`, `dagplot_adjustment`, and `color_by=:adjustment`).
+
+### Changed
+
+- Updated `CITATION.cff`, `codemeta.json` (including author metadata), and
+  `.github/workflows/CompatHelper.yml` (`setup-julia@v3`).
+
 ## [0.1.12] - 2026-11-09
 
 ### Fixed
@@ -318,6 +344,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integration with CausalDynamics analysis functions
   - `causal_analysis` and `print_causal_analysis` helpers
 
+[0.1.13]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.13
 [0.1.12]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.12
 [0.1.11]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.11
 [0.1.10]: https://github.com/SimonAB/DAGMakie.jl/releases/tag/v0.1.10

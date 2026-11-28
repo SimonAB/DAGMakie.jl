@@ -14,10 +14,10 @@
         "Linux",
         "macos"
     ],
-    "version": "v0.1.12",
-    "dateModified": "2026-07-30",
+    "version": "v0.1.13",
+    "dateModified": "2026-11-28",
     "datePublished": "2026-07-20",
-    "downloadUrl": "https://github.com/SimonAB/DAGMakie.jl/archive/refs/tags/v0.1.12.tar.gz",
+    "downloadUrl": "https://github.com/SimonAB/DAGMakie.jl/archive/refs/tags/v0.1.13.tar.gz",
     "license": "https://spdx.org/licenses/MIT",
     "author": [
         {

@@ -1,6 +1,8 @@
 ## Registration status
 
-Source release **0.1.12** is on General ([#175630](https://github.com/JuliaRegistries/General/pull/175630), merged 2026-11-10; tree `e03b57316559f2e5223da44eec1f56c80c04a3d0`) and identified by tag `v0.1.12`. See [CHANGELOG.md](CHANGELOG.md) for the released changes.
+Source release **0.1.13** is prepared on `main` (pending General registration). See [CHANGELOG.md](CHANGELOG.md) for the release changes.
+
+Source release **0.1.12** is on General ([#175630](https://github.com/JuliaRegistries/General/pull/175630), merged 2026-11-10; tree `e03b57316559f2e5223da44eec1f56c80c04a3d0`) and identified by tag `v0.1.12`.
 
 DAGMakie **0.1.11** is on
 [General](https://github.com/JuliaRegistries/General/blob/master/D/DAGMakie/Versions.toml)
