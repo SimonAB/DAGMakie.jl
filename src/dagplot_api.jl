@@ -145,9 +145,9 @@ limits to prevent clipping of nodes and labels.
 - `label_position = :outer`: `:outer` (default) places labels outside in the largest
   angular gap (compact [`OUTER_LABEL_NODE_SIZE`](@ref) markers, dark text); `:inner`
   centres labels in the node fill (white text; pass `fit_node_size_to_labels=true`
-  for oval markers on long names)
-  `label_position = :outer`. `true` still enables outer placement when
-  `label_position` is left at `:inner`
+  for oval markers on long names). When `label_position` is omitted, legacy
+  `auto_align_labels::Bool` is accepted (`true` for `:outer`, `false` for `:inner`);
+  conflicting combinations throw an `ArgumentError`.
 - `label_obstacle_graph = nothing`: Optional graph used only for outer-label
   angle gaps (defaults to the plotted graph). Intervention plots pass the
   factual DAG so grey removed parent edges still count as obstacles.
@@ -166,7 +166,7 @@ limits to prevent clipping of nodes and labels.
 # Colouring / dagitty roles
 - `color_by = nothing`: Set `:ancestors` (or `true`) for dagitty-style ancestor
   colours, or `:adjustment` to also emphasise a backdoor adjustment set (needs
-  CausalInference or `adjustment=`). Deprecated alias: `smart`
+  CausalInference or `adjustment=`).
 - `exposure`, `outcome`: Exposure and outcome node indices (required when
   `color_by` is on). - `adjustment`: Optional `Set{Int}` for `color_by=:adjustment`
 
@@ -247,7 +247,7 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     labels = nothing,
     nlabels = nothing,
     nlabels_align = DEFAULT_LABEL_ALIGN,
-    label_position::Symbol = DEFAULT_LABEL_POSITION,
+    label_position::Union{Nothing, Symbol} = nothing,
     auto_align_labels = nothing,
     label_obstacle_graph = nothing,
     fit_node_size_to_labels = false,
@@ -258,8 +258,8 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
     kwargs...
 )
     resolved_nlabels = resolve_nlabels(; labels = labels, nlabels = nlabels)
-    outer_labels = resolve_outer_labels(label_position)
-    resolved_auto_align = something(auto_align_labels, outer_labels)
+    outer_labels = resolve_outer_labels(label_position; auto_align_labels = auto_align_labels)
+    resolved_label_position = outer_labels ? :outer : :inner
     resolved_node_gap = resolve_node_gap(node_gap; outer_labels = outer_labels)
     resolved_obstacle = resolve_label_obstacle_graph(;
         label_obstacle_graph = label_obstacle_graph,
@@ -288,8 +288,8 @@ function dagplot!(ax, g::Graphs.AbstractGraph;
         waypoints = waypoints,
         nlabels = resolved_nlabels,
         nlabels_align = nlabels_align,
-        label_position = label_position,
-        auto_align_labels = resolved_auto_align,
+        label_position = resolved_label_position,
+        auto_align_labels = outer_labels,
         label_obstacle_graph = resolved_obstacle,
         fit_node_size_to_labels = fit_node_size_to_labels,
         nlabels_distance = nlabels_distance,

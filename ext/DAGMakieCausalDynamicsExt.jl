@@ -204,7 +204,7 @@ end
 # =============================================================================
 
 """
-    dagplot_scm(scm::CausalDynamics.GraphSCM; show_exogenous=false, kwargs...)
+    dagplot_scm(scm::CausalDynamics.GraphSCM; show_exogenous=true, kwargs...)
 
 Plot a GraphSCM with optional exogenous variable highlighting.
 

@@ -143,7 +143,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Long-range forward edges that skim intermediate nodes receive GraphMakie
   waypoints (cubic spline) so skip chords do not draw through nodes
 - `count_layered_crossings` for layered quality checks
-- Guide page [Output Quality](docs/src/guide/output_quality.md)
+- Guide page Output Quality (later folded into the main guides)
 - Optional `DAGMAKIE_PERF=1` layout/render budgets in `test/test_perf.jl`
 - Geometry regressions for skip chords, Unicode single-node limits, shared
   comparison layouts, and `show_backdoor=false`

@@ -275,7 +275,7 @@ function dagplot_intervention!(
     nlabels_distance = nothing,
     nlabels_fontsize = nothing,
     nlabels_color = nothing,
-    label_position::Symbol = DEFAULT_LABEL_POSITION,
+    label_position::Union{Nothing, Symbol} = nothing,
     auto_align_labels = nothing,
     show_removed_edges = nothing,
     show_original = nothing,
@@ -346,7 +346,6 @@ function dagplot_intervention!(
         nlabels_fontsize = nlabels_fontsize,
         nlabels_color = nlabels_color,
         label_position = outer_labels ? :outer : :inner,
-        auto_align_labels = auto_align_labels,
         label_obstacle_graph = (outer_labels && show_removed) ? g : nothing,
         kwargs...
     )
@@ -443,7 +442,7 @@ function dagplot_comparison(
         node_gap = resolve_node_gap(
             get(kwargs, :node_gap, nothing);
             outer_labels = resolve_outer_labels(
-                get(kwargs, :label_position, DEFAULT_LABEL_POSITION);
+                get(kwargs, :label_position, nothing);
                 auto_align_labels = get(kwargs, :auto_align_labels, nothing),
             ),
         ),

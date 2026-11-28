@@ -141,9 +141,17 @@ using Makie: Point2f
     end
 
     @testset "DAGMakie.resolve_outer_labels" begin
+        @test DAGMakie.resolve_outer_labels() === true
         @test DAGMakie.resolve_outer_labels(:inner) === false
         @test DAGMakie.resolve_outer_labels(:outer) === true
+        @test DAGMakie.resolve_outer_labels(nothing; auto_align_labels = false) === false
+        @test DAGMakie.resolve_outer_labels(nothing; auto_align_labels = true) === true
+        @test DAGMakie.resolve_outer_labels(:inner; auto_align_labels = false) === false
+        @test DAGMakie.resolve_outer_labels(:outer; auto_align_labels = true) === true
+        @test_throws ArgumentError DAGMakie.resolve_outer_labels(:outer; auto_align_labels = false)
+        @test_throws ArgumentError DAGMakie.resolve_outer_labels(:inner; auto_align_labels = true)
         @test_throws ArgumentError DAGMakie.resolve_outer_labels(:side)
+        @test_throws ArgumentError DAGMakie.resolve_outer_labels(nothing; auto_align_labels = :yes)
     end
 
     @testset "resolve_nlabels prefers labels= and refuses conflicts" begin
@@ -182,5 +190,37 @@ using Makie: Point2f
             node_size = 30,
         )
         @test all(==(30), p2[:node_size][])
+    end
+
+    @testset "auto_align_labels=false consistency and conflict detection" begin
+        # Fork graph has two nodes in the same layer so node_gap is observable in positions.
+        g_fork, labels_fork = fork_graph(["A", "C", "B"])
+        _, _, p_inner = dagplot(g_fork; labels = labels_fork, label_position = :inner)
+        _, _, p_auto_false = dagplot(g_fork; labels = labels_fork, auto_align_labels = false)
+
+        @test p_auto_false[:node_pos][] == p_inner[:node_pos][]
+        @test p_auto_false[:nlabels_distance][] == p_inner[:nlabels_distance][]
+        @test p_auto_false[:nlabels_color][] == p_inner[:nlabels_color][]
+        @test p_auto_false[:node_size][] == p_inner[:node_size][]
+
+        # Explicit label_position conflicting with auto_align_labels must throw
+        @test_throws ArgumentError dagplot(
+            g_fork; labels = labels_fork, label_position = :outer, auto_align_labels = false,
+        )
+        @test_throws ArgumentError dagplot(
+            g_fork; labels = labels_fork, label_position = :inner, auto_align_labels = true,
+        )
+        @test_throws ArgumentError dagplot_intervention(
+            g_fork, Intervention(2);
+            labels = labels_fork, label_position = :outer, auto_align_labels = false,
+        )
+        @test_throws ArgumentError dagplot_highlighted(
+            g_fork, HighlightSpec(nodes = [2], node_colors = [:red]);
+            labels = labels_fork, label_position = :outer, auto_align_labels = false,
+        )
+        mg, mg_labels = confounded_graph(["X", "Y"])
+        @test_throws ArgumentError dagplot(
+            mg; labels = mg_labels, label_position = :outer, auto_align_labels = false,
+        )
     end
 end

@@ -238,7 +238,7 @@ function dagplot_highlighted!(
     labels = nothing,
     nlabels = nothing,
     nlabels_fontsize = nothing,
-    label_position::Symbol = DEFAULT_LABEL_POSITION,
+    label_position::Union{Nothing, Symbol} = nothing,
     auto_align_labels = nothing,
     kwargs...
 )

@@ -88,8 +88,8 @@ fig, ax, p = dagplot_mediation(["Treatment", "Mediator", "Outcome"])
 - SCC-aware cyclic layout with explicit curved feedback edges
 - Themes without axes or grids (`default`, `minimal`, `bold`, `presentation`)
 - Causal diagram conventions: observed, latent, treatment, outcome, bidirected confounding
-- Path highlighting and `color_by = :ancestors` / `:adjustment` (dagitty-style roles;
-  `smart=` is a deprecated alias; prefer `exposure=` over `treatment=`)
+- Path highlighting and `color_by = :ancestors` / `:adjustment` with `exposure=` /
+  `outcome=` (dagitty-style roles)
 - Time-unrolled DAGs: [`dagplot_time_indexed`](https://simonab.github.io/DAGMakie.jl/dev/api/temporal_and_skeletons/) with
   `color_by` roles propagated across variable rows ([#5](https://github.com/SimonAB/DAGMakie.jl/issues/5));
   mixed temporal graphs via [`dagplot_temporal`](https://simonab.github.io/DAGMakie.jl/dev/api/temporal_and_skeletons/)
@@ -124,14 +124,14 @@ Full matrices: [ECOSYSTEM_COMPARISON.md](https://github.com/SimonAB/causal-dynam
 
 ## Testing and validation
 
-CI runs `Pkg.test()` on Julia **1.13** (the latest stable release) with CairoMakie; codecov and Aqua QA are enabled. Visual regression is exercised through layout geometry and recipe tests rather than pixel diffs.
+CI runs `Pkg.test()` on Julia **1.10**, **1.13**, and **1** (latest stable) with CairoMakie; codecov and Aqua QA are enabled. Visual regression is exercised through layout geometry and recipe tests rather than pixel diffs.
 
 | Guardrail | What we exercise | Where |
 |-----------|------------------|-------|
 | **Unit / API** | Node types, layered and SCC-aware layouts, temporal / SWIG / DiD visual grammar, bidirected edges, path highlighting, display-only `do(·)` surgery, label alignment | `test/` |
 | **Layout regression** | Waypoints, long-edge routing, oval overlays, node sizing from labels | `test/test_layout.jl`, `test/test_temporal_layout.jl`, `test/test_auto_align.jl` |
-| **Integration / extensions** | Optional CausalInference adjustment helpers; CausalDynamics plotting bridge (when developed) | `test/test_smart.jl`, `test/test_causaldynamics_ext.jl` |
-| **Package QA** | Aqua.jl ambiguities and piracy checks | `test/test_aqua.jl` |
+| **Integration / extensions** | Optional CausalInference adjustment helpers; CausalDynamics plotting bridge (when developed) | `test/test_smart.jl`, `test/test_causalinference_ext.jl`, `test/test_causaldynamics_ext.jl` |
+| **Package QA** | Aqua.jl checks (piracy, unbound args, stale/compat deps; `ambiguities = false`) | `test/test_aqua.jl` |
 | **Performance (optional)** | Layout and first-render time budgets (`DAGMAKIE_PERF=1`) | `test/test_perf.jl`, `test/benchmark_layouts.jl` |
 | **Manual / dev renders** | Feedback and layered example figures for layout inspection | `test/render_feedback_graphs.jl` |
 | **Stack stress (figures)** | Identify → `dagplot` on stress DAGs (sheep, mediation, sequential) | [CausalTargeted stress_validation.qmd](https://github.com/SimonAB/CausalTargeted.jl/blob/main/docs/stress/stress_validation.qmd) |

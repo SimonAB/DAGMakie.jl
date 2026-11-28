@@ -244,22 +244,39 @@ function align_to_direction(align::Tuple{Symbol, Symbol})
 end
 
 """
-    resolve_outer_labels(label_position; auto_align_labels=nothing) -> Bool
+    resolve_outer_labels(label_position=nothing; auto_align_labels=nothing) -> Bool
 
 Whether labels should sit **outside** the nodes.
 
-Preferred API: `label_position = :outer` (default) or `:inner`. The older
-`auto_align_labels=true` flag is accepted as a synonym for `:outer` when
-`label_position` is left at `:inner`. Conflicting combinations throw.
+Preferred API: `label_position = :outer` (default) or `:inner`. When
+`label_position` is omitted (`nothing`), the legacy `auto_align_labels::Bool`
+flag is accepted (`true` for `:outer`, `false` for `:inner`). Passing both an
+explicit `label_position` and a conflicting `auto_align_labels` throws an
+`ArgumentError`.
 """
 function resolve_outer_labels(
-    label_position::Symbol = DEFAULT_LABEL_POSITION;
-    auto_align_labels = nothing,  # ignored; prefer label_position alone
+    label_position::Union{Nothing, Symbol} = nothing;
+    auto_align_labels = nothing,
 )
+    if auto_align_labels !== nothing && !(auto_align_labels isa Bool)
+        throw(ArgumentError(
+            "auto_align_labels must be a Bool or nothing, got $(repr(auto_align_labels))",
+        ))
+    end
+    if label_position === nothing
+        return auto_align_labels === nothing ? (DEFAULT_LABEL_POSITION === :outer) : auto_align_labels
+    end
     label_position in (:inner, :outer) || throw(ArgumentError(
         "label_position must be :inner or :outer, got $(repr(label_position))",
     ))
-    return label_position === :outer
+    outer = label_position === :outer
+    if auto_align_labels !== nothing && auto_align_labels != outer
+        throw(ArgumentError(
+            "conflicting label_position=$(repr(label_position)) and " *
+            "auto_align_labels=$(repr(auto_align_labels)); prefer label_position= alone",
+        ))
+    end
+    return outer
 end
 
 """

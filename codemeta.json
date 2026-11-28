@@ -14,12 +14,20 @@
         "Linux",
         "macos"
     ],
-    "version": "v0.1.2",
+    "version": "v0.1.12",
     "dateModified": "2026-07-30",
     "datePublished": "2026-07-20",
-    "downloadUrl": "https://github.com/SimonAB/DAGMakie.jl/archive/refs/tags/v0.1.2.tar.gz",
+    "downloadUrl": "https://github.com/SimonAB/DAGMakie.jl/archive/refs/tags/v0.1.12.tar.gz",
     "license": "https://spdx.org/licenses/MIT",
-    "author": [],
+    "author": [
+        {
+            "type": "Person",
+            "givenName": "Simon A.",
+            "familyName": "Babayan",
+            "email": "simon.babayan@glasgow.ac.uk",
+            "id": "https://orcid.org/0000-0002-4949-1117"
+        }
+    ],
     "keywords": [
         "DAG",
         "GraphMakie",

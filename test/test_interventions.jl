@@ -83,7 +83,6 @@
         _, _, p_manual = dagplot_intervention(g, int;
             labels = ["Z", "X", "Y"],
             nlabels_align = manual_align,
-            label_position = :outer,
             auto_align_labels = false,
         )
         @test p_manual[:nlabels_align_processed][] == manual_align

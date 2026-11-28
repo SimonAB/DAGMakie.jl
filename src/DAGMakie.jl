@@ -13,8 +13,8 @@ call CausalInference activate via `using CausalInference`.
 
 Layouts are deterministic for DAGs; themes (`dag_theme`, …) control stroke and
 spacing. Pattern constructors include chain, fork, collider, and confounding.
-Prefer discoverable plot kwargs: `labels`, `label_position`, `color_by`,
-`exposure`, `show_removed_edges` (legacy aliases still work).
+Main plot kwargs: `labels`, `label_position`, `color_by`,
+`exposure`, `show_removed_edges`.
 
 # Quick Start
 
@@ -107,7 +107,7 @@ export interval_summary_node_marker, marker_for_value_representation
 # Themes and styling
 export dag_theme
 export DAGStyle, default_style, minimal_style, bold_style, presentation_style
-export DEFAULT_NODE_COLOR, NODE_COLOR_CONFOUNDER, NODE_COLOR_MEDIATOR
+export NODE_COLOR_CONFOUNDER, NODE_COLOR_MEDIATOR
 export NODE_COLOR_EFFECT, NODE_COLOR_SWIG_FIXED
 export TREATMENT_STROKEWIDTH, OUTCOME_STROKEWIDTH
 export MODIFIER_EDGE_STYLE, MODIFIER_EDGE_COLOR, MODIFIER_EDGE_WIDTH

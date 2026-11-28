@@ -300,7 +300,10 @@ function apply_temporal_smart_kwargs(
             merged[key] = value
         end
     end
-    if resolve_outer_labels(get(merged, :label_position, DEFAULT_LABEL_POSITION))
+    if resolve_outer_labels(
+            get(merged, :label_position, nothing);
+            auto_align_labels = get(merged, :auto_align_labels, nothing),
+        )
         user_label_color = get(kwargs, :nlabels_color, nothing)
         if user_label_color === nothing
             merged[:nlabels_color] = OUTER_LABEL_COLOR

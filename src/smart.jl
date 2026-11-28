@@ -11,7 +11,6 @@ closure. Exposure and outcome themselves use distinct fills.
 Topology can be computed with Graphs alone (`color_by = :ancestors`). When
 CausalInference.jl is loaded, the extension prefers its `ancestors` (and can
 also mark a minimal backdoor adjustment set under `color_by = :adjustment`).
-Deprecated alias: `smart=`.
 """
 
 using Graphs: AbstractGraph, nv, inneighbors
@@ -258,8 +257,6 @@ end
 
 If `color_by` is enabled, merge dagitty-style colours into keyword args for
 [`dagplot!`](@ref). Explicit `node_color` from the caller wins.
-
-Deprecated aliases: `smart=` for `color_by=`, `treatment=` for `exposure=`.
 """
 function apply_smart_kwargs(
     g::AbstractGraph;
@@ -303,7 +300,7 @@ function apply_smart_kwargs(
     # labels sit on the figure background and need dark text unless the caller
     # set `nlabels_color` explicitly.
     if resolve_outer_labels(
-            get(merged, :label_position, DEFAULT_LABEL_POSITION);
+            get(merged, :label_position, nothing);
             auto_align_labels = get(merged, :auto_align_labels, nothing),
         )
         user_label_color = get(kwargs, :nlabels_color, nothing)
@@ -318,7 +315,6 @@ end
     dagplot_smart(g, treatment, outcome; color_by=:ancestors, kwargs...)
 
 Convenience wrapper: [`dagplot`](@ref) with dagitty-style ancestor colours.
-Prefer `color_by=`; `smart=` remains an alias.
 """
 function dagplot_smart(
     g::AbstractGraph,
